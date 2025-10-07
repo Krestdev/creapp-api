@@ -1,0 +1,80 @@
+{
+  "provider": {
+    "createProvider": {
+      "success": {
+        "create": "Provider created successfully",
+        "added": "New provider added"
+      },
+      "error": {
+        "exists": "Provider already exists",
+        "invalid_data": "Invalid provider data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "updateProvider": {
+      "success": {
+        "update": "Provider updated successfully",
+        "saved": "Provider changes saved"
+      },
+      "error": {
+        "not_found": "Provider not found",
+        "invalid_data": "Invalid provider data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "deleteProvider": {
+      "success": {
+        "delete": "Provider deleted successfully",
+        "removed": "Provider removed"
+      },
+      "error": {
+        "not_found": "Provider not found",
+        "permission_denied": "Permission denied",
+        "cannot_delete_default": "Cannot delete default provider"
+      }
+    },
+    "getAllProviders": {
+      "success": {
+        "fetch": "All providers fetched successfully",
+        "list": "Here is the list of all providers"
+      },
+      "error": {
+        "not_found": "No providers found",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "getProviderById": {
+      "success": {
+        "fetch": "Provider fetched successfully",
+        "details": "Here are the provider details"
+      },
+      "error": {
+        "not_found": "Provider not found",
+        "invalid_id": "Invalid provider ID",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "getProviderCommands": {
+      "success": {
+        "fetch": "Provider commands fetched successfully",
+        "list": "Here is the list of provider commands"
+      },
+      "error": {
+        "not_found": "No commands found for this provider",
+        "invalid_id": "Invalid provider ID",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "rateProvider": {
+      "success": {
+        "rate": "Provider rated successfully",
+        "thank_you": "Thank you for your feedback"
+      },
+      "error": {
+        "not_found": "Provider not found",
+        "invalid_rating": "Invalid rating value",
+        "permission_denied": "Permission denied"
+      }
+    }
+  }
+}

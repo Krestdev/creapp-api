@@ -1,0 +1,123 @@
+{
+  "request": {
+    "create": {
+      "success": {
+        "create": "Request created successfully",
+        "added": "New request added"
+      },
+      "error": {
+        "exists": "Request already exists",
+        "invalid_data": "Invalid request data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "update": {
+      "success": {
+        "update": "Request updated successfully",
+        "saved": "Request changes saved"
+      },
+      "error": {
+        "not_found": "Request not found",
+        "invalid_data": "Invalid request data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "delete": {
+      "success": {
+        "delete": "Request deleted successfully",
+        "removed": "Request removed"
+      },
+      "error": {
+        "not_found": "Request not found",
+        "permission_denied": "Permission denied",
+        "cannot_delete_default": "Cannot delete default request"
+      }
+    },
+    "get_all": {
+      "success": {
+        "fetch": "All requests fetched successfully",
+        "list": "Here is the list of all requests"
+      },
+      "error": {
+        "not_found": "No requests found",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "get_by_id": {
+      "success": {
+        "fetch": "Request fetched successfully",
+        "details": "Here are the request details"
+      },
+      "error": {
+        "not_found": "Request not found",
+        "invalid_id": "Invalid request ID",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "getMyRequests": {
+      "success": {
+        "fetch": "User requests fetched successfully",
+        "list": "Here is the list of your requests"
+      },
+      "error": {
+        "not_found": "No requests found for this user",
+        "permission_denied": "Permission denied",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "linkProject": {
+      "success": {
+        "link": "Request linked to project successfully",
+        "linked": "Request is now associated with the project"
+      },
+      "error": {
+        "not_found": "Request or project not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "validateRequest": {
+      "success": {
+        "validate": "Request validated successfully",
+        "validated": "Request has been validated"
+      },
+      "error": {
+        "not_found": "Request not found",
+        "invalid_data": "Invalid validation data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "rejectRequest": {
+      "success": {
+        "reject": "Request rejected successfully",
+        "rejected": "Request has been rejected"
+      },
+      "error": {
+        "not_found": "Request not found",
+        "invalid_data": "Invalid rejection data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "submitForReview": {
+      "success": {
+        "submit": "Request submitted for review successfully",
+        "submitted": "Request is now under review"
+      },
+      "error": {
+        "not_found": "Request not found",
+        "invalid_data": "Invalid submission data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "setPriority": {
+      "success": {
+        "set": "Request priority set successfully",
+        "priority": "Request priority updated"
+      },
+      "error": {
+        "not_found": "Request not found",
+        "invalid_data": "Invalid priority data",
+        "permission_denied": "Permission denied"
+      }
+    }
+  }
+}

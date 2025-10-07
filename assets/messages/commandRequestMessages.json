@@ -1,0 +1,112 @@
+{
+  "commandRequest": {
+    "create": {
+      "success": {
+        "create": "Command request created successfully",
+        "added": "New command request added"
+      },
+      "error": {
+        "exists": "Command request already exists",
+        "invalid_data": "Invalid command request data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "update": {
+      "success": {
+        "update": "Command request updated successfully",
+        "saved": "Command request changes saved"
+      },
+      "error": {
+        "not_found": "Command request not found",
+        "invalid_data": "Invalid command request data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "delete": {
+      "success": {
+        "delete": "Command request deleted successfully",
+        "removed": "Command request removed"
+      },
+      "error": {
+        "not_found": "Command request not found",
+        "permission_denied": "Permission denied",
+        "cannot_delete_default": "Cannot delete default command request"
+      }
+    },
+    "get_all": {
+      "success": {
+        "fetch": "All command requests fetched successfully",
+        "list": "Here is the list of all command requests"
+      },
+      "error": {
+        "not_found": "No command requests found",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "get_by_id": {
+      "success": {
+        "fetch": "Command request fetched successfully",
+        "details": "Here are the command request details"
+      },
+      "error": {
+        "not_found": "Command request not found",
+        "invalid_id": "Invalid command request ID",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "validateCommandRequest": {
+      "success": {
+        "validate": "Command request validated successfully",
+        "validated": "Command request has been validated"
+      },
+      "error": {
+        "not_found": "Command request not found",
+        "invalid_data": "Invalid validation data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "rejectCommandRequest": {
+      "success": {
+        "reject": "Command request rejected successfully",
+        "rejected": "Command request has been rejected"
+      },
+      "error": {
+        "not_found": "Command request not found",
+        "invalid_data": "Invalid rejection data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "submitCommandRequestForReview": {
+      "success": {
+        "submit": "Command request submitted for review successfully",
+        "submitted": "Command request is now under review"
+      },
+      "error": {
+        "not_found": "Command request not found",
+        "invalid_data": "Invalid submission data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "linkRequestToProvider": {
+      "success": {
+        "link": "Command request linked to provider successfully",
+        "linked": "Command request is now associated with the provider"
+      },
+      "error": {
+        "not_found": "Command request or provider not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "attachDocuments": {
+      "success": {
+        "attach": "Documents attached to command request successfully",
+        "attached": "Documents have been attached"
+      },
+      "error": {
+        "not_found": "Command request not found",
+        "invalid_data": "Invalid document data",
+        "permission_denied": "Permission denied"
+      }
+    }
+  }
+}

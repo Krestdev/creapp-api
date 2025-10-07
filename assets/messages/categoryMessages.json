@@ -1,0 +1,81 @@
+{
+  "categories": {
+    "create": {
+      "success": {
+        "create": "Category created successfully",
+        "added": "New category added"
+      },
+      "error": {
+        "exists": "Category already exists",
+        "invalid_data": "Invalid category data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "update": {
+      "success": {
+        "update": "Category updated successfully",
+        "saved": "Category changes saved"
+      },
+      "error": {
+        "not_found": "Category not found",
+        "invalid_data": "Invalid category data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "delete": {
+      "success": {
+        "delete": "Category deleted successfully",
+        "removed": "Category removed"
+      },
+      "error": {
+        "not_found": "Category not found",
+        "permission_denied": "Permission denied",
+        "cannot_delete_default": "Cannot delete default category"
+      }
+    },
+    "get_all": {
+      "success": {
+        "fetch": "All categories fetched successfully",
+        "list": "Here is the list of all categories"
+      },
+      "error": {
+        "not_found": "No categories found",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "get_by_id": {
+      "success": {
+        "fetch": "Category fetched successfully",
+        "details": "Here are the category details"
+      },
+      "error": {
+        "not_found": "Category not found",
+        "invalid_id": "Invalid category ID",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "addSubCategory": {
+      "success": {
+        "add": "Subcategory added successfully",
+        "subcategory": "New subcategory created"
+      },
+      "error": {
+        "exists": "Subcategory already exists",
+        "invalid_data": "Invalid subcategory data",
+        "permission_denied": "Permission denied",
+        "not_found": "Parent category not found"
+      }
+    },
+    "listSubCategories": {
+      "success": {
+        "fetch": "Subcategories fetched successfully",
+        "list": "Here is the list of subcategories"
+      },
+      "error": {
+        "not_found": "No subcategories found",
+        "invalid_id": "Invalid category ID",
+        "server_error": "Server error, please try again later"
+      }
+    }
+  }
+}

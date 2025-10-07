@@ -1,0 +1,112 @@
+{
+  "Ticket": {
+    "create": {
+      "success": {
+        "create": "Ticket created successfully",
+        "added": "New ticket added"
+      },
+      "error": {
+        "exists": "Ticket already exists",
+        "invalid_data": "Invalid ticket data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "update": {
+      "success": {
+        "update": "Ticket updated successfully",
+        "saved": "Ticket changes saved"
+      },
+      "error": {
+        "not_found": "Ticket not found",
+        "invalid_data": "Invalid ticket data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "delete": {
+      "success": {
+        "delete": "Ticket deleted successfully",
+        "removed": "Ticket removed"
+      },
+      "error": {
+        "not_found": "Ticket not found",
+        "permission_denied": "Permission denied",
+        "cannot_delete_default": "Cannot delete default ticket"
+      }
+    },
+    "get_all": {
+      "success": {
+        "fetch": "All tickets fetched successfully",
+        "list": "Here is the list of all tickets"
+      },
+      "error": {
+        "not_found": "No tickets found",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "get_by_id": {
+      "success": {
+        "fetch": "Ticket fetched successfully",
+        "details": "Here are the ticket details"
+      },
+      "error": {
+        "not_found": "Ticket not found",
+        "invalid_id": "Invalid ticket ID",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "validateTicket": {
+      "success": {
+        "validate": "Ticket validated successfully",
+        "validated": "Ticket has been validated"
+      },
+      "error": {
+        "not_found": "Ticket not found",
+        "invalid_data": "Invalid validation data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "rejectTicket": {
+      "success": {
+        "reject": "Ticket rejected successfully",
+        "rejected": "Ticket has been rejected"
+      },
+      "error": {
+        "not_found": "Ticket not found",
+        "invalid_data": "Invalid rejection data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "submitTicketForReview": {
+      "success": {
+        "submit": "Ticket submitted for review successfully",
+        "submitted": "Ticket is now under review"
+      },
+      "error": {
+        "not_found": "Ticket not found",
+        "invalid_data": "Invalid submission data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "linkTicketToPayment": {
+      "success": {
+        "link": "Ticket linked to payment successfully",
+        "linked": "Ticket is now associated with the payment"
+      },
+      "error": {
+        "not_found": "Ticket not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "signTicket": {
+      "success": {
+        "attach": "Documents attached to ticket successfully",
+        "attached": "Documents have been attached"
+      },
+      "error": {
+        "not_found": "Ticket not found",
+        "invalid_data": "Invalid document data",
+        "permission_denied": "Permission denied"
+      }
+    }
+  }
+}
