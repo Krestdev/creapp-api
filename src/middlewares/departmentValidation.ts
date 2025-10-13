@@ -21,7 +21,7 @@ const departmentDelete = Joi.object({
 
 const createMember = Joi.object({
   label: Joi.string().required(),
-  departmentId: Joi.number().required(),
+  // departmentId: Joi.number().required(),
   userId: Joi.number().required(),
   validator: Joi.boolean().optional(),
   chief: Joi.boolean().optional(),
@@ -30,7 +30,7 @@ const createMember = Joi.object({
 
 const removeMember = Joi.object({
   label: Joi.string().optional(),
-  departmentId: Joi.number().optional(),
+  // departmentId: Joi.number().optional(),
   userId: Joi.number().optional(),
   validator: Joi.boolean().optional(),
   chief: Joi.boolean().optional(),
@@ -38,27 +38,27 @@ const removeMember = Joi.object({
 });
 
 const addValidator = Joi.object({
-  departmentId: Joi.number().required(),
+  // departmentId: Joi.number().required(),
   userId: Joi.number().required(),
 });
 
 const removeValidator = Joi.object({
-  departmentId: Joi.number().required(),
+  // departmentId: Joi.number().required(),
   userId: Joi.number().required(),
 });
 
 const addFinalValidator = Joi.object({
-  departmentId: Joi.number().required(),
+  // departmentId: Joi.number().required(),
   userId: Joi.number().required(),
 });
 
 const removeFinalValidator = Joi.object({
-  departmentId: Joi.number().required(),
+  // departmentId: Joi.number().required(),
   userId: Joi.number().required(),
 });
 
 const setDepartmentChief = Joi.object({
-  departmentId: Joi.number().required(),
+  // departmentId: Joi.number().required(),
   userId: Joi.number().required(),
 });
 
@@ -87,11 +87,13 @@ export const validateData = (
 
     switch (schema) {
       case "create":
-        result = department.validate(req.body);
+        result = department.validate(req.body, { abortEarly: false });
         if (result.error) {
           res.status(400).json({ error: result.error.details });
         } else {
-          console.log("Validation passed for create:", req.body);
+          console.log("Validation passed for create:", req.body, {
+            abortEarly: false,
+          });
           next();
         }
         break;
@@ -106,7 +108,7 @@ export const validateData = (
         break;
 
       case "update":
-        result = departmentUpdate.validate(req.body);
+        result = departmentUpdate.validate(req.body, { abortEarly: false });
         params = departmentParam.validate({ id: req.params.id });
         if (result.error || params.error) {
           res
@@ -127,63 +129,84 @@ export const validateData = (
         break;
 
       case "addMember":
-        result = createMember.validate(req.body);
-        if (result.error) {
-          res.status(400).json({ error: result.error.details });
+        result = createMember.validate(req.body, { abortEarly: false });
+        params = departmentParam.validate({ id: req.params.id });
+        if (result.error || params.error) {
+          res
+            .status(400)
+            .json({ error: result.error?.details, ...params.error?.details });
         } else {
           next();
         }
         break;
 
       case "removeMember":
-        result = removeMember.validate(req.body);
-        if (result.error) {
-          res.status(400).json({ error: result.error.details });
+        result = removeMember.validate(req.body, { abortEarly: false });
+        params = departmentParam.validate({ id: req.params.id });
+        if (result.error || params.error) {
+          res
+            .status(400)
+            .json({ error: result.error?.details, ...params.error?.details });
         } else {
           next();
         }
         break;
 
       case "addValidator":
-        result = addValidator.validate(req.body);
-        if (result.error) {
-          res.status(400).json({ error: result.error.details });
+        result = addValidator.validate(req.body, { abortEarly: false });
+        params = departmentParam.validate({ id: req.params.id });
+        if (result.error || params.error) {
+          res
+            .status(400)
+            .json({ error: result.error?.details, ...params.error?.details });
         } else {
           next();
         }
         break;
 
       case "removeValidator":
-        result = removeValidator.validate(req.body);
-        if (result.error) {
-          res.status(400).json({ error: result.error.details });
+        result = removeValidator.validate(req.body, { abortEarly: false });
+        params = departmentParam.validate({ id: req.params.id });
+        if (result.error || params.error) {
+          res
+            .status(400)
+            .json({ error: result.error?.details, ...params.error?.details });
         } else {
           next();
         }
         break;
 
       case "addFinalValidator":
-        result = addFinalValidator.validate(req.body);
-        if (result.error) {
-          res.status(400).json({ error: result.error.details });
+        result = addFinalValidator.validate(req.body, { abortEarly: false });
+        params = departmentParam.validate({ id: req.params.id });
+        if (result.error || params.error) {
+          res
+            .status(400)
+            .json({ error: result.error?.details, ...params.error?.details });
         } else {
           next();
         }
         break;
 
       case "removeFinalValidator":
-        result = removeFinalValidator.validate(req.body);
-        if (result.error) {
-          res.status(400).json({ error: result.error.details });
+        result = removeFinalValidator.validate(req.body, { abortEarly: false });
+        params = departmentParam.validate({ id: req.params.id });
+        if (result.error || params.error) {
+          res
+            .status(400)
+            .json({ error: result.error?.details, ...params.error?.details });
         } else {
           next();
         }
         break;
 
       case "setDepartmentChief":
-        result = setDepartmentChief.validate(req.body);
-        if (result.error) {
-          res.status(400).json({ error: result.error.details });
+        result = setDepartmentChief.validate(req.body, { abortEarly: false });
+        params = departmentParam.validate({ id: req.params.id });
+        if (result.error || params.error) {
+          res
+            .status(400)
+            .json({ error: result.error?.details, ...params.error?.details });
         } else {
           next();
         }

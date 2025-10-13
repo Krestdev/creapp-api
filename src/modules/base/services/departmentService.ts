@@ -122,12 +122,19 @@ export class DepartmentService {
     });
   }
 
+  getFinalValidators(departmentId: number) {
+    return prisma.member.findMany({
+      where: { departmentId, finalValidator: true },
+    });
+  }
+
   async addValidator(departmentId: number, userId: number) {
     const member = await prisma.member.findFirst({
       where: { departmentId, userId },
     });
     if (member) {
-      return prisma.member.create({
+      return prisma.member.update({
+        where: { id: member.id },
         data: {
           label: "validator",
           department: { connect: { id: departmentId } },
@@ -146,6 +153,16 @@ export class DepartmentService {
       data: {
         label: "chief",
         chief: true,
+      },
+    });
+  }
+
+  unsetDepartmentChief(departmentId: number, userId: number) {
+    return prisma.member.updateMany({
+      where: { departmentId, userId },
+      data: {
+        label: "member",
+        chief: false,
       },
     });
   }

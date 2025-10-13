@@ -1,0 +1,64 @@
+{
+  "project": {
+    "create": {
+      "success": {
+        "create": "Project created successfully",
+        "welcome": "Welcome to your new project"
+      },
+      "error": {
+        "already_exists": "A project with this name already exists",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "editProject": {
+      "success": {
+        "edit": "Project edited successfully",
+        "updated": "The project details have been updated"
+      },
+      "error": {
+        "not_found": "Project not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "deleteProject": {
+      "success": {
+        "delete": "Project deleted successfully",
+        "goodbye": "The project has been removed"
+      },
+      "error": {
+        "not_found": "Project not found",
+        "permission_denied": "Permission denied",
+        "cannot_delete_default": "Cannot delete default project"
+      }
+    },
+    "get_all": {
+      "success": {
+        "fetch": "Projects fetched successfully",
+        "list": "Here is the list of projects"
+      },
+      "error": {
+        "permission_denied": "Permission denied"
+      }
+    },
+    "get_one": {
+      "success": {
+        "fetch": "Project fetched successfully",
+        "details": "Here are the project details"
+      },
+      "error": {
+        "not_found": "Project not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "getChief": {
+      "success": {
+        "fetch": "Project chief fetched successfully",
+        "details": "Here are the project chief details"
+      },
+      "error": {
+        "not_found": "Project not found",
+        "permission_denied": "Permission denied"
+      }
+    }
+  }
+}

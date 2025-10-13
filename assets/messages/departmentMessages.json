@@ -138,6 +138,16 @@
         "permission_denied": "Permission denied"
       }
     },
+    "get_final_validators": {
+      "success": {
+        "fetch": "Department final validators fetched successfully",
+        "list": "Here is the list of department final validators"
+      },
+      "error": {
+        "not_found": "Department not found",
+        "permission_denied": "Permission denied"
+      }
+    },
     "set_department_chief": {
       "success": {
         "set": "Department chief set successfully",
@@ -145,6 +155,17 @@
       },
       "error": {
         "not_member": "User is not a member of the department",
+        "not_found": "Department or user not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "unset_department_chief": {
+      "success": {
+        "unset": "Department chief unset successfully",
+        "chief": "The department chief has been unset"
+      },
+      "error": {
+        "not_chief": "User is not the chief of the department",
         "not_found": "Department or user not found",
         "permission_denied": "Permission denied"
       }

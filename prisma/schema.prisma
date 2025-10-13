@@ -43,7 +43,19 @@ model Member {
   departmentId   Int
   validator      Boolean    @default(false)
   chief          Boolean    @default(false)
+  project        Project?   @relation("ProjectChief")
+  projectId      Int?       @unique
   finalValidator Boolean    @default(false)
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  label       String
+  description String?
+  chief       Member?  @relation("ProjectChief", fields: [chiefId], references: [id])
+  chiefId     Int?     @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

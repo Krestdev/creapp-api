@@ -10,7 +10,9 @@ import {
   MODULES_LIST,
 } from "./config";
 import { checkModules, findIpAddress } from "./utils/serverUtils";
-import { connectBaseRoutes } from "./modules/baseModule/routes";
+import { connectBaseRoutes } from "./modules/base/routes";
+import { PROJECT_MODULE_CONFIG } from "./config/ProjectModuleConfig";
+import { connectProjectRoutes } from "./modules/project/routes";
 
 class ApiServer {
   private app = express();
@@ -55,6 +57,14 @@ class ApiServer {
     );
   }
 
+  // connect request module
+  projectModule() {
+    this.app.use(
+      `/api/v${PROJECT_MODULE_CONFIG.version}/${PROJECT_MODULE_CONFIG.endpoint}`,
+      connectProjectRoutes()
+    );
+  }
+
   // connect selected modules
   connectModules() {
     for (const module of MODULES_LIST) {
@@ -66,6 +76,10 @@ class ApiServer {
 
           case "requestModule":
             this.requestModule();
+            break;
+
+          case "projectModule":
+            this.projectModule();
             break;
 
           default:

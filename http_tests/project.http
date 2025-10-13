@@ -1,0 +1,105 @@
+# base module tests
+@host = http://localhost:5000/api/v1.0.0/project
+
+### get all projects
+GET {{host}}/project-manage
+Accept: application/json
+
+### get project by id
+GET {{host}}/project-manage/1
+Accept: application/json
+
+### create project
+POST {{host}}/project-manage
+Content-Type: application/json
+
+{
+  "label": "New Project",
+  "description": "Project Description"
+}
+
+### update project
+PUT {{host}}/project-manage/1
+Content-Type: application/json
+
+{
+  "label": "Updated Project",
+  "description": "Project Description"
+}
+
+### create member
+POST {{host}}/project-manage/1/members
+Content-Type: application/json
+
+{
+  "label": "employee",
+  "userId": 1
+}
+
+### list members
+GET {{host}}/project-manage/1/members
+Content-Type: application/json
+
+### remove member
+DELETE {{host}}/project-manage/1/members
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### create validator
+POST {{host}}/project-manage/1/validators
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### list validators
+GET {{host}}/department/1/validators
+Content-Type: application/json
+
+### remove validator
+DELETE {{host}}/department/1/validators
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### create final validator
+POST {{host}}/department/1/final-validators
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### remove final validator
+DELETE {{host}}/department/1/final-validators
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### list final validators
+GET {{host}}/department/1/final-validators
+Content-Type: application/json
+
+### set chief
+POST {{host}}/department/1/chief
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### unset chief
+DELETE {{host}}/department/1/chief
+Content-Type: application/json
+
+{
+  "userId": 1
+} 

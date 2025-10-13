@@ -18,7 +18,9 @@ const {
   remove_validator,
   add_final_validator,
   remove_final_validator,
+  get_final_validators,
   set_department_chief,
+  unset_department_chief,
 } = department;
 
 export default class DepartmentController {
@@ -78,9 +80,10 @@ export default class DepartmentController {
   };
 
   addMember = (req: Request, res: Response) => {
-    const { departmentId, userId } = req.body;
+    const { userId } = req.body;
+    const departmentId = Number(req.params.id);
     departmentService
-      .addFinalValidator(departmentId, userId)
+      .addMember(departmentId, userId)
       .then((member) =>
         res.status(200).json({ message: add_member.success.add, data: member })
       )
@@ -88,7 +91,8 @@ export default class DepartmentController {
   };
 
   removeMember = (req: Request, res: Response) => {
-    const { departmentId, userId } = req.body;
+    const { userId } = req.body;
+    const departmentId = Number(req.params.id);
     departmentService
       .removeMember(departmentId, userId)
       .then(() =>
@@ -109,7 +113,8 @@ export default class DepartmentController {
   };
 
   removeValidator = (req: Request, res: Response) => {
-    const { departmentId, userId } = req.body;
+    const { userId } = req.body;
+    const departmentId = Number(req.params.id);
     departmentService
       .removeValidator(departmentId, userId)
       .then(() =>
@@ -119,7 +124,8 @@ export default class DepartmentController {
   };
 
   addFinalValidator = (req: Request, res: Response) => {
-    const { departmentId, userId } = req.body;
+    const { userId } = req.body;
+    const departmentId = Number(req.params.id);
     departmentService
       .addFinalValidator(departmentId, userId)
       .then((member) =>
@@ -131,7 +137,8 @@ export default class DepartmentController {
   };
 
   removeFinalValidator = (req: Request, res: Response) => {
-    const { departmentId, userId } = req.body;
+    const { userId } = req.body;
+    const departmentId = Number(req.params.id);
     departmentService
       .removeFinalValidator(departmentId, userId)
       .then(() =>
@@ -140,8 +147,23 @@ export default class DepartmentController {
       .catch((error) => res.status(400).json({ error: error.message }));
   };
 
+  getFinalValidators = (req: Request<{ id: string }>, res: Response) => {
+    departmentService
+      .getFinalValidators(Number(req.params.id))
+      .then((validators) =>
+        res
+          .status(200)
+          .json({
+            message: get_final_validators.success.fetch,
+            data: validators,
+          })
+      )
+      .catch((error) => res.status(400).json({ error: error.message }));
+  };
+
   addValidator = (req: Request, res: Response) => {
-    const { departmentId, userId } = req.body;
+    const { userId } = req.body;
+    const departmentId = Number(req.params.id);
     departmentService
       .addValidator(departmentId, userId)
       .then((member) =>
@@ -153,13 +175,27 @@ export default class DepartmentController {
   };
 
   setDepartmentChief = (req: Request, res: Response) => {
-    const { departmentId, userId } = req.body;
+    const { userId } = req.body;
+    const departmentId = Number(req.params.id);
     departmentService
       .setDepartmentChief(departmentId, userId)
       .then((member) =>
         res
           .status(200)
           .json({ message: set_department_chief.success.set, data: member })
+      )
+      .catch((error) => res.status(400).json({ error: error.message }));
+  };
+
+  unSetDepartmentChief = (req: Request, res: Response) => {
+    const { userId } = req.body;
+    const departmentId = Number(req.params.id);
+    departmentService
+      .unsetDepartmentChief(departmentId, userId)
+      .then((member) =>
+        res
+          .status(200)
+          .json({ message: unset_department_chief.success.chief, data: member })
       )
       .catch((error) => res.status(400).json({ error: error.message }));
   };
