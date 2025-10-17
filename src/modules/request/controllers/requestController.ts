@@ -34,7 +34,7 @@ export default class RequestController {
   };
   getOne = (req: Request, res: Response) => {
     requestService
-      .getOne(req.body)
+      .getOne(Number(req.params.id))
       .then((request) =>
         res.status(201).json({ message: create.success.create, data: request })
       )

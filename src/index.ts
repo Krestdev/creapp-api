@@ -13,6 +13,7 @@ import { checkModules, findIpAddress } from "./utils/serverUtils";
 import { connectBaseRoutes } from "./modules/base/routes";
 import { PROJECT_MODULE_CONFIG } from "./config/ProjectModuleConfig";
 import { connectProjectRoutes } from "./modules/project/routes";
+import { connectRequestRoutes } from "./modules/request/routes";
 
 class ApiServer {
   private app = express();
@@ -51,9 +52,7 @@ class ApiServer {
   requestModule() {
     this.app.use(
       `/api/v${REQUEST_MODULE_CONFIG.version}/${REQUEST_MODULE_CONFIG.endpoint}`,
-      (req, res) => {
-        res.json({ message: "Request Module" });
-      }
+      connectRequestRoutes()
     );
   }
 
