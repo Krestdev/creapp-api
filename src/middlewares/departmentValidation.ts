@@ -91,9 +91,6 @@ export const validateData = (
         if (result.error) {
           res.status(400).json({ error: result.error.details });
         } else {
-          console.log("Validation passed for create:", req.body, {
-            abortEarly: false,
-          });
           next();
         }
         break;

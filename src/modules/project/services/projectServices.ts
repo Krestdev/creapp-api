@@ -3,7 +3,13 @@ const prisma = new PrismaClient();
 
 export class ProjectService {
   async create(data: Omit<Project, "createdAt" | "updatedAt">) {
-    return prisma.project.create({ data });
+    return prisma.project.create({
+      data: {
+        label: data.label,
+        description: data.description,
+        chiefId: data.chiefId ?? null,
+      },
+    });
   }
 
   async update(

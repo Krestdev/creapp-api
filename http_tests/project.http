@@ -15,7 +15,8 @@ Content-Type: application/json
 
 {
   "label": "New Project",
-  "description": "Project Description"
+  "description": "Project Description",
+  "chiefId": 1
 }
 
 ### update project

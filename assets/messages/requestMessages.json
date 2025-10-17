@@ -22,7 +22,7 @@
         "permission_denied": "Permission denied"
       }
     },
-    "delete": {
+    "delete_request": {
       "success": {
         "delete": "Request deleted successfully",
         "removed": "Request removed"
@@ -54,7 +54,7 @@
         "server_error": "Server error, please try again later"
       }
     },
-    "getMyRequests": {
+    "get_my_requests": {
       "success": {
         "fetch": "User requests fetched successfully",
         "list": "Here is the list of your requests"
@@ -65,7 +65,7 @@
         "server_error": "Server error, please try again later"
       }
     },
-    "linkProject": {
+    "link_to_project": {
       "success": {
         "link": "Request linked to project successfully",
         "linked": "Request is now associated with the project"
@@ -75,7 +75,7 @@
         "permission_denied": "Permission denied"
       }
     },
-    "validateRequest": {
+    "validate_request": {
       "success": {
         "validate": "Request validated successfully",
         "validated": "Request has been validated"
@@ -86,7 +86,7 @@
         "permission_denied": "Permission denied"
       }
     },
-    "rejectRequest": {
+    "reject_request": {
       "success": {
         "reject": "Request rejected successfully",
         "rejected": "Request has been rejected"
@@ -97,7 +97,7 @@
         "permission_denied": "Permission denied"
       }
     },
-    "submitForReview": {
+    "submit_for_review": {
       "success": {
         "submit": "Request submitted for review successfully",
         "submitted": "Request is now under review"
@@ -108,7 +108,7 @@
         "permission_denied": "Permission denied"
       }
     },
-    "setPriority": {
+    "set_priority": {
       "success": {
         "set": "Request priority set successfully",
         "priority": "Request priority updated"

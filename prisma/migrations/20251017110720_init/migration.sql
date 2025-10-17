@@ -5,6 +5,7 @@ CREATE TABLE "User" (
     "name" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "projectId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -38,7 +39,6 @@ CREATE TABLE "Member" (
     "departmentId" INTEGER NOT NULL,
     "validator" BOOLEAN NOT NULL DEFAULT false,
     "chief" BOOLEAN NOT NULL DEFAULT false,
-    "projectId" INTEGER,
     "finalValidator" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -59,6 +59,25 @@ CREATE TABLE "Project" (
 );
 
 -- CreateTable
+CREATE TABLE "RequestModel" (
+    "id" SERIAL NOT NULL,
+    "label" TEXT NOT NULL,
+    "description" TEXT,
+    "quantity" INTEGER NOT NULL,
+    "dueDate" TIMESTAMP(3) NOT NULL,
+    "unit" TEXT NOT NULL,
+    "beneficiary" TEXT NOT NULL,
+    "beficiaryList" TEXT,
+    "state" TEXT NOT NULL DEFAULT 'pending',
+    "proprity" TEXT NOT NULL DEFAULT 'normal',
+    "userId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "RequestModel_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "_RoleToUser" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL,
@@ -70,7 +89,7 @@ CREATE TABLE "_RoleToUser" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Member_projectId_key" ON "Member"("projectId");
+CREATE UNIQUE INDEX "User_projectId_key" ON "User"("projectId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Project_chiefId_key" ON "Project"("chiefId");
@@ -85,7 +104,10 @@ ALTER TABLE "Member" ADD CONSTRAINT "Member_userId_fkey" FOREIGN KEY ("userId") 
 ALTER TABLE "Member" ADD CONSTRAINT "Member_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "Department"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project" ADD CONSTRAINT "Project_chiefId_fkey" FOREIGN KEY ("chiefId") REFERENCES "Member"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Project" ADD CONSTRAINT "Project_chiefId_fkey" FOREIGN KEY ("chiefId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_RoleToUser" ADD CONSTRAINT "_RoleToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "Role"("id") ON DELETE CASCADE ON UPDATE CASCADE;
