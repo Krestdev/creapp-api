@@ -57,4 +57,40 @@ export default class RequestController {
       )
       .catch((error) => res.status(400).json({ error: error.message }));
   };
+
+  validate = (req: Request, res: Response) => {
+    requestService
+      .validate(Number(req.params.id))
+      .then((request) =>
+        res.status(201).json({ message: create.success.create, data: request })
+      )
+      .catch((error) => res.status(400).json({ error: error.message }));
+  };
+
+  reject = (req: Request, res: Response) => {
+    requestService
+      .reject(Number(req.params.id))
+      .then((request) =>
+        res.status(201).json({ message: create.success.create, data: request })
+      )
+      .catch((error) => res.status(400).json({ error: error.message }));
+  };
+
+  priority = (req: Request, res: Response) => {
+    requestService
+      .priority(Number(req.params.id), req.body.priority)
+      .then((request) =>
+        res.status(201).json({ message: create.success.create, data: request })
+      )
+      .catch((error) => res.status(400).json({ error: error.message }));
+  };
+
+  submit = (req: Request, res: Response) => {
+    requestService
+      .submit(Number(req.params.id))
+      .then((request) =>
+        res.status(201).json({ message: create.success.create, data: request })
+      )
+      .catch((error) => res.status(400).json({ error: error.message }));
+  };
 }

@@ -1,10 +1,38 @@
 import { PrismaClient, User } from "@prisma/client";
+import Mailer from "../../../utils/email";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { GENERAL_CONFIG } from "../../../config";
 
 const prisma = new PrismaClient();
 
+function generateOTP(length = 6): string {
+  return Math.floor(Math.random() * Math.pow(10, length))
+    .toString()
+    .padStart(length, "0");
+}
+
 export class UserService {
+  email = new Mailer();
   async create(data: User & { roleId: number }) {
     // Try to find an existing role by label (use findFirst to avoid requiring a unique constraint on label)
+
+    const { email, name, password } = data;
+    const existing = await prisma.user.findUnique({
+      where: { email: data.email },
+    });
+    if (existing) throw new Error("Email already in use");
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const otp = generateOTP();
+    // Save OTP and set verified to false
+
+    this.email.sendWelcomeEmail({
+      userName: name,
+      email,
+      loginUrl: `${GENERAL_CONFIG.app.baseUrl}/auth/register/${otp}?email=${email}`,
+    });
+
     let existingRole = await prisma.role.findUnique({
       where: { id: data.roleId ?? -1 },
     });
@@ -26,7 +54,8 @@ export class UserService {
         email: data.email,
         name: data.name,
         phone: data.phone,
-        password: data.password,
+        password: hashedPassword,
+        verificationOtp: otp,
         role: {
           connect: { id: existingRole.id },
         },
@@ -35,6 +64,39 @@ export class UserService {
       omit: { password: true },
     });
     return user;
+  }
+
+  // Verify account with OTP
+  async verifyAccount(email: string, otp: string): Promise<boolean> {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || user.verified || user.verificationOtp !== otp) {
+      return false;
+    }
+    await prisma.user.update({
+      where: { email },
+      data: {
+        verified: true,
+        verificationOtp: null,
+      },
+    });
+    return true;
+  }
+
+  async login(data: { email: string; password: string }) {
+    console.log("User login");
+    const user = await prisma.user.findUnique({
+      where: { email: data.email },
+      include: { role: true },
+    });
+    if (!user || !user.verified)
+      throw new Error("Invalid credentials or unverified account");
+    const valid = await bcrypt.compare(data.password, user.password);
+    if (!valid) throw new Error("Invalid credentials");
+    const token = jwt.sign({ userId: user.id }, GENERAL_CONFIG.jwt.SECRET, {
+      expiresIn: "1d",
+    });
+    console.log("User logged in", user.email);
+    return { user, token };
   }
 
   async update(id: number, data: Partial<User> & { role?: string }) {

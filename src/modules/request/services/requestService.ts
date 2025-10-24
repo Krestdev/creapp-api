@@ -41,4 +41,41 @@ export class RequestService {
       where: { id },
     });
   };
+
+  validate = (id: number) => {
+    return prisma.requestModel.update({
+      where: { id },
+      data: {
+        state: "validated",
+      },
+    });
+  };
+
+  reject = (id: number) => {
+    return prisma.requestModel.update({
+      where: { id },
+      data: {
+        state: "rejected",
+      },
+    });
+  };
+
+  priority = (id: number, priority: string) => {
+    return prisma.requestModel.update({
+      where: { id },
+      data: {
+        proprity: priority,
+      },
+    });
+  };
+
+  // add a submit state
+  submit = (id: number) => {
+    return prisma.requestModel.update({
+      where: { id },
+      data: {
+        state: "submited",
+      },
+    });
+  };
 }

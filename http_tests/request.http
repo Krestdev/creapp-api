@@ -42,3 +42,23 @@ Content-Type: application/json
 ### delete Request
 DELETE {{host}}/2
 Content-Type: application/json
+
+### validate Request
+PUT {{host}}/validate/3
+Content-Type: application/json
+
+### validate Request
+PUT {{host}}/reject/3
+Content-Type: application/json
+
+### validate Request
+PUT {{host}}/priority/3
+Content-Type: application/json
+
+{
+  "priority": "high"
+}
+
+### validate Request
+PUT {{host}}/submit/3
+Content-Type: application/json

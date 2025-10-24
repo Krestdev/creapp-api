@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Reset your password</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #f6effe;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    "
+  >
+    <!--[if mso]>
+      <style type="text/css">
+        body,
+        table,
+        td {
+          font-family: Arial, Helvetica, sans-serif !important;
+        }
+      </style>
+    <![endif]-->
+
+    <table
+      role="presentation"
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="background-color: #f6effe; width: 100%; min-width: 320px"
+    >
+      <tr>
+        <td align="center" style="padding: 28px 12px">
+          <!-- outer card -->
+          <table
+            role="presentation"
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            style="
+              max-width: 600px;
+              width: 100%;
+              background: #ffffff;
+              border-radius: 8px;
+              overflow: hidden;
+              box-shadow: 0 6px 18px rgba(32, 12, 71, 0.06);
+            "
+          >
+            <!-- header / logo -->
+            <tr>
+              <td
+                style="
+                  padding: 28px 36px 8px;
+                  text-align: center;
+                  background: #f6effe;
+                "
+              >
+                <img
+                  src="<%= logoUrl %>"
+                  alt="<%= appName %> logo"
+                  width="88"
+                  style="
+                    display: block;
+                    margin: 0 auto 6px;
+                    max-width: 140px;
+                    height: auto;
+                  "
+                />
+              </td>
+            </tr>
+
+            <!-- hero illustration block -->
+            <tr>
+              <td
+                style="
+                  background: linear-gradient(135deg, #f0e0ff 0%, #f6effe 100%);
+                  padding: 28px 36px;
+                "
+              >
+                <!-- simple illustration placeholder (use an image) -->
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                >
+                  <tr>
+                    <td style="text-align: center">
+                      <!-- If you have a custom illustration, replace src -->
+                      <img
+                        src="https://i.imgur.com/4Yb8Wtj.png"
+                        alt="Password reset illustration"
+                        width="320"
+                        style="
+                          max-width: 100%;
+                          height: auto;
+                          display: block;
+                          margin: 0 auto;
+                        "
+                      />
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- main content -->
+            <tr>
+              <td style="padding: 28px 36px 18px; text-align: center">
+                <h1
+                  style="
+                    margin: 0 0 10px;
+                    color: #4b1976;
+                    font-size: 22px;
+                    line-height: 1.2;
+                    font-weight: 700;
+                  "
+                >
+                  Forgot your password?
+                </h1>
+
+                <p
+                  style="
+                    margin: 0 0 18px;
+                    color: #6e4aa3;
+                    font-size: 14px;
+                    line-height: 1.5;
+                  "
+                >
+                  We received a request to reset your password. <% if (typeof
+                  userName !== 'undefined' && userName) { %> Hi
+                  <strong><%= userName %></strong>, <% } %>
+                </p>
+
+                <p
+                  style="
+                    margin: 0 0 18px;
+                    color: #8c6bb1;
+                    font-size: 13px;
+                    line-height: 1.5;
+                  "
+                >
+                  If you didn't make this request, you can safely ignore this
+                  email. If you did, click the button below to reset your
+                  password.
+                </p>
+
+                <!-- CTA button -->
+                <table
+                  role="presentation"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="margin: 18px auto 6px"
+                >
+                  <tr>
+                    <td align="center">
+                      <a
+                        href="<%= resetUrl %>"
+                        target="_blank"
+                        style="
+                          display: inline-block;
+                          text-decoration: none;
+                          background: #6f2fa8;
+                          color: #ffffff;
+                          padding: 14px 30px;
+                          border-radius: 6px;
+                          font-weight: 600;
+                          font-size: 15px;
+                        "
+                      >
+                        RESET MY PASSWORD
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- fallback link -->
+                <p
+                  style="
+                    margin: 14px 0 0;
+                    color: #a089bf;
+                    font-size: 12px;
+                    line-height: 1.4;
+                  "
+                >
+                  Or use this link:
+                  <br />
+                  <a
+                    href="<%= resetUrl %>"
+                    target="_blank"
+                    style="color: #6f2fa8; word-break: break-all"
+                    ><%= resetUrl %></a
+                  >
+                </p>
+
+                <hr
+                  style="
+                    border: none;
+                    height: 1px;
+                    background: #f0e0ff;
+                    margin: 20px 0 14px;
+                  "
+                />
+
+                <p
+                  style="
+                    margin: 0;
+                    color: #b39ee0;
+                    font-size: 12px;
+                    line-height: 1.4;
+                  "
+                >
+                  If you didn't request to change your password, you don't have
+                  to do anything.
+                </p>
+              </td>
+            </tr>
+
+            <!-- footer -->
+            <tr>
+              <td
+                style="
+                  padding: 18px 36px 28px;
+                  text-align: center;
+                  font-size: 12px;
+                  color: #8a6fbf;
+                "
+              >
+                <p style="margin: 0 0 8px">
+                  <%= appName %> © <% if (typeof unsubscribeUrl !== 'undefined'
+                  && unsubscribeUrl) { %> &nbsp;•&nbsp;
+                  <a
+                    href="<%= unsubscribeUrl %>"
+                    style="color: #6f2fa8; text-decoration: none"
+                    >Unsubscribe</a
+                  >
+                  <% } %>
+                </p>
+
+                <p style="margin: 6px 0 6px; color: #b39ee0">
+                  <%= companyAddress %>
+                </p>
+
+                <p style="margin: 0 0 6px">
+                  <a
+                    href="mailto:<%= supportEmail %>"
+                    style="color: #6f2fa8; text-decoration: none"
+                    ><%= supportEmail %></a
+                  >
+                  <% if (typeof phone !== 'undefined' && phone) { %>
+                  &nbsp;•&nbsp; <span style="color: #6f2fa8"><%= phone %></span>
+                  <% } %>
+                </p>
+
+                <!-- social icons (optional) -->
+                <p style="margin: 10px 0 0">
+                  <a
+                    href="#"
+                    style="
+                      text-decoration: none;
+                      margin: 0 6px;
+                      display: inline-block;
+                    "
+                  >
+                    <img
+                      src="https://i.imgur.com/3y7p2QH.png"
+                      alt="facebook"
+                      width="20"
+                      style="display: inline-block; vertical-align: middle"
+                    />
+                  </a>
+                  <a
+                    href="#"
+                    style="
+                      text-decoration: none;
+                      margin: 0 6px;
+                      display: inline-block;
+                    "
+                  >
+                    <img
+                      src="https://i.imgur.com/9gK1HhV.png"
+                      alt="twitter"
+                      width="20"
+                      style="display: inline-block; vertical-align: middle"
+                    />
+                  </a>
+                </p>
+              </td>
+            </tr>
+          </table>
+
+          <!-- small legal footer outside card -->
+          <table
+            role="presentation"
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            style="max-width: 600px; width: 100%; margin-top: 12px"
+          >
+            <tr>
+              <td
+                style="
+                  text-align: center;
+                  color: #afa0d1;
+                  font-size: 11px;
+                  padding: 6px 12px;
+                "
+              >
+                <small>
+                  Duis euismod neque at lacus rutrum, nec suscipit eros
+                  tincidunt interdum et malesuada.
+                </small>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

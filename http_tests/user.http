@@ -20,6 +20,13 @@ Content-Type: application/json
   "phone": "123456789"
 }
 
+### set otp variable
+
+@otp = 622544
+
+### verify user
+GET {{host}}/user/verify/{{otp}}?email=user@example.com
+
 ### login
 POST {{host}}/user/login
 Content-Type: application/json
@@ -28,6 +35,10 @@ Content-Type: application/json
   "email": "user@example.com",
   "password": "password"
 }
+
+### Delete user
+DELETE {{host}}/user/1
+Content-Type: application/json
 
 ###
 GET {{host}}/department

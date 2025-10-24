@@ -18,6 +18,12 @@ export default class UserRouter {
       validateData("create"),
       this.userController.create
     );
+    this.routes.post(
+      "/login",
+      validateData("login"),
+      this.userController.login
+    );
+    this.routes.get("/verify/:otp", this.userController.verify);
     this.routes.put("/:id", validateData("update"), this.userController.update);
     this.routes.delete(
       "/:id",

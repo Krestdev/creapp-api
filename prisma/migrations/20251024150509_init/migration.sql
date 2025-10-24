@@ -6,6 +6,8 @@ CREATE TABLE "User" (
     "phone" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "projectId" INTEGER,
+    "verificationOtp" TEXT,
+    "verified" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

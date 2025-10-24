@@ -8,18 +8,20 @@ generator client {
 }
 
 model User {
-  id        Int            @id @default(autoincrement())
-  email     String         @unique
-  name      String
-  phone     String
-  password  String
-  role      Role[]
-  members   Member[]
-  requests  RequestModel[]
-  project   Project?       @relation("ProjectChief")
-  projectId Int?           @unique
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  id              Int            @id @default(autoincrement())
+  email           String         @unique
+  name            String
+  phone           String
+  password        String
+  role            Role[]
+  members         Member[]
+  requests        RequestModel[]
+  project         Project?       @relation("ProjectChief")
+  projectId       Int?           @unique
+  verificationOtp String?
+  verified        Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 }
 
 model Role {
@@ -55,7 +57,7 @@ model Project {
   id          Int      @id @default(autoincrement())
   label       String
   description String?
-  chief       User?    @relation("ProjectChief", fields: [chiefId], references: [id])
+  chief       User?    @relation("ProjectChief", fields: [chiefId], references: [id], onDelete: SetNull)
   chiefId     Int?     @unique
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

@@ -11,6 +11,7 @@ const {
   get_user_by_id,
   profile,
   delete_account,
+  login,
 } = user;
 
 export default class UserController {
@@ -20,6 +21,29 @@ export default class UserController {
       .then((user) =>
         res.status(201).json({ message: register.success.register, data: user })
       )
+      .catch((error) => res.status(400).json({ error: error.message }));
+  };
+  login = (req: Request, res: Response) => {
+    userService
+      .login(req.body)
+      .then((user) =>
+        res.status(200).json({ message: login.success.login, data: user })
+      )
+      .catch((error) => res.status(400).json({ error: error.message }));
+  };
+  verify = (req: Request<{ otp: string }>, res: Response) => {
+    const { otp } = req.params;
+    const { email } = req.query;
+    userService
+      .verifyAccount(email as string, otp)
+      .then((isValid) => {
+        if (isValid) {
+          return res
+            .status(200)
+            .json({ message: "Account verified successfully" });
+        }
+        return res.status(400).json({ error: "Invalid OTP or email" });
+      })
       .catch((error) => res.status(400).json({ error: error.message }));
   };
   update = (req: Request<{ id: string }>, res: Response) => {

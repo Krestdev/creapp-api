@@ -8,6 +8,11 @@ const user = Joi.object({
   phone: Joi.string().min(9).required(),
 });
 
+const login = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).max(100).required(),
+});
+
 const userUpdate = Joi.object({
   name: Joi.string(),
   email: Joi.string().email().optional(),
@@ -26,7 +31,7 @@ const userDelete = Joi.object({
 
 // validate date for the user routes
 export const validateData = (
-  schema: "create" | "update" | "delete" | "get"
+  schema: "create" | "update" | "delete" | "get" | "login"
 ) => {
   return async (
     req: Request,
@@ -39,6 +44,14 @@ export const validateData = (
     switch (schema) {
       case "create":
         result = user.validate(req.body);
+        if (result.error) {
+          res.status(400).json({ error: result.error.details });
+        } else {
+          next();
+        }
+        break;
+      case "login":
+        result = login.validate(req.body);
         if (result.error) {
           res.status(400).json({ error: result.error.details });
         } else {
