@@ -11,6 +11,7 @@ export async function checkModules(
   }[]
 ) {
   // utils/serviceHealth.ts
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const results: Record<string, any> = {};
 
   for (const module of modules) {
@@ -22,6 +23,7 @@ export async function checkModules(
         modules = modules.map((m) =>
           m.name === module.name ? { ...m, status: "active" } : m
         );
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         results[module.name] = { connected: false, message: err.message };
         modules = modules.map((m) =>

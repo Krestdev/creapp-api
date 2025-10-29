@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
 
 const request = Joi.object({
@@ -13,17 +13,17 @@ const request = Joi.object({
   UserId: Joi.number(),
 });
 
-const requestUpdatePriority = Joi.object({
-  priority: Joi.string(),
-});
+// const requestUpdatePriority = Joi.object({
+//   priority: Joi.string(),
+// });
 
-const requestUpdateQuantity = Joi.object({
-  quantity: Joi.number(),
-});
+// const requestUpdateQuantity = Joi.object({
+//   quantity: Joi.number(),
+// });
 
-const requestUpdateDueDate = Joi.object({
-  dueDate: Joi.date(),
-});
+// const requestUpdateDueDate = Joi.object({
+//   dueDate: Joi.date(),
+// });
 
 const requestUpdate = Joi.object({
   label: Joi.string().required(),
@@ -38,9 +38,9 @@ const requestParam = Joi.object({
   id: Joi.number().required(),
 });
 
-const requestDelete = Joi.object({
-  id: Joi.number().required(),
-});
+// const requestDelete = Joi.object({
+//   id: Joi.number().required(),
+// });
 
 // validate date for the department routes
 export const validateData = (

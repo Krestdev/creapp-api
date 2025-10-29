@@ -2,8 +2,14 @@ import { Request, Response } from "express";
 import { RequestService } from "../services/requestService";
 import { request } from "../../../../assets/messages/requestMessages.json";
 
-const { create, update, delete_request, get_all, get_my_requests, get_by_id } =
-  request;
+const {
+  create,
+  // update,
+  // delete_request,
+  // get_all,
+  // get_my_requests,
+  // get_by_id
+} = request;
 
 const requestService = new RequestService();
 

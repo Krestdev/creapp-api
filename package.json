@@ -9,7 +9,9 @@
   "scripts": {
     "test": "test",
     "dev": "nodemon ./src/index.ts",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build": "tsc",
+    "start": "node ./build/index.js"
   },
   "dependencies": {
     "@prisma/client": "^6.17.0",

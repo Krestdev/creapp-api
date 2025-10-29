@@ -9,7 +9,7 @@ const {
   update_profile,
   all_users,
   get_user_by_id,
-  profile,
+  // profile,
   delete_account,
   login,
 } = user;

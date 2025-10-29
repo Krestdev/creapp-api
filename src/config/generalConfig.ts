@@ -1,7 +1,4 @@
 import dotenv from "dotenv";
-import { BASE_MODULE_CONFIG } from "./BaseModuleConfig";
-import { REQUEST_MODULE_CONFIG } from "./RequestModuleConfig";
-import { name } from "ejs";
 dotenv.config();
 
 export const env = process.env;
