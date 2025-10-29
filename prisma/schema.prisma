@@ -54,13 +54,15 @@ model Member {
 }
 
 model Project {
-  id          Int      @id @default(autoincrement())
+  id          Int            @id @default(autoincrement())
   label       String
   description String?
-  chief       User?    @relation("ProjectChief", fields: [chiefId], references: [id], onDelete: SetNull)
-  chiefId     Int?     @unique
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  chief       User?          @relation("ProjectChief", fields: [chiefId], references: [id], onDelete: SetNull)
+  chiefId     Int?           @unique
+  budget      Float
+  requests    RequestModel[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 }
 
 model RequestModel {
@@ -76,6 +78,8 @@ model RequestModel {
   proprity      String   @default("normal")
   user          User     @relation(fields: [userId], references: [id])
   userId        Int
+  project       Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  projectId     Int?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }

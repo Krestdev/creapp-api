@@ -27,11 +27,15 @@ export class UserService {
     const otp = generateOTP();
     // Save OTP and set verified to false
 
-    this.email.sendWelcomeEmail({
-      userName: name,
-      email,
-      loginUrl: `${GENERAL_CONFIG.app.baseUrl}/auth/register/${otp}?email=${email}`,
-    });
+    this.email
+      .sendWelcomeEmail({
+        userName: name,
+        email,
+        loginUrl: `${GENERAL_CONFIG.app.baseUrl}/auth/register/${otp}?email=${email}`,
+      })
+      .catch((error) => {
+        console.error("could not send mail");
+      });
 
     let existingRole = await prisma.role.findUnique({
       where: { id: data.roleId ?? -1 },

@@ -43,7 +43,7 @@ export const validateData = (
 
     switch (schema) {
       case "create":
-        result = user.validate(req.body);
+        result = user.validate(req.body, { abortEarly: false });
         if (result.error) {
           res.status(400).json({ error: result.error.details });
         } else {
@@ -51,7 +51,7 @@ export const validateData = (
         }
         break;
       case "login":
-        result = login.validate(req.body);
+        result = login.validate(req.body, { abortEarly: false });
         if (result.error) {
           res.status(400).json({ error: result.error.details });
         } else {
@@ -60,7 +60,10 @@ export const validateData = (
         break;
 
       case "get":
-        params = userParam.validate({ id: req.params.id });
+        params = userParam.validate(
+          { id: req.params.id },
+          { abortEarly: false }
+        );
         if (params.error) {
           res.status(400).json({ error: params.error?.details });
         } else {

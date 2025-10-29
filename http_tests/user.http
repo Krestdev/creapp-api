@@ -14,18 +14,18 @@ POST {{host}}/user/register
 Content-Type: application/json
 
 {
-  "name": "Test User",
-  "email": "user@example.com",
+  "name": "Test User 1",
+  "email": "user1@example.com",
   "password": "password",
   "phone": "123456789"
 }
 
 ### set otp variable
 
-@otp = 622544
+@otp = 426270
 
 ### verify user
-GET {{host}}/user/verify/{{otp}}?email=user@example.com
+GET {{host}}/user/verify/{{otp}}?email=user1@example.com
 
 ### login
 POST {{host}}/user/login
