@@ -54,6 +54,7 @@ CREATE TABLE "Project" (
     "label" TEXT NOT NULL,
     "description" TEXT,
     "chiefId" INTEGER,
+    "budget" DOUBLE PRECISION NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -73,6 +74,7 @@ CREATE TABLE "RequestModel" (
     "state" TEXT NOT NULL DEFAULT 'pending',
     "proprity" TEXT NOT NULL DEFAULT 'normal',
     "userId" INTEGER NOT NULL,
+    "projectId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -110,6 +112,9 @@ ALTER TABLE "Project" ADD CONSTRAINT "Project_chiefId_fkey" FOREIGN KEY ("chiefI
 
 -- AddForeignKey
 ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_RoleToUser" ADD CONSTRAINT "_RoleToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "Role"("id") ON DELETE CASCADE ON UPDATE CASCADE;

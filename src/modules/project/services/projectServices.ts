@@ -8,6 +8,7 @@ export class ProjectService {
         label: data.label,
         description: data.description,
         chiefId: data.chiefId ?? null,
+        budget: data.budget ?? null,
       },
     });
   }
