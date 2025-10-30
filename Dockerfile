@@ -21,7 +21,6 @@ COPY --from=base /app/node_modules ./node_modules
 # COPY --from=base /app/generated/prisma ./generated/prisma
 COPY --from=base /app/prisma ./prisma
 COPY --from=base /app/build ./build
-COPY --from=base /app/emailtemplates ./emailtemplates
 
 # Copy runtime code if needed
 COPY --from=base /app/src ./src
