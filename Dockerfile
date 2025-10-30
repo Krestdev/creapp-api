@@ -36,7 +36,10 @@ RUN chmod +x /wait-for
 EXPOSE 5000
 
 # Run prisma migrations and start app after MySQL is up
-CMD sh -c "/wait-for ${DB_HOST:-localhost}:${DB_PORT:-3306} --timeout=360 -- \
-  npx prisma migrate deploy && \
+# CMD sh -c "/wait-for ${DB_HOST:-localhost}:${DB_PORT:-3306} --timeout=360 -- \
+#   npx prisma migrate deploy && \
+#   npm run start"
+
+CMD sh -c "npx prisma migrate deploy && \
   npm run start"
 
