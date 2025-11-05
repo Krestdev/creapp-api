@@ -1,0 +1,64 @@
+# base module tests
+@host = http://localhost:5000/api/v1.0.0/request
+
+### all requests
+GET {{host}}/
+Accept: application/json
+
+### single requests
+GET {{host}}/1
+Accept: application/json
+
+### Create Request
+POST {{host}}/
+Content-Type: application/json
+
+{
+  "label": "label",
+  "description": "description",
+  "quantity": 3,
+  "dueDate": "2025-09-06T09:00:00.000Z",
+  "unit":  "kg",
+  "beneficiary": "me",
+  "beficiaryList": "me also",
+  "userId": 1
+}
+
+### update Request
+PUT {{host}}/2
+Content-Type: application/json
+
+{
+  "label": "label",
+  "description": "description",
+  "quantity": 3,
+  "dueDate": "2025-09-06T09:00:00.000Z",
+  "unit":  "kg",
+  "beneficiary": "me",
+  "beficiaryList": "me also",
+  "userId": 1
+}
+
+### delete Request
+DELETE {{host}}/2
+Content-Type: application/json
+
+### validate Request
+PUT {{host}}/validate/3
+Content-Type: application/json
+
+### validate Request
+PUT {{host}}/reject/3
+Content-Type: application/json
+
+### validate Request
+PUT {{host}}/priority/3
+Content-Type: application/json
+
+{
+  "priority": "high"
+}
+
+### validate Request
+PUT {{host}}/submit/3
+Content-Type: application/json

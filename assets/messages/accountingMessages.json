@@ -1,0 +1,224 @@
+{
+  "account": {
+    "create": {
+      "success": {
+        "create": "account created successfully",
+        "added": "New account added"
+      },
+      "error": {
+        "exists": "Account already exists",
+        "invalid_data": "Invalid account data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "update": {
+      "success": {
+        "update": "Account updated successfully",
+        "saved": "Account changes saved"
+      },
+      "error": {
+        "not_found": "Account not found",
+        "invalid_data": "Invalid account data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "delete": {
+      "success": {
+        "delete": "Account deleted successfully",
+        "removed": "Account removed"
+      },
+      "error": {
+        "not_found": "Account not found",
+        "permission_denied": "Permission denied",
+        "cannot_delete_default": "Cannot delete default account"
+      }
+    },
+    "get_all": {
+      "success": {
+        "fetch": "All accounts fetched successfully",
+        "list": "Here is the list of all accounts"
+      },
+      "error": {
+        "not_found": "No accounts found",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "get_by_id": {
+      "success": {
+        "fetch": "Account fetched successfully",
+        "details": "Here are the account details"
+      },
+      "error": {
+        "not_found": "Account not found",
+        "invalid_id": "Invalid account ID",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "getAccountsStates": {
+      "success": {
+        "fetch": "Account states fetched successfully",
+        "list": "Here is the list of account states"
+      },
+      "error": {
+        "not_found": "No account states found",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "creditAccount": {
+      "success": {
+        "credit": "Account credited successfully",
+        "credited": "Amount has been credited to the account"
+      },
+      "error": {
+        "not_found": "Account not found",
+        "invalid_data": "Invalid credit data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "debitAccount": {
+      "success": {
+        "debit": "Account debited successfully",
+        "debited": "Amount has been debited from the account"
+      },
+      "error": {
+        "not_found": "Account not found",
+        "invalid_data": "Invalid debit data",
+        "permission_denied": "Permission denied",
+        "insufficient_funds": "Insufficient funds in account"
+      }
+    },
+    "freezeAccount": {
+      "success": {
+        "freeze": "Account frozen successfully",
+        "frozen": "Account has been frozen"
+      },
+      "error": {
+        "not_found": "Account not found",
+        "invalid_data": "Invalid freeze data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "unfreezeAccount": {
+      "success": {
+        "unfreeze": "Account unfrozen successfully",
+        "unfrozen": "Account has been unfrozen"
+      },
+      "error": {
+        "not_found": "Account not found",
+        "invalid_data": "Invalid unfreeze data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "getAccountBalance": {
+      "success": {
+        "fetch": "Account balance fetched successfully",
+        "balance": "Here is the account balance"
+      },
+      "error": {
+        "not_found": "Account not found",
+        "invalid_id": "Invalid account ID",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "generateAccountReport": {
+      "success": {
+        "generate": "Account report generated successfully",
+        "report": "Here is the account report"
+      },
+      "error": {
+        "not_found": "Account not found",
+        "invalid_data": "Invalid report data",
+        "permission_denied": "Permission denied",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "transferFunds": {
+      "success": {
+        "transfer": "Funds transferred successfully",
+        "transferred": "Amount has been transferred between accounts"
+      },
+      "error": {
+        "not_found": "One or both accounts not found",
+        "invalid_data": "Invalid transfer data",
+        "permission_denied": "Permission denied",
+        "insufficient_funds": "Insufficient funds in source account"
+      }
+    },
+    "createDailyExpenses": {
+      "success": {
+        "create": "Daily expenses recorded successfully",
+        "added": "New daily expense added"
+      },
+      "error": {
+        "exists": "Daily expense already exists",
+        "invalid_data": "Invalid daily expense data",
+        "permission_denied": "Permission denied"
+      },
+      "listReports": {
+        "success": {
+          "fetch": "Expense reports fetched successfully",
+          "list": "Here is the list of expense reports"
+        },
+        "error": {
+          "not_found": "No expense reports found",
+          "server_error": "Server error, please try again later"
+        }
+      },
+      "UpdateReport": {
+        "success": {
+          "update": "Expense report updated successfully",
+          "saved": "Expense report changes saved"
+        },
+        "error": {
+          "not_found": "Expense report not found",
+          "invalid_data": "Invalid expense report data",
+          "permission_denied": "Permission denied"
+        }
+      },
+      "getreportDetails": {
+        "success": {
+          "fetch": "Expense report details fetched successfully",
+          "details": "Here are the expense report details"
+        },
+        "error": {
+          "not_found": "Expense report not found",
+          "invalid_id": "Invalid expense report ID",
+          "server_error": "Server error, please try again later"
+        }
+      },
+      "submitToFunding": {
+        "success": {
+          "submit": "Expense report submitted for funding successfully",
+          "submitted": "Expense report is now under review for funding"
+        },
+        "error": {
+          "not_found": "Expense report not found",
+          "invalid_data": "Invalid submission data",
+          "permission_denied": "Permission denied"
+        }
+      },
+      "approveReport": {
+        "success": {
+          "approve": "Expense report approved successfully",
+          "approved": "Expense report has been approved"
+        },
+        "error": {
+          "not_found": "Expense report not found",
+          "invalid_data": "Invalid approval data",
+          "permission_denied": "Permission denied"
+        }
+      },
+      "rejectReport": {
+        "success": {
+          "reject": "Expense report rejected successfully",
+          "rejected": "Expense report has been rejected"
+        },
+        "error": {
+          "not_found": "Expense report not found",
+          "invalid_data": "Invalid rejection data",
+          "permission_denied": "Permission denied"
+        }
+      }
+    }
+  }
+}

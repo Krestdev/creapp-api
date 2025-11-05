@@ -1,0 +1,123 @@
+{
+  "payment": {
+    "create": {
+      "success": {
+        "create": "Payment created successfully",
+        "added": "New payment added"
+      },
+      "error": {
+        "exists": "Payment already exists",
+        "invalid_data": "Invalid payment data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "update": {
+      "success": {
+        "update": "Payment updated successfully",
+        "saved": "Payment changes saved"
+      },
+      "error": {
+        "not_found": "Payment not found",
+        "invalid_data": "Invalid payment data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "delete": {
+      "success": {
+        "delete": "Payment deleted successfully",
+        "removed": "Payment removed"
+      },
+      "error": {
+        "not_found": "Payment not found",
+        "permission_denied": "Permission denied",
+        "cannot_delete_default": "Cannot delete default payment"
+      }
+    },
+    "get_all": {
+      "success": {
+        "fetch": "All payments fetched successfully",
+        "list": "Here is the list of all payments"
+      },
+      "error": {
+        "not_found": "No payments found",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "get_by_id": {
+      "success": {
+        "fetch": "Payment fetched successfully",
+        "details": "Here are the payment details"
+      },
+      "error": {
+        "not_found": "Payment not found",
+        "invalid_id": "Invalid payment ID",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "validatePayment": {
+      "success": {
+        "validate": "Payment validated successfully",
+        "validated": "Payment has been validated"
+      },
+      "error": {
+        "not_found": "Payment not found",
+        "invalid_data": "Invalid validation data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "rejectPayment": {
+      "success": {
+        "reject": "Payment rejected successfully",
+        "rejected": "Payment has been rejected"
+      },
+      "error": {
+        "not_found": "Payment not found",
+        "invalid_data": "Invalid rejection data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "submitPaymentForReview": {
+      "success": {
+        "submit": "Payment submitted for review successfully",
+        "submitted": "Payment is now under review"
+      },
+      "error": {
+        "not_found": "Payment not found",
+        "invalid_data": "Invalid submission data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "linkRequestToProvider": {
+      "success": {
+        "link": "Command request linked to provider successfully",
+        "linked": "Command request is now associated with the provider"
+      },
+      "error": {
+        "not_found": "Command request or provider not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "attachDocuments": {
+      "success": {
+        "attach": "Documents attached to command request successfully",
+        "attached": "Documents have been attached"
+      },
+      "error": {
+        "not_found": "Command request not found",
+        "invalid_data": "Invalid document data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "addTicketToPayment": {
+      "success": {
+        "add": "Ticket added to payment successfully",
+        "added": "Ticket has been added to the payment"
+      },
+      "error": {
+        "not_found": "Payment or ticket not found",
+        "invalid_data": "Invalid ticket data",
+        "permission_denied": "Permission denied"
+      }
+    }
+  }
+}

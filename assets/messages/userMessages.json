@@ -1,0 +1,115 @@
+{
+  "user": {
+    "login": {
+      "success": {
+        "login": "Login successful",
+        "session": "Session started"
+      },
+      "error": {
+        "invalid": "Invalid username or password",
+        "locked": "Account locked",
+        "timeout": "Session timed out",
+        "not_found": "User not found"
+      }
+    },
+    "logout": {
+      "success": {
+        "logout": "Logout successful",
+        "session": "Session ended"
+      },
+      "error": {
+        "not_logged_in": "User not logged in",
+        "timeout": "Session already timed out",
+        "session": "session not found"
+      }
+    },
+    "register": {
+      "success": {
+        "register": "Registration successful",
+        "welcome": "Welcome to our platform"
+      },
+      "error": {
+        "exists": "User already exists",
+        "invalid_data": "Invalid registration data",
+        "weak_password": "Password is too weak"
+      }
+    },
+    "update_profile": {
+      "success": {
+        "update": "Profile updated successfully",
+        "settings": "Settings saved"
+      },
+      "error": {
+        "invalid_data": "Invalid profile data",
+        "not_found": "User not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "assign_role": {
+      "success": {
+        "assign": "Role assigned successfully",
+        "role": "User role updated"
+      },
+      "error": {
+        "invalid_role": "Invalid role specified",
+        "not_found": "User not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "delete_account": {
+      "success": {
+        "delete": "Account deleted successfully",
+        "goodbye": "We're sorry to see you go"
+      },
+      "error": {
+        "not_found": "User not found",
+        "permission_denied": "Permission denied",
+        "cannot_delete_admin": "Cannot delete admin account"
+      }
+    },
+    "get_requests": {
+      "success": {
+        "fetch": "User requests fetched successfully",
+        "list": "Here is the list of user requests"
+      },
+      "error": {
+        "not_found": "No user requests found",
+        "permission_denied": "Permission denied",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "all_users": {
+      "success": {
+        "fetch": "All users fetched successfully",
+        "list": "Here is the list of all users"
+      },
+      "error": {
+        "not_found": "No users found",
+        "permission_denied": "Permission denied",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "get_user_by_id": {
+      "success": {
+        "fetch": "User fetched successfully",
+        "details": "Here are the user details"
+      },
+      "error": {
+        "not_found": "User not found",
+        "permission_denied": "Permission denied",
+        "invalid_id": "Invalid user ID"
+      }
+    },
+    "profile": {
+      "success": {
+        "fetch": "User profile fetched successfully",
+        "details": "Here are the user profile details"
+      },
+      "error": {
+        "not_found": "User profile not found",
+        "permission_denied": "Permission denied",
+        "server_error": "Server error, please try again later"
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+# base module tests
+@host = http://localhost:5000/api/v1.0.0/base
+
+### all users
+GET {{host}}/user/
+Accept: application/json
+
+### single user
+GET {{host}}/user/1
+Accept: application/json
+
+### register
+POST {{host}}/user/register
+Content-Type: application/json
+
+{
+  "name": "Test User 1",
+  "email": "user1@example.com",
+  "password": "password",
+  "phone": "123456789"
+}
+
+### set otp variable
+
+@otp = 426270
+
+### verify user
+GET {{host}}/user/verify/{{otp}}?email=user1@example.com
+
+### login
+POST {{host}}/user/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password"
+}
+
+### Delete user
+DELETE {{host}}/user/1
+Content-Type: application/json
+
+###
+GET {{host}}/department
+Accept: application/json
+
+###
+GET {{host}}/department/1
+Accept: application/json
+
+###
+POST {{host}}/department
+Content-Type: application/json
+
+{
+  "label": "New Department",
+  "description": "Department Description"
+}

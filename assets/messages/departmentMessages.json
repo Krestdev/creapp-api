@@ -1,0 +1,174 @@
+{
+  "department": {
+    "create": {
+      "success": {
+        "create": "Department created successfully",
+        "details": "Here are the department details"
+      },
+      "error": {
+        "already_exists": "Department already exists",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "update": {
+      "success": {
+        "update": "Department updated successfully",
+        "details": "Here are the updated department details"
+      },
+      "error": {
+        "not_found": "Department not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "deleteDepartment": {
+      "success": {
+        "delete": "Department deleted successfully",
+        "goodbye": "The department has been removed"
+      },
+      "error": {
+        "not_found": "Department not found",
+        "permission_denied": "Permission denied",
+        "cannot_delete_default": "Cannot delete default department"
+      }
+    },
+    "get_all": {
+      "success": {
+        "fetch": "Departments fetched successfully",
+        "list": "Here is the list of departments"
+      },
+      "error": {
+        "permission_denied": "Permission denied"
+      }
+    },
+    "get_one": {
+      "success": {
+        "fetch": "Department fetched successfully",
+        "details": "Here are the department details"
+      },
+      "error": {
+        "not_found": "Department not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "get_members": {
+      "success": {
+        "fetch": "Department members fetched successfully",
+        "list": "Here is the list of department members"
+      },
+      "error": {
+        "not_found": "Department not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "add_member": {
+      "success": {
+        "add": "Member added to department successfully",
+        "member": "Here are the member details"
+      },
+      "error": {
+        "already_member": "User is already a member of the department",
+        "not_found": "Department or user not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "remove_member": {
+      "success": {
+        "remove": "Member removed from department successfully",
+        "member": "The member has been removed"
+      },
+      "error": {
+        "not_member": "User is not a member of the department",
+        "not_found": "Department or user not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "add_validator": {
+      "success": {
+        "add": "Validator added to department successfully",
+        "validator": "Here are the validator details"
+      },
+      "error": {
+        "already_validator": "User is already a validator of the department",
+        "not_member": "User is not a member of the department",
+        "not_found": "Department or user not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "remove_validator": {
+      "success": {
+        "remove": "Validator removed from department successfully",
+        "validator": "The validator has been removed"
+      },
+      "error": {
+        "not_validator": "User is not a validator of the department",
+        "not_found": "Department or user not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "get_validators": {
+      "success": {
+        "fetch": "Department validators fetched successfully",
+        "list": "Here is the list of department validators"
+      },
+      "error": {
+        "not_found": "Department not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "add_final_validator": {
+      "success": {
+        "add": "Final validator added to department successfully",
+        "final_validator": "Here are the final validator details"
+      },
+      "error": {
+        "already_final_validator": "User is already a final validator of the department",
+        "not_member": "User is not a member of the department",
+        "not_found": "Department or user not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "remove_final_validator": {
+      "success": {
+        "remove": "Final validator removed from department successfully",
+        "final_validator": "The final validator has been removed"
+      },
+      "error": {
+        "not_final_validator": "User is not a final validator of the department",
+        "not_found": "Department or user not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "get_final_validators": {
+      "success": {
+        "fetch": "Department final validators fetched successfully",
+        "list": "Here is the list of department final validators"
+      },
+      "error": {
+        "not_found": "Department not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "set_department_chief": {
+      "success": {
+        "set": "Department chief set successfully",
+        "chief": "Here are the department chief details"
+      },
+      "error": {
+        "not_member": "User is not a member of the department",
+        "not_found": "Department or user not found",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "unset_department_chief": {
+      "success": {
+        "unset": "Department chief unset successfully",
+        "chief": "The department chief has been unset"
+      },
+      "error": {
+        "not_chief": "User is not the chief of the department",
+        "not_found": "Department or user not found",
+        "permission_denied": "Permission denied"
+      }
+    }
+  }
+}

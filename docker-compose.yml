@@ -1,0 +1,48 @@
+services:
+  creappapi:
+    container_name: creappapi
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    volumes:
+      - /root/backup/creapp/api-data:/app/uploads
+    ports:
+      - "5002:5000"
+    depends_on:
+      - postgres
+    networks:
+      - caddy-net
+
+  # mongo_loumo:
+  #   container_name: mongo_loumo
+  #   image: mongo:6
+  #   restart: unless-stopped
+  #   environment:
+  #     MONGO_INITDB_DATABASE: loumo-db
+  #   volumes:
+  #     - /root/backup/loumo/mongo-data:/data/db
+  #   ports:
+  #     - "27017:27017"
+  #   networks:
+  #     - caddy-net
+  
+  postgres:
+    container_name: creapp_postgres
+    image: postgres:16
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    volumes:
+      - /root/backup/creapp/postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - caddy-net
+
+networks:
+  caddy-net:
+    driver: bridge
+    attachable: true

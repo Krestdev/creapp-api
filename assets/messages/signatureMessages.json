@@ -1,0 +1,58 @@
+{
+  "signature": {
+    "create": {
+      "success": {
+        "create": "signature created successfully",
+        "added": "New signature added"
+      },
+      "error": {
+        "exists": "Signature already exists",
+        "invalid_data": "Invalid signature data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "update": {
+      "success": {
+        "update": "Signature updated successfully",
+        "saved": "Signature changes saved"
+      },
+      "error": {
+        "not_found": "Signature not found",
+        "invalid_data": "Invalid signature data",
+        "permission_denied": "Permission denied"
+      }
+    },
+    "delete": {
+      "success": {
+        "delete": "Signature deleted successfully",
+        "removed": "Signature removed"
+      },
+      "error": {
+        "not_found": "Signature not found",
+        "permission_denied": "Permission denied",
+        "cannot_delete_default": "Cannot delete default signature"
+      }
+    },
+    "get_all": {
+      "success": {
+        "fetch": "All signatures fetched successfully",
+        "list": "Here is the list of all signatures"
+      },
+      "error": {
+        "not_found": "No signatures found",
+        "server_error": "Server error, please try again later"
+      }
+    },
+    "get_by_id": {
+      "success": {
+        "fetch": "Signature fetched successfully",
+        "details": "Here are the signature details"
+      },
+      "error": {
+        "not_found": "Signature not found",
+        "invalid_id": "Invalid signature ID",
+        "server_error": "Server error, please try again later"
+      }
+    }
+  }
+}
