@@ -1,0 +1,92 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              Int            @id @default(autoincrement())
+  email           String         @unique
+  name            String
+  phone           String
+  password        String
+  role            Role[]
+  members         Member[]
+  requests        RequestModel[]
+  project         Project?       @relation("ProjectChief")
+  projectId       Int?           @unique
+  verificationOtp String?
+  verified        Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model Role {
+  id    Int         @id @default(autoincrement())
+  label String
+  users User[]
+  pages RolePages[]
+}
+
+model RolePages {
+  id         Int    @id @default(autoincrement())
+  authorized Role[]
+  pageId     String
+}
+
+model Department {
+  id          Int      @id @default(autoincrement())
+  label       String
+  description String?
+  members     Member[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Member {
+  id             Int        @id @default(autoincrement())
+  label          String
+  user           User       @relation(fields: [userId], references: [id])
+  userId         Int
+  department     Department @relation(fields: [departmentId], references: [id])
+  departmentId   Int
+  validator      Boolean    @default(false)
+  chief          Boolean    @default(false)
+  finalValidator Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model Project {
+  id          Int            @id @default(autoincrement())
+  label       String
+  description String?
+  chief       User?          @relation("ProjectChief", fields: [chiefId], references: [id], onDelete: SetNull)
+  chiefId     Int?           @unique
+  budget      Float
+  requests    RequestModel[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model RequestModel {
+  id            Int      @id @default(autoincrement())
+  label         String
+  description   String?
+  quantity      Int
+  dueDate       DateTime
+  unit          String
+  beneficiary   String
+  beficiaryList String?
+  state         String   @default("pending")
+  proprity      String   @default("normal")
+  user          User     @relation(fields: [userId], references: [id])
+  userId        Int
+  project       Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  projectId     Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
