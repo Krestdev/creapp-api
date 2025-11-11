@@ -1,5 +1,15 @@
 import { Router } from "express";
 import RequestController from "../controllers/requestController";
+import { request } from "../../../../assets/messages/requestMessages.json";
+
+const {
+  create,
+  // update,
+  // delete_request,
+  // get_all,
+  // get_my_requests,
+  // get_by_id
+} = request;
 
 export default class RequestRoute {
   routes: Router = Router();
@@ -10,15 +20,106 @@ export default class RequestRoute {
   }
 
   private config() {
-    this.routes.get("/", this.requestController.getAll);
-    this.routes.get("/:id", this.requestController.getOne);
-    this.routes.post("/", this.requestController.create);
-    this.routes.put("/:id", this.requestController.update);
-    this.routes.delete("/:id", this.requestController.delete);
+    this.routes.get("/", (req, res) => {
+      this.requestController
+        .getAll()
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+    this.routes.get("/:id", (req, res) => {
+      this.requestController
+        .getOne(req.params.id)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+    this.routes.get("/mine/:id", (req, res) => {
+      this.requestController
+        .getMine(req.params.id)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+    this.routes.post("/", (req, res) => {
+      this.requestController
+        .create(req.body)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+    this.routes.put("/:id", (req, res) => {
+      this.requestController
+        .update(req.params.id, req.body)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+    this.routes.delete("/:id", (req, res) => {
+      this.requestController
+        .delete(req.params.id)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
 
-    this.routes.put("/validate/:id", this.requestController.validate);
-    this.routes.put("/reject/:id", this.requestController.reject);
-    this.routes.put("/priority/:id", this.requestController.priority);
-    this.routes.put("/submit/:id", this.requestController.submit);
+    this.routes.put("/validate/:id", (req, res) => {
+      this.requestController
+        .validate(req.params.id)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+    this.routes.put("/reject/:id", (req, res) => {
+      this.requestController
+        .reject(req.params.id)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+    this.routes.put("/priority/:id", (req, res) => {
+      this.requestController
+        .priority(req.params.id, req.body)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+    this.routes.put("/submit/:id", (req, res) => {
+      this.requestController
+        .submit(req.params.id)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
   }
 }

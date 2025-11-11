@@ -1,4 +1,4 @@
-import { PrismaClient, RequestModel } from "@prisma/client";
+import { Category, PrismaClient, RequestModel } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -8,6 +8,7 @@ export class RequestService {
       data,
     });
   };
+
   update = (
     id: number,
     data: Partial<Omit<RequestModel, "createdAt" | "updatedAt">>
@@ -22,14 +23,17 @@ export class RequestService {
       data: updateData,
     });
   };
+
   getAll = () => {
     return prisma.requestModel.findMany();
   };
+
   getOne = (id: number) => {
     return prisma.requestModel.findUnique({
       where: { id },
     });
   };
+
   getMine = (id: number) => {
     return prisma.requestModel.findMany({
       where: {
@@ -37,6 +41,7 @@ export class RequestService {
       },
     });
   };
+
   delete = (id: number) => {
     return prisma.requestModel.delete({
       where: { id },
@@ -76,6 +81,46 @@ export class RequestService {
       where: { id },
       data: {
         state: "submited",
+      },
+    });
+  };
+
+  // Category
+  createCategory = (data: Category) => {
+    return prisma.category.create({
+      data: data,
+    });
+  };
+
+  updateCategory = (id: number, data: Category) => {
+    return prisma.category.update({
+      where: { id },
+      data: data,
+    });
+  };
+
+  getCategory = (id: number) => {
+    return prisma.category.findUnique({
+      where: { id },
+    });
+  };
+
+  getAllCategories = () => {
+    return prisma.category.findMany();
+  };
+
+  getAllChildren = (parentId: number, special?: boolean) => {
+    return prisma.category.findMany({
+      where: {
+        parentId,
+      },
+    });
+  };
+
+  getAllSpecialCategory = (isSpecial: boolean) => {
+    return prisma.category.findMany({
+      where: {
+        isSpecial,
       },
     });
   };

@@ -1,6 +1,8 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { RequestService } from "../services/requestService";
 import { request } from "../../../../assets/messages/requestMessages.json";
+import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
+import { RequestModel } from "@prisma/client";
 
 const {
   create,
@@ -13,90 +15,65 @@ const {
 
 const requestService = new RequestService();
 
+@Route("request")
+@Tags("Request Routes")
 export default class RequestController {
-  create = (req: Request, res: Response) => {
-    requestService
-      .create(req.body)
-      .then((request) =>
-        res.status(201).json({ message: create.success.create, data: request })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  update = (req: Request, res: Response) => {
-    requestService
-      .update(Number(req.params.id), req.body)
-      .then((request) =>
-        res.status(201).json({ message: create.success.create, data: request })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  getAll = (req: Request, res: Response) => {
-    requestService
-      .getAll()
-      .then((request) =>
-        res.status(201).json({ message: create.success.create, data: request })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  getOne = (req: Request, res: Response) => {
-    requestService
-      .getOne(Number(req.params.id))
-      .then((request) =>
-        res.status(201).json({ message: create.success.create, data: request })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  getMine = (req: Request, res: Response) => {
+  @Post("/")
+  create(
+    @Body() data: Omit<RequestModel, "createdAt" | "updatedAt">
+  ): Promise<RequestModel> {
+    return requestService.create(data);
+  }
+
+  @Put("/{id}")
+  update(
+    @Path() id: string,
+    @Body() data: RequestModel
+  ): Promise<RequestModel> {
+    return requestService.update(Number(id), data);
+  }
+
+  @Get("/")
+  getAll(): Promise<RequestModel[]> {
+    return requestService.getAll();
+  }
+
+  @Get("/{id}")
+  getOne(@Path() id: string): Promise<RequestModel | null> {
+    return requestService.getOne(Number(id));
+  }
+
+  @Get("/mine/{id}")
+  getMine(@Path() id: string): Promise<RequestModel[]> {
     // needs user Id
-    requestService
-      .getMine(req.body)
-      .then((request) =>
-        res.status(201).json({ message: create.success.create, data: request })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  delete = (req: Request, res: Response) => {
-    requestService
-      .delete(Number(req.params.id))
-      .then((request) =>
-        res.status(201).json({ message: create.success.create, data: request })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+    return requestService.getMine(Number(id));
+  }
 
-  validate = (req: Request, res: Response) => {
-    requestService
-      .validate(Number(req.params.id))
-      .then((request) =>
-        res.status(201).json({ message: create.success.create, data: request })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Delete("/{id}")
+  delete(@Path() id: string): Promise<RequestModel | null> {
+    return requestService.delete(Number(id));
+  }
 
-  reject = (req: Request, res: Response) => {
-    requestService
-      .reject(Number(req.params.id))
-      .then((request) =>
-        res.status(201).json({ message: create.success.create, data: request })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Put("/validate/{id}")
+  validate(@Path() id: string): Promise<RequestModel> {
+    return requestService.validate(Number(id));
+  }
 
-  priority = (req: Request, res: Response) => {
-    requestService
-      .priority(Number(req.params.id), req.body.priority)
-      .then((request) =>
-        res.status(201).json({ message: create.success.create, data: request })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Put("/reject/{id}")
+  reject(@Path() id: string): Promise<RequestModel> {
+    return requestService.reject(Number(id));
+  }
 
-  submit = (req: Request, res: Response) => {
-    requestService
-      .submit(Number(req.params.id))
-      .then((request) =>
-        res.status(201).json({ message: create.success.create, data: request })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Put("/priority/{id}")
+  priority(
+    @Path() id: string,
+    @Body() data: { priority: string }
+  ): Promise<RequestModel> {
+    return requestService.priority(Number(id), data.priority);
+  }
+
+  @Put("/submit/{id}")
+  submit(@Path() id: string): Promise<RequestModel> {
+    return requestService.submit(Number(id));
+  }
 }
