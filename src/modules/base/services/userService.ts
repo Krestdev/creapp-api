@@ -1,9 +1,8 @@
 import { PrismaClient, User } from "@prisma/client";
-import Mailer from "../../../utils/email";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { GENERAL_CONFIG } from "../../../config";
-import { disconnect } from "process";
+import Mailer from "../../../utils/email";
 
 const prisma = new PrismaClient();
 

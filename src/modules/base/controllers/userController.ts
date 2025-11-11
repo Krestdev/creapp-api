@@ -1,6 +1,4 @@
-import { Request, Response } from "express";
-import { UserService } from "../services/userService";
-import { user } from "../../../../assets/messages/userMessages.json";
+import { Role, RolePages, User } from "@prisma/client";
 import {
   Body,
   Delete,
@@ -13,19 +11,9 @@ import {
   Route,
   Tags,
 } from "tsoa";
-import { User, Role, RolePages } from "@prisma/client";
+import { UserService } from "../services/userService";
 
 const userService = new UserService();
-
-const {
-  register,
-  update_profile,
-  all_users,
-  get_user_by_id,
-  // profile,
-  delete_account,
-  login,
-} = user;
 
 @Route("base/user")
 @Tags("User Controller")
