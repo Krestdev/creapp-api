@@ -1,6 +1,19 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/userService";
 import { user } from "../../../../assets/messages/userMessages.json";
+import {
+  Body,
+  Delete,
+  Get,
+  Patch,
+  Path,
+  Post,
+  Put,
+  Query,
+  Route,
+  Tags,
+} from "tsoa";
+import { User, Role, RolePages } from "@prisma/client";
 
 const userService = new UserService();
 
@@ -14,72 +27,121 @@ const {
   login,
 } = user;
 
+@Route("base/user")
+@Tags("User Controller")
 export default class UserController {
-  create = (req: Request, res: Response) => {
-    userService
-      .create(req.body)
-      .then((user) =>
-        res.status(201).json({ message: register.success.register, data: user })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  login = (req: Request, res: Response) => {
-    userService
-      .login(req.body)
-      .then((user) =>
-        res.status(200).json({ message: login.success.login, data: user })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  verify = (req: Request<{ otp: string }>, res: Response) => {
-    const { otp } = req.params;
-    const { email } = req.query;
-    userService
-      .verifyAccount(email as string, otp)
-      .then((isValid) => {
-        if (isValid) {
-          return res
-            .status(200)
-            .json({ message: "Account verified successfully" });
-        }
-        return res.status(400).json({ error: "Invalid OTP or email" });
-      })
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  update = (req: Request<{ id: string }>, res: Response) => {
-    userService
-      .update(Number(req.params.id), req.body)
-      .then((user) =>
-        res
-          .status(200)
-          .json({ message: update_profile.success.update, data: user })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  delete = (req: Request<{ id: string }>, res: Response) => {
-    userService
-      .delete(Number(req.params.id))
-      .then(() =>
-        res.status(204).send({ message: delete_account.success.delete })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  getAll = (req: Request, res: Response) => {
-    userService
-      .getAll()
-      .then((users) =>
-        res.status(200).json({ message: all_users.success.list, data: users })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  getOne = (req: Request<{ id: string }>, res: Response) => {
-    userService
-      .getOne(Number(req.params.id))
-      .then((user) =>
-        res
-          .status(200)
-          .json({ message: get_user_by_id.success.details, data: user })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Post("/register")
+  create(@Body() data: User & { roleId: number }) {
+    return userService.create(data);
+  }
+
+  @Post("/login")
+  login(@Body() data: { email: string; password: string }) {
+    return userService.login(data);
+  }
+
+  @Post("/verify/{otp}")
+  verify(@Path() otp: string, @Query() email: string) {
+    return userService.verifyAccount(email as string, otp);
+  }
+
+  @Put("/{id}")
+  update(@Path() id: number, @Body() data: Partial<User> & { role?: string }) {
+    return userService.update(Number(id), data);
+  }
+
+  @Delete("/{id}")
+  delete(@Path() id: string): Promise<User> {
+    return userService.delete(Number(id));
+  }
+
+  @Get("/")
+  getAll(): Promise<
+    ({
+      role: {
+        id: number;
+        label: string;
+      }[];
+    } & Omit<User, "password">)[]
+  > {
+    return userService.getAll();
+  }
+
+  @Get("/{id}")
+  getOne(@Path() id: string): Promise<Omit<User, "password">> {
+    return userService.getOne(Number(id));
+  }
+
+  @Get("/role/list")
+  getRoles(): Promise<Role[]> {
+    return userService.getRoles();
+  }
+
+  @Post("/role/create")
+  createRole(@Body() data: { label: string }): Promise<Role> {
+    return userService.createRole(data);
+  }
+
+  @Post("/{id}/roles")
+  addRole(
+    @Path() id: string,
+    @Body() data: { roleId: string }
+  ): Promise<
+    User & {
+      role: Role[];
+    }
+  > {
+    const { roleId } = data;
+    return userService.addRoleToUser(Number(id), roleId);
+  }
+
+  @Delete("/{id}/roles")
+  removeRole(
+    @Path() id: string,
+    @Body() data: { roleId: number }
+  ): Promise<
+    User & {
+      role: Role[];
+    }
+  > {
+    const { roleId } = data;
+    return userService.removeRoleFromUser(Number(id), roleId);
+  }
+
+  //createRolePage
+  @Post("/createRolePages")
+  createRolePages(@Body() data: { pageIds: string[] }): Promise<unknown> {
+    const { pageIds } = data;
+    return userService.createRolePages(pageIds);
+  }
+
+  //deleteRolePage
+  @Delete("/deleteRolePages")
+  deleteRolePages(@Body() data: { rolePageIds: number[] }): Promise<unknown> {
+    return userService.deleteRolePages(data.rolePageIds);
+  }
+
+  //addPageToRole
+  @Post("/addRolePages")
+  addPageToRole(
+    @Body() data: { roleId: number; pageId: number }
+  ): Promise<RolePages> {
+    const { roleId, pageId } = data;
+    return userService.addPageToRole(roleId, pageId);
+  }
+
+  //removePageFromRole
+  @Patch("/removePageFromRole")
+  removePageFromRole(
+    @Body() data: { roleId: number; pageId: string }
+  ): Promise<RolePages[]> {
+    const { roleId, pageId } = data;
+    return userService.removePageFromRole(roleId, pageId);
+  }
+
+  //getRolePages
+  @Get("/rolePages/{roleId}")
+  getRolePages(@Path() roleId: string): Promise<RolePages[]> {
+    return userService.getRolePages(Number(roleId));
+  }
 }

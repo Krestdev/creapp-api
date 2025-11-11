@@ -1,202 +1,134 @@
-import { Request, Response } from "express";
+import { Department, Member } from "@prisma/client";
+import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { DepartmentService } from "../services/departmentService";
-import { department } from "../../../../assets/messages/departmentMessages.json";
 
 const departmentService = new DepartmentService();
 
-const {
-  create,
-  update,
-  deleteDepartment,
-  get_all,
-  get_one,
-  get_members,
-  add_member,
-  remove_member,
-  get_validators,
-  add_validator,
-  remove_validator,
-  add_final_validator,
-  remove_final_validator,
-  get_final_validators,
-  set_department_chief,
-  unset_department_chief,
-} = department;
-
+@Route("base/Department")
+@Tags("Department Routes")
 export default class DepartmentController {
-  create = (req: Request, res: Response) => {
-    departmentService
-      .create(req.body)
-      .then((department) =>
-        res
-          .status(201)
-          .json({ message: create.success.create, data: department })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  update = (req: Request<{ id: string }>, res: Response) => {
-    departmentService
-      .update(Number(req.params.id), req.body)
-      .then((department) =>
-        res.status(200).json({ message: update.success, data: department })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  delete = (req: Request<{ id: string }>, res: Response) => {
-    departmentService
-      .delete(Number(req.params.id))
-      .then(() => res.status(204).send({ message: deleteDepartment.success }))
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  getAll = (req: Request, res: Response) => {
-    departmentService
-      .getAll()
-      .then((departments) =>
-        res
-          .status(200)
-          .json({ message: get_all.success.fetch, data: departments })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  getOne = (req: Request<{ id: string }>, res: Response) => {
-    departmentService
-      .getOne(Number(req.params.id))
-      .then((department) =>
-        res
-          .status(200)
-          .json({ message: get_one.success.fetch, data: department })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
-  getMembers = (req: Request<{ id: string }>, res: Response) => {
-    departmentService
-      .getMembers(Number(req.params.id))
-      .then((members) =>
-        res
-          .status(200)
-          .json({ message: get_members.success.fetch, data: members })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Post()
+  create(
+    @Body() data: Omit<Department, "createdAt" | "updatedAt">
+  ): Promise<Department> {
+    return departmentService.create(data);
+  }
 
-  addMember = (req: Request, res: Response) => {
-    const { userId } = req.body;
-    const departmentId = Number(req.params.id);
-    departmentService
-      .addMember(departmentId, userId)
-      .then((member) =>
-        res.status(200).json({ message: add_member.success.add, data: member })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Put("/{id}")
+  update(
+    @Path() id: string,
+    @Body() data: Partial<Omit<Department, "createdAt" | "updatedAt">>
+  ): Promise<Department> {
+    return departmentService.update(Number(id), data);
+  }
 
-  removeMember = (req: Request, res: Response) => {
-    const { userId } = req.body;
-    const departmentId = Number(req.params.id);
-    departmentService
-      .removeMember(departmentId, userId)
-      .then(() =>
-        res.status(204).send({ message: remove_member.success.remove })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Delete("/{id}")
+  delete(@Path() id: string): Promise<unknown> {
+    return departmentService.delete(Number(id));
+  }
 
-  getValidators = (req: Request<{ id: string }>, res: Response) => {
-    departmentService
-      .getValidators(Number(req.params.id))
-      .then((validators) =>
-        res
-          .status(200)
-          .json({ message: get_validators.success.fetch, data: validators })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Get("/")
+  getAll(): Promise<Department[]> {
+    return departmentService.getAll();
+  }
 
-  removeValidator = (req: Request, res: Response) => {
-    const { userId } = req.body;
-    const departmentId = Number(req.params.id);
-    departmentService
-      .removeValidator(departmentId, userId)
-      .then(() =>
-        res.status(204).send({ message: remove_validator.success.remove })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Get("/{id}")
+  getOne(@Path() id: string): Promise<Department | null> {
+    return departmentService.getOne(Number(id));
+  }
 
-  addFinalValidator = (req: Request, res: Response) => {
-    const { userId } = req.body;
-    const departmentId = Number(req.params.id);
-    departmentService
-      .addFinalValidator(departmentId, userId)
-      .then((member) =>
-        res
-          .status(200)
-          .json({ message: add_final_validator.success.add, data: member })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Get("/{id}/members")
+  getMembers(@Path() id: string): Promise<Member[]> {
+    return departmentService.getMembers(Number(id));
+  }
 
-  removeFinalValidator = (req: Request, res: Response) => {
-    const { userId } = req.body;
-    const departmentId = Number(req.params.id);
-    departmentService
-      .removeFinalValidator(departmentId, userId)
-      .then(() =>
-        res.status(204).send({ message: remove_final_validator.success.remove })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Post("/{id}/members")
+  addMember(
+    @Path() id: string,
+    @Body() data: { userId: number; label: string }
+  ): Promise<Member> {
+    const { userId, label } = data;
+    const departmentId = Number(id);
+    return departmentService.addMember(departmentId, userId, undefined, label);
+  }
 
-  getFinalValidators = (req: Request<{ id: string }>, res: Response) => {
-    departmentService
-      .getFinalValidators(Number(req.params.id))
-      .then((validators) =>
-        res
-          .status(200)
-          .json({
-            message: get_final_validators.success.fetch,
-            data: validators,
-          })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Delete("/{id}/members")
+  removeMember(
+    @Path() id: string,
+    @Body() data: { userId: number }
+  ): Promise<unknown> {
+    const { userId } = data;
+    const departmentId = Number(id);
+    return departmentService.removeMember(departmentId, userId);
+  }
 
-  addValidator = (req: Request, res: Response) => {
-    const { userId } = req.body;
-    const departmentId = Number(req.params.id);
-    departmentService
-      .addValidator(departmentId, userId)
-      .then((member) =>
-        res
-          .status(200)
-          .json({ message: add_validator.success.add, data: member })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Get("/{id}/validators")
+  getValidators(@Path() id: string): Promise<Member[]> {
+    return departmentService.getValidators(Number(id));
+  }
 
-  setDepartmentChief = (req: Request, res: Response) => {
-    const { userId } = req.body;
-    const departmentId = Number(req.params.id);
-    departmentService
-      .setDepartmentChief(departmentId, userId)
-      .then((member) =>
-        res
-          .status(200)
-          .json({ message: set_department_chief.success.set, data: member })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Delete("/{id}/validators")
+  removeValidator(
+    @Path() id: string,
+    @Body() data: { userId: number }
+  ): Promise<unknown> {
+    const { userId } = data;
+    const departmentId = Number(id);
+    return departmentService.removeValidator(departmentId, userId);
+  }
 
-  unSetDepartmentChief = (req: Request, res: Response) => {
-    const { userId } = req.body;
-    const departmentId = Number(req.params.id);
-    departmentService
-      .unsetDepartmentChief(departmentId, userId)
-      .then((member) =>
-        res
-          .status(200)
-          .json({ message: unset_department_chief.success.chief, data: member })
-      )
-      .catch((error) => res.status(400).json({ error: error.message }));
-  };
+  @Post("/{id}/final-validators")
+  addFinalValidator(
+    @Path() id: string,
+    @Body() data: { userId: number }
+  ): Promise<Member> {
+    const { userId } = data;
+    const departmentId = Number(id);
+    return departmentService.addFinalValidator(departmentId, userId);
+  }
+
+  @Delete("/{id}/final-validators")
+  removeFinalValidator(
+    @Path() id: string,
+    @Body() data: { userId: number }
+  ): Promise<unknown> {
+    const { userId } = data;
+    const departmentId = Number(id);
+    return departmentService.removeFinalValidator(departmentId, userId);
+  }
+
+  @Get("/{id}/final-validators")
+  getFinalValidators(@Path() id: string): Promise<Member[]> {
+    return departmentService.getFinalValidators(Number(id));
+  }
+
+  @Post("/{id}/validators")
+  addValidator(
+    @Path() id: string,
+    @Body() data: { userId: number }
+  ): Promise<Member> {
+    const { userId } = data;
+    const departmentId = Number(id);
+    return departmentService.addValidator(departmentId, userId);
+  }
+
+  @Post("/{id}/chief")
+  setDepartmentChief(
+    @Path() id: string,
+    @Body() data: { userId: number }
+  ): Promise<unknown> {
+    const { userId } = data;
+    const departmentId = Number(id);
+    return departmentService.setDepartmentChief(departmentId, userId);
+  }
+
+  @Delete("/{id}/chief")
+  unSetDepartmentChief(
+    @Path() id: string,
+    @Body() data: { userId: number }
+  ): Promise<unknown> {
+    const { userId } = data;
+    const departmentId = Number(id);
+    return departmentService.unsetDepartmentChief(departmentId, userId);
+  }
 }

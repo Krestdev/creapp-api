@@ -9,5 +9,10 @@ export default defineConfig([
   { files: ["**/*.{js,mjs,cjs,ts,mts,cts}"], languageOptions: { globals: globals.browser } },
   tseslint.configs.recommended,{
     ignores: ["node_modules/*","build/*","generated/*","prisma/*","*/__tests__/*","jest.config.js","coverage/*"]
+  },
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off"
+    }
   }
 ]);

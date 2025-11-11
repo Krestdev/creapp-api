@@ -14,6 +14,8 @@ import { connectBaseRoutes } from "./modules/base/routes";
 import { PROJECT_MODULE_CONFIG } from "./config/ProjectModuleConfig";
 import { connectProjectRoutes } from "./modules/project/routes";
 import { connectRequestRoutes } from "./modules/request/routes";
+import * as swaggerUI from "swagger-ui-express";
+import * as swaggerJson from "../build/swagger.json";
 
 class ApiServer {
   private app = express();
@@ -90,6 +92,11 @@ class ApiServer {
 
   public start() {
     this.connectModules();
+    this.app.use(
+      ["/openapi", "/docs", "/swagger"],
+      swaggerUI.serve,
+      swaggerUI.setup(swaggerJson)
+    );
     this.app.listen(GENERAL_CONFIG.app.port, async () => {
       // Server end point
       console.log(`Server is running on port ${GENERAL_CONFIG.app.port}`);

@@ -3,6 +3,7 @@ import Mailer from "../../../utils/email";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { GENERAL_CONFIG } from "../../../config";
+import { disconnect } from "process";
 
 const prisma = new PrismaClient();
 
@@ -148,10 +149,103 @@ export class UserService {
   }
 
   getOne(id: number) {
-    return prisma.user.findUnique({
+    return prisma.user.findFirstOrThrow({
       where: { id },
       include: { role: true },
       omit: { password: true },
+    });
+  }
+
+  createRole(data: { label: string }) {
+    return prisma.role.create({
+      data,
+    });
+  }
+
+  addRoleToUser(userId: number, roleId: string) {
+    return prisma.user.update({
+      where: { id: userId },
+      include: { role: true },
+      data: {
+        role: {
+          connect: { id: parseInt(roleId, 10) },
+        },
+      },
+    });
+  }
+
+  removeRoleFromUser(userId: number, roleId: number) {
+    return prisma.user.update({
+      where: { id: userId },
+      include: { role: true },
+      data: {
+        role: {
+          disconnect: { id: roleId },
+        },
+      },
+    });
+  }
+
+  getRoles() {
+    return prisma.role.findMany();
+  }
+
+  createRolePages(pageIds: string[]) {
+    return prisma.rolePages.createMany({
+      data: pageIds.map((pageId) => ({
+        pageId,
+      })),
+    });
+  }
+
+  deleteRolePages(rolePageIds: number[]) {
+    return prisma.rolePages.deleteMany({
+      where: {
+        id: { in: rolePageIds },
+      },
+    });
+  }
+
+  addPageToRole(roleId: number, rolePageId: number) {
+    return prisma.rolePages.update({
+      where: { id: rolePageId },
+      data: {
+        authorized: {
+          connect: { id: roleId },
+        },
+      },
+    });
+  }
+
+  async removePageFromRole(roleId: number, pageId: string) {
+    const pages = await prisma.rolePages.findMany({
+      where: { pageId: { startsWith: pageId } },
+    });
+    // For non-parent pages, find the exact page record and update it.
+    const page = pages.find((p) => p.pageId === pageId);
+    if (!page) {
+      throw new Error("Page not found");
+    }
+
+    // updateMany does not support nested relation operations like disconnect,
+    // so perform per-record updates to disconnect the relation.
+    return Promise.all(
+      pages.map((p) =>
+        prisma.rolePages.update({
+          where: { id: p.id },
+          data: {
+            authorized: {
+              disconnect: { id: roleId },
+            },
+          },
+        })
+      )
+    );
+  }
+
+  getRolePages(roleId: number) {
+    return prisma.rolePages.findMany({
+      where: { authorized: { some: { id: roleId } } },
     });
   }
 }

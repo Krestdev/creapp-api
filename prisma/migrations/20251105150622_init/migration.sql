@@ -23,6 +23,14 @@ CREATE TABLE "Role" (
 );
 
 -- CreateTable
+CREATE TABLE "RolePages" (
+    "id" SERIAL NOT NULL,
+    "pageId" TEXT NOT NULL,
+
+    CONSTRAINT "RolePages_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Department" (
     "id" SERIAL NOT NULL,
     "label" TEXT NOT NULL,
@@ -89,6 +97,14 @@ CREATE TABLE "_RoleToUser" (
     CONSTRAINT "_RoleToUser_AB_pkey" PRIMARY KEY ("A","B")
 );
 
+-- CreateTable
+CREATE TABLE "_RoleToRolePages" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
+
+    CONSTRAINT "_RoleToRolePages_AB_pkey" PRIMARY KEY ("A","B")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -100,6 +116,9 @@ CREATE UNIQUE INDEX "Project_chiefId_key" ON "Project"("chiefId");
 
 -- CreateIndex
 CREATE INDEX "_RoleToUser_B_index" ON "_RoleToUser"("B");
+
+-- CreateIndex
+CREATE INDEX "_RoleToRolePages_B_index" ON "_RoleToRolePages"("B");
 
 -- AddForeignKey
 ALTER TABLE "Member" ADD CONSTRAINT "Member_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -121,3 +140,9 @@ ALTER TABLE "_RoleToUser" ADD CONSTRAINT "_RoleToUser_A_fkey" FOREIGN KEY ("A") 
 
 -- AddForeignKey
 ALTER TABLE "_RoleToUser" ADD CONSTRAINT "_RoleToUser_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_RoleToRolePages" ADD CONSTRAINT "_RoleToRolePages_A_fkey" FOREIGN KEY ("A") REFERENCES "Role"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_RoleToRolePages" ADD CONSTRAINT "_RoleToRolePages_B_fkey" FOREIGN KEY ("B") REFERENCES "RolePages"("id") ON DELETE CASCADE ON UPDATE CASCADE;

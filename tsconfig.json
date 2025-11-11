@@ -15,6 +15,7 @@
     // "lib": ["esnext"],
     // "types": ["node"],
     // and npm install -D @types/node
+    "noImplicitAny": false,
 
     // Other Outputs
     "sourceMap": true,
@@ -24,6 +25,7 @@
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
+    "experimentalDecorators": true,
 
     // Style Options
     // "noImplicitReturns": true,
