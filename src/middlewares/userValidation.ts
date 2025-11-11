@@ -201,7 +201,7 @@ export const validateData = (
         break;
 
       case "getRolePages":
-        params = userRole.validate({ id: req.params.roleId });
+        params = userRole.validate({ roleId: req.params.roleId });
         if (params.error) {
           res.status(400).json({ error: params.error.details });
         } else {

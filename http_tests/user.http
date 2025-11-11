@@ -22,7 +22,7 @@ Content-Type: application/json
 
 ### set otp variable
 
-@otp = 426270
+@otp = 183116
 
 ### verify user
 GET {{host}}/user/verify/{{otp}}?email=user1@example.com
@@ -55,4 +55,20 @@ Content-Type: application/json
 {
   "label": "New Department",
   "description": "Department Description"
+}
+
+###
+POST {{host}}/user/role/create
+Content-Type: application/json
+
+{
+  "label": "ADMIN"
+}
+
+###
+POST {{host}}/user/1/roles
+Content-Type: application/json
+
+{
+  "roleId":2
 }

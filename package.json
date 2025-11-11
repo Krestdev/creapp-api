@@ -10,7 +10,7 @@
     "test": "test",
     "dev": "nodemon ./src/index.ts",
     "lint": "eslint",
-    "build": "tsc",
+    "build": "tsoa spec-and-routes && tsc",
     "start": "node ./build/index.js"
   },
   "dependencies": {
@@ -28,7 +28,9 @@
     "morgan": "^1.10.1",
     "nodemailer": "^7.0.10",
     "nodemon": "^3.1.10",
+    "swagger-ui-express": "^5.0.1",
     "ts-node": "^10.9.2",
+    "tsoa": "^6.6.0",
     "typescript-eslint": "^8.46.0"
   },
   "devDependencies": {

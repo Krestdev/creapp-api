@@ -149,7 +149,7 @@ export class UserService {
   }
 
   getOne(id: number) {
-    return prisma.user.findUnique({
+    return prisma.user.findFirstOrThrow({
       where: { id },
       include: { role: true },
       omit: { password: true },
@@ -165,6 +165,7 @@ export class UserService {
   addRoleToUser(userId: number, roleId: string) {
     return prisma.user.update({
       where: { id: userId },
+      include: { role: true },
       data: {
         role: {
           connect: { id: parseInt(roleId, 10) },
@@ -176,6 +177,7 @@ export class UserService {
   removeRoleFromUser(userId: number, roleId: number) {
     return prisma.user.update({
       where: { id: userId },
+      include: { role: true },
       data: {
         role: {
           disconnect: { id: roleId },
