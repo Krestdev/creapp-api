@@ -99,3 +99,59 @@ model Category {
   children  Category[] @relation(name: "CategoryToCategory")
   isSpecial Boolean
 }
+
+model CommandRequest {
+  id            Int        @id @default(autoincrement())
+  reference     String     @unique
+  totalPrice    Int
+  modality      String
+  deliveryDate  DateTime   @default(now())
+  state         String
+  submited      Boolean
+  justification String
+  provider      Provider?  @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  providerId    Int?
+  documents     Document[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model Document {
+  id        Int             @id @default(autoincrement())
+  path      String          @unique
+  size      String
+  cmdRqst   CommandRequest? @relation(fields: [cmdRqstId], references: [id])
+  cmdRqstId Int?
+}
+
+model Provider {
+  id             Int              @id @default(autoincrement())
+  name           String
+  phone          String
+  email          String
+  address        String
+  taxId          String
+  rating         Int
+  commandRequest CommandRequest[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model Payment {
+  id              Int           @id @default(autoincrement())
+  reference       String
+  createdAt       DateTime
+  status          String
+  userId          Int
+  paymentTicket   PaymentTicket @relation(fields: [paymentTicketId], references: [id])
+  paymentTicketId Int
+}
+
+model PaymentTicket {
+  id        Int       @id @default(autoincrement())
+  reference String
+  createdAt DateTime
+  status    String
+  payments  Payment[]
+  userId    Int
+}

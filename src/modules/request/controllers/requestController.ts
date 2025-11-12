@@ -15,9 +15,12 @@ const {
 
 const requestService = new RequestService();
 
-@Route("request")
+@Route("request/object")
 @Tags("Request Routes")
 export default class RequestController {
+  /**
+   * @summary Creates a user request
+   */
   @Post("/")
   create(
     @Body() data: Omit<RequestModel, "createdAt" | "updatedAt">
