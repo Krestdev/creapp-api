@@ -14,7 +14,6 @@ export class DepartmentService {
     id: number,
     data: Partial<Omit<Department, "createdAt" | "updatedAt">>
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = {};
     if (data.label !== undefined) updateData.label = data.label;
     if (data.description !== undefined)

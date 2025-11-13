@@ -116,7 +116,6 @@ export class UserService {
     }
 
     // Build an update object that only includes provided fields to avoid assigning undefined.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = {};
     if (data.email !== undefined) updateData.email = data.email;
     if (data.name !== undefined) updateData.name = data.name;
