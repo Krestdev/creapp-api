@@ -90,6 +90,107 @@ CREATE TABLE "RequestModel" (
 );
 
 -- CreateTable
+CREATE TABLE "Category" (
+    "id" SERIAL NOT NULL,
+    "label" TEXT NOT NULL,
+    "parentId" INTEGER,
+    "isSpecial" BOOLEAN NOT NULL,
+
+    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CommandRequest" (
+    "id" SERIAL NOT NULL,
+    "reference" TEXT NOT NULL,
+    "totalPrice" INTEGER NOT NULL,
+    "modality" TEXT NOT NULL,
+    "deliveryDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "state" TEXT NOT NULL,
+    "submited" BOOLEAN NOT NULL,
+    "justification" TEXT NOT NULL,
+    "providerId" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "CommandRequest_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Document" (
+    "id" SERIAL NOT NULL,
+    "path" TEXT NOT NULL,
+    "size" TEXT NOT NULL,
+    "cmdRqstId" INTEGER,
+
+    CONSTRAINT "Document_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Provider" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
+    "taxId" TEXT NOT NULL,
+    "rating" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Provider_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Payment" (
+    "id" SERIAL NOT NULL,
+    "reference" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL,
+    "status" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "paymentTicketId" INTEGER NOT NULL,
+
+    CONSTRAINT "Payment_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PaymentTicket" (
+    "id" SERIAL NOT NULL,
+    "reference" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL,
+    "status" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
+
+    CONSTRAINT "PaymentTicket_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Accounting" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "banque" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "balance" DOUBLE PRECISION NOT NULL,
+    "currency" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Accounting_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Spending" (
+    "id" SERIAL NOT NULL,
+    "totalSpending" DOUBLE PRECISION NOT NULL,
+    "details" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+    "state" TEXT NOT NULL,
+    "userId" INTEGER,
+
+    CONSTRAINT "Spending_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "_RoleToUser" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL,
@@ -115,6 +216,12 @@ CREATE UNIQUE INDEX "User_projectId_key" ON "User"("projectId");
 CREATE UNIQUE INDEX "Project_chiefId_key" ON "Project"("chiefId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "CommandRequest_reference_key" ON "CommandRequest"("reference");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Document_path_key" ON "Document"("path");
+
+-- CreateIndex
 CREATE INDEX "_RoleToUser_B_index" ON "_RoleToUser"("B");
 
 -- CreateIndex
@@ -134,6 +241,21 @@ ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_userId_fkey" FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Category" ADD CONSTRAINT "Category_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CommandRequest" ADD CONSTRAINT "CommandRequest_providerId_fkey" FOREIGN KEY ("providerId") REFERENCES "Provider"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Document" ADD CONSTRAINT "Document_cmdRqstId_fkey" FOREIGN KEY ("cmdRqstId") REFERENCES "CommandRequest"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Payment" ADD CONSTRAINT "Payment_paymentTicketId_fkey" FOREIGN KEY ("paymentTicketId") REFERENCES "PaymentTicket"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Spending" ADD CONSTRAINT "Spending_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_RoleToUser" ADD CONSTRAINT "_RoleToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "Role"("id") ON DELETE CASCADE ON UPDATE CASCADE;
