@@ -6,6 +6,7 @@ import PaymentRoute from "./paymentRoutes";
 import PaymentTicketRoute from "./paymentTicketRoutes";
 import AccountingRoute from "./accountingRoutes";
 import SpendingRoute from "./spendingRoutes";
+import SignatureRoute from "./signatureRoutes";
 export function connectRequestRoutes() {
   const router = Router();
   const request = new requestRouter();
@@ -15,6 +16,7 @@ export function connectRequestRoutes() {
   const paymentTicketRoute = new PaymentTicketRoute();
   const accountingRoute = new AccountingRoute();
   const spendingRoute = new SpendingRoute();
+  const signatureRoute = new SignatureRoute();
 
   // request routes connection
   router.use("/object", request.routes);
@@ -24,6 +26,9 @@ export function connectRequestRoutes() {
 
   // command request connection
   router.use("/provider", providerRequest.routes);
+
+  // command request connection
+  router.use("/signature", signatureRoute.routes);
 
   // command request connection
   router.use("/spending", spendingRoute.routes);
