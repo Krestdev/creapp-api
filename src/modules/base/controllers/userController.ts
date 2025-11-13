@@ -28,7 +28,7 @@ export default class UserController {
     return userService.login(data);
   }
 
-  @Post("/verify/{otp}")
+  @Get("/verify/{otp}")
   verify(@Path() otp: string, @Query() email: string) {
     return userService.verifyAccount(email as string, otp);
   }
