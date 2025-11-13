@@ -1,17 +1,6 @@
-import { Response } from "express";
-import { RequestService } from "../services/requestService";
-import { request } from "../../../../assets/messages/requestMessages.json";
-import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { RequestModel } from "@prisma/client";
-
-const {
-  create,
-  // update,
-  // delete_request,
-  // get_all,
-  // get_my_requests,
-  // get_by_id
-} = request;
+import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
+import { RequestService } from "../services/requestService";
 
 const requestService = new RequestService();
 

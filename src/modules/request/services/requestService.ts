@@ -109,7 +109,7 @@ export class RequestService {
     return prisma.category.findMany();
   };
 
-  getAllChildren = (parentId: number, special?: boolean) => {
+  getAllChildren = (parentId: number) => {
     return prisma.category.findMany({
       where: {
         parentId,
