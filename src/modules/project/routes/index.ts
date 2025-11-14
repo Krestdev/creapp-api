@@ -5,7 +5,7 @@ export function connectProjectRoutes() {
   const project = new projectRouter();
 
   // project routes connection
-  router.use("/project-manage", project.routes);
+  router.use("/management", project.routes);
 
   // base module connection
   router.use("/", (req, res) => {

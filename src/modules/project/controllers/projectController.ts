@@ -4,7 +4,7 @@ import { ProjectService } from "../services/projectServices";
 
 const projectService = new ProjectService();
 
-@Route("project")
+@Route("project/management")
 @Tags("Projects Controller")
 export default class ProjectController {
   @Post("/")
