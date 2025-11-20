@@ -11,6 +11,7 @@ export class RequestService {
     return prisma.requestModel.create({
       data: {
         ...data,
+        ref,
         beficiaryList: {
           connect: benList
             ? benList.map((beId) => {
@@ -69,7 +70,7 @@ export class RequestService {
     });
   };
 
-  review = (id: number, data: { userId: number; validated: Boolean }) => {
+  review = (id: number, data: { userId: number; validated: boolean }) => {
     return prisma.requestValidation.create({
       data: {
         validatorId: data.userId,
