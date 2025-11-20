@@ -15,7 +15,8 @@ export default class RequestController {
     @Body()
     data: Omit<RequestModel, "createdAt" | "updatedAt"> & { benef?: number[] }
   ): Promise<RequestModel> {
-    return requestService.create(data, data.benef);
+    const { benef, ...ndata } = data;
+    return requestService.create(ndata, benef);
   }
 
   @Put("/{id}")

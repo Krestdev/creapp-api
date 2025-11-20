@@ -106,6 +106,17 @@ export default class RequestRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    this.routes.put("/review/:id", (req, res) => {
+      this.requestController
+        .reviewed(req.params.id, req.body)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     this.routes.put("/reject/:id", (req, res) => {
       this.requestController
         .reject(req.params.id)

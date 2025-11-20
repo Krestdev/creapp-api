@@ -28,22 +28,44 @@ export class RequestService {
     data: Partial<Omit<RequestModel, "createdAt" | "updatedAt">>
   ) => {
     const updateData: any = {};
-    if (data.label !== undefined) updateData.label = data.label;
-    if (data.description !== undefined)
-      updateData.description = data.description;
+    const { label, description, ...ndata } = data;
+    if (data.label !== undefined) updateData.label = label;
+    if (data.description !== undefined) updateData.description = description;
+
     return prisma.requestModel.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...updateData,
+        ...ndata,
+      },
     });
   };
 
   getAll = () => {
-    return prisma.requestModel.findMany();
+    return prisma.requestModel.findMany({
+      include: {
+        beficiaryList: {
+          omit: {
+            password: true,
+            verified: true,
+            createdAt: true,
+            updatedAt: true,
+            projectId: true,
+            phone: true,
+            verificationOtp: true,
+          },
+        },
+        revieweeList: true,
+      },
+    });
   };
 
   getOne = (id: number) => {
     return prisma.requestModel.findUnique({
       where: { id },
+      include: {
+        revieweeList: true,
+      },
     });
   };
 
@@ -51,6 +73,19 @@ export class RequestService {
     return prisma.requestModel.findMany({
       where: {
         userId: id,
+      },
+      include: {
+        beficiaryList: {
+          omit: {
+            password: true,
+            verified: true,
+            createdAt: true,
+            updatedAt: true,
+            projectId: true,
+            phone: true,
+            verificationOtp: true,
+          },
+        },
       },
     });
   };
@@ -145,6 +180,12 @@ export class RequestService {
       where: {
         isSpecial,
       },
+    });
+  };
+
+  deleteCategory = (id: number) => {
+    return prisma.category.delete({
+      where: { id },
     });
   };
 }
