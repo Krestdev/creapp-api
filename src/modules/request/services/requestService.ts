@@ -3,9 +3,22 @@ import { Category, PrismaClient, RequestModel } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export class RequestService {
-  create = (data: Omit<RequestModel, "createdAt" | "updatedAt">) => {
+  create = (
+    data: Omit<RequestModel, "createdAt" | "updatedAt">,
+    benList?: number[]
+  ) => {
+    const ref = "ref-" + new Date().getTime();
     return prisma.requestModel.create({
-      data,
+      data: {
+        ...data,
+        beficiaryList: {
+          connect: benList
+            ? benList.map((beId) => {
+                return { id: beId };
+              })
+            : [],
+        },
+      },
     });
   };
 
@@ -56,6 +69,16 @@ export class RequestService {
     });
   };
 
+  review = (id: number, data: { userId: number; validated: Boolean }) => {
+    return prisma.requestValidation.create({
+      data: {
+        validatorId: data.userId,
+        requestId: id,
+        decision: data.validated ? "validated" : "rejected",
+      },
+    });
+  };
+
   reject = (id: number) => {
     return prisma.requestModel.update({
       where: { id },
@@ -98,7 +121,7 @@ export class RequestService {
     });
   };
 
-  getCategory = (id: number) => {
+  getOneCategory = (id: number) => {
     return prisma.category.findUnique({
       where: { id },
     });

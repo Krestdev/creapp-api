@@ -30,6 +30,18 @@ export default class RequestRoute {
         )
         .catch((error) => res.status(400).json({ error: error.message }));
     });
+
+    this.routes.get("/category", (req, res) => {
+      this.requestController
+        .getGategory()
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     this.routes.get("/:id", (req, res) => {
       this.requestController
         .getOne(req.params.id)
@@ -40,6 +52,7 @@ export default class RequestRoute {
         )
         .catch((error) => res.status(400).json({ error: error.message }));
     });
+
     this.routes.get("/mine/:id", (req, res) => {
       this.requestController
         .getMine(req.params.id)
@@ -50,6 +63,7 @@ export default class RequestRoute {
         )
         .catch((error) => res.status(400).json({ error: error.message }));
     });
+
     this.routes.post("/", (req, res) => {
       this.requestController
         .create(req.body)
@@ -91,6 +105,7 @@ export default class RequestRoute {
         )
         .catch((error) => res.status(400).json({ error: error.message }));
     });
+
     this.routes.put("/reject/:id", (req, res) => {
       this.requestController
         .reject(req.params.id)
@@ -101,6 +116,7 @@ export default class RequestRoute {
         )
         .catch((error) => res.status(400).json({ error: error.message }));
     });
+
     this.routes.put("/priority/:id", (req, res) => {
       this.requestController
         .priority(req.params.id, req.body)
@@ -114,6 +130,60 @@ export default class RequestRoute {
     this.routes.put("/submit/:id", (req, res) => {
       this.requestController
         .submit(req.params.id)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.get("/category/special", (req, res) => {
+      this.requestController
+        .getSpecialCategories()
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.get("/category/:id", (req, res) => {
+      this.requestController
+        .getOneCategory(req.params.id)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.put("/category/:id", (req, res) => {
+      this.requestController
+        .updateOneCategory(req.params.id, req.body)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.put("/category/:id/children", (req, res) => {
+      this.requestController
+        .getChilrenCategories(req.params.id)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+    this.routes.post("/category", (req, res) => {
+      this.requestController
+        .createCategory(req.body)
         .then((request) =>
           res
             .status(201)

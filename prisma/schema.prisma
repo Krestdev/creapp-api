@@ -8,21 +8,23 @@ generator client {
 }
 
 model User {
-  id              Int            @id @default(autoincrement())
-  email           String         @unique
+  id              Int                 @id @default(autoincrement())
+  email           String              @unique
   name            String
   phone           String
   password        String
   role            Role[]
   members         Member[]
+  benefits        RequestModel[]      @relation(name: "userbeneficiary")
   requests        RequestModel[]
+  requestReveiwed RequestValidation[]
   spending        Spending[]
-  project         Project?       @relation("ProjectChief")
-  projectId       Int?           @unique
+  project         Project?            @relation("ProjectChief")
+  projectId       Int?                @unique
   verificationOtp String?
-  verified        Boolean        @default(false)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  verified        Boolean             @default(false)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 }
 
 model Role {
@@ -73,31 +75,45 @@ model Project {
   updatedAt   DateTime       @updatedAt
 }
 
+model RequestValidation {
+  id          Int          @id @default(autoincrement())
+  decision    String
+  validator   User         @relation(references: [id], fields: [validatorId])
+  validatorId Int
+  request     RequestModel @relation(references: [id], fields: [requestId])
+  requestId   Int
+}
+
 model RequestModel {
-  id            Int      @id @default(autoincrement())
+  id            Int                 @id @default(autoincrement())
+  ref           String
   label         String
   description   String?
   quantity      Int
   dueDate       DateTime
   unit          String
   beneficiary   String
-  beficiaryList String?
-  state         String   @default("pending")
-  proprity      String   @default("normal")
-  user          User     @relation(fields: [userId], references: [id])
+  beficiaryList User[]              @relation(name: "userbeneficiary")
+  revieweeList  RequestValidation[]
+  state         String              @default("pending")
+  proprity      String              @default("normal")
+  category      Category            @relation(name: "RequestCategory", references: [id], fields: [categoryId])
+  categoryId    Int
+  user          User                @relation(fields: [userId], references: [id])
   userId        Int
-  project       Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  project       Project?            @relation(fields: [projectId], references: [id], onDelete: SetNull)
   projectId     Int?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
 }
 
 model Category {
-  id        Int        @id @default(autoincrement())
+  id        Int            @id @default(autoincrement())
   label     String
-  parent    Category?  @relation(name: "CategoryToCategory", fields: [parentId], references: [id], onDelete: SetNull)
+  parent    Category?      @relation(name: "CategoryToCategory", fields: [parentId], references: [id], onDelete: SetNull)
   parentId  Int?
-  children  Category[] @relation(name: "CategoryToCategory")
+  children  Category[]     @relation(name: "CategoryToCategory")
+  requests  RequestModel[] @relation(name: "RequestCategory")
   isSpecial Boolean
 }
 

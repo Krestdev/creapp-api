@@ -72,15 +72,16 @@ CREATE TABLE "Project" (
 -- CreateTable
 CREATE TABLE "RequestModel" (
     "id" SERIAL NOT NULL,
+    "ref" TEXT NOT NULL,
     "label" TEXT NOT NULL,
     "description" TEXT,
     "quantity" INTEGER NOT NULL,
     "dueDate" TIMESTAMP(3) NOT NULL,
     "unit" TEXT NOT NULL,
     "beneficiary" TEXT NOT NULL,
-    "beficiaryList" TEXT,
     "state" TEXT NOT NULL DEFAULT 'pending',
     "proprity" TEXT NOT NULL DEFAULT 'normal',
+    "categoryId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
     "projectId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -219,6 +220,14 @@ CREATE TABLE "_RoleToRolePages" (
     CONSTRAINT "_RoleToRolePages_AB_pkey" PRIMARY KEY ("A","B")
 );
 
+-- CreateTable
+CREATE TABLE "_userbeneficiary" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
+
+    CONSTRAINT "_userbeneficiary_AB_pkey" PRIMARY KEY ("A","B")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -240,6 +249,9 @@ CREATE INDEX "_RoleToUser_B_index" ON "_RoleToUser"("B");
 -- CreateIndex
 CREATE INDEX "_RoleToRolePages_B_index" ON "_RoleToRolePages"("B");
 
+-- CreateIndex
+CREATE INDEX "_userbeneficiary_B_index" ON "_userbeneficiary"("B");
+
 -- AddForeignKey
 ALTER TABLE "Member" ADD CONSTRAINT "Member_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -248,6 +260,9 @@ ALTER TABLE "Member" ADD CONSTRAINT "Member_departmentId_fkey" FOREIGN KEY ("dep
 
 -- AddForeignKey
 ALTER TABLE "Project" ADD CONSTRAINT "Project_chiefId_fkey" FOREIGN KEY ("chiefId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -281,3 +296,9 @@ ALTER TABLE "_RoleToRolePages" ADD CONSTRAINT "_RoleToRolePages_A_fkey" FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE "_RoleToRolePages" ADD CONSTRAINT "_RoleToRolePages_B_fkey" FOREIGN KEY ("B") REFERENCES "RolePages"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_userbeneficiary" ADD CONSTRAINT "_userbeneficiary_A_fkey" FOREIGN KEY ("A") REFERENCES "RequestModel"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_userbeneficiary" ADD CONSTRAINT "_userbeneficiary_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
