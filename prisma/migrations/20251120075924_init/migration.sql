@@ -70,6 +70,16 @@ CREATE TABLE "Project" (
 );
 
 -- CreateTable
+CREATE TABLE "RequestValidation" (
+    "id" SERIAL NOT NULL,
+    "decision" TEXT NOT NULL,
+    "validatorId" INTEGER NOT NULL,
+    "requestId" INTEGER NOT NULL,
+
+    CONSTRAINT "RequestValidation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "RequestModel" (
     "id" SERIAL NOT NULL,
     "ref" TEXT NOT NULL,
@@ -260,6 +270,12 @@ ALTER TABLE "Member" ADD CONSTRAINT "Member_departmentId_fkey" FOREIGN KEY ("dep
 
 -- AddForeignKey
 ALTER TABLE "Project" ADD CONSTRAINT "Project_chiefId_fkey" FOREIGN KEY ("chiefId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RequestValidation" ADD CONSTRAINT "RequestValidation_validatorId_fkey" FOREIGN KEY ("validatorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RequestValidation" ADD CONSTRAINT "RequestValidation_requestId_fkey" FOREIGN KEY ("requestId") REFERENCES "RequestModel"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
