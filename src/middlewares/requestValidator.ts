@@ -11,6 +11,7 @@ const request = Joi.object({
   state: Joi.string(),
   priority: Joi.string(),
   UserId: Joi.number(),
+  categoryId: Joi.number(),
 });
 
 // const requestUpdatePriority = Joi.object({
@@ -32,6 +33,7 @@ const requestUpdate = Joi.object({
   benficiary: Joi.string(),
   state: Joi.string(),
   UserId: Joi.number(),
+  categoryId: Joi.number(),
 });
 
 const requestParam = Joi.object({
