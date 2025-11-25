@@ -96,6 +96,7 @@ CREATE TABLE "RequestModel" (
     "projectId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "commandRequestId" INTEGER,
 
     CONSTRAINT "RequestModel_pkey" PRIMARY KEY ("id")
 );
@@ -114,7 +115,6 @@ CREATE TABLE "Category" (
 CREATE TABLE "CommandRequest" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
-    "besoins" TEXT NOT NULL,
     "dueDate" TIMESTAMP(3) NOT NULL,
     "reference" TEXT NOT NULL,
     "totalPrice" INTEGER NOT NULL,
@@ -289,6 +289,9 @@ ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_userId_fkey" FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_commandRequestId_fkey" FOREIGN KEY ("commandRequestId") REFERENCES "CommandRequest"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Category" ADD CONSTRAINT "Category_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -4,9 +4,16 @@ const prisma = new PrismaClient();
 
 export class CommandRequestService {
   // Create
-  create = (data: CommandRequest) => {
+  create = (data: CommandRequest, requests: number[]) => {
     return prisma.commandRequest.create({
-      data,
+      data: {
+        ...data,
+        besoins: {
+          connect: requests.map((id) => {
+            return { id };
+          }),
+        },
+      },
     });
   };
 

@@ -8,8 +8,11 @@ const cmdRequestService = new CommandRequestService();
 @Tags("Command request Routes")
 export default class CmdRequestController {
   @Post("/")
-  create(@Body() data: CommandRequest): Promise<CommandRequest> {
-    return cmdRequestService.create(data);
+  create(
+    @Body() data: CommandRequest & { requests: number[] }
+  ): Promise<CommandRequest> {
+    const { requests, ...ndata } = data;
+    return cmdRequestService.create(ndata, requests);
   }
 
   /**
