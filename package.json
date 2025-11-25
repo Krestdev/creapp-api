@@ -8,7 +8,7 @@
   "main": "index.js",
   "scripts": {
     "test": "test",
-    "dev": "nodemon ./src/index.ts",
+    "dev": "nodemon --verbose ./src/index.ts",
     "lint": "eslint",
     "build": "tsoa spec-and-routes && tsc",
     "start": "node ./build/index.js"

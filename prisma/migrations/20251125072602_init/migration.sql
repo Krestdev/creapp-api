@@ -113,6 +113,9 @@ CREATE TABLE "Category" (
 -- CreateTable
 CREATE TABLE "CommandRequest" (
     "id" SERIAL NOT NULL,
+    "title" TEXT NOT NULL,
+    "besoins" TEXT NOT NULL,
+    "dueDate" TIMESTAMP(3) NOT NULL,
     "reference" TEXT NOT NULL,
     "totalPrice" INTEGER NOT NULL,
     "modality" TEXT NOT NULL,
@@ -123,6 +126,7 @@ CREATE TABLE "CommandRequest" (
     "providerId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "userId" INTEGER NOT NULL,
 
     CONSTRAINT "CommandRequest_pkey" PRIMARY KEY ("id")
 );
@@ -291,6 +295,9 @@ ALTER TABLE "Category" ADD CONSTRAINT "Category_parentId_fkey" FOREIGN KEY ("par
 
 -- AddForeignKey
 ALTER TABLE "CommandRequest" ADD CONSTRAINT "CommandRequest_providerId_fkey" FOREIGN KEY ("providerId") REFERENCES "Provider"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CommandRequest" ADD CONSTRAINT "CommandRequest_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Document" ADD CONSTRAINT "Document_cmdRqstId_fkey" FOREIGN KEY ("cmdRqstId") REFERENCES "CommandRequest"("id") ON DELETE SET NULL ON UPDATE CASCADE;

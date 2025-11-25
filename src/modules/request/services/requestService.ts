@@ -25,7 +25,8 @@ export class RequestService {
 
   update = (
     id: number,
-    data: Partial<Omit<RequestModel, "createdAt" | "updatedAt">>
+    data: Partial<Omit<RequestModel, "createdAt" | "updatedAt">>,
+    benList?: number[]
   ) => {
     const updateData: any = {};
     const { label, description, ...ndata } = data;
@@ -37,6 +38,13 @@ export class RequestService {
       data: {
         ...updateData,
         ...ndata,
+        beficiaryList: {
+          connect: benList
+            ? benList.map((beId) => {
+                return { id: beId };
+              })
+            : [],
+        },
       },
     });
   };
@@ -105,14 +113,28 @@ export class RequestService {
     });
   };
 
-  review = (id: number, data: { userId: number; validated: boolean }) => {
-    return prisma.requestValidation.create({
-      data: {
-        validatorId: data.userId,
-        requestId: id,
-        decision: data.validated ? "validated" : "rejected",
-      },
-    });
+  review = (
+    id: number,
+    data: { userId: number; validated: boolean; decision?: string }
+  ) => {
+    return prisma.requestModel
+      .update({
+        where: { id },
+        data: {
+          state: "rejected",
+        },
+      })
+      .then(() => {
+        return prisma.requestValidation.create({
+          data: {
+            validatorId: data.userId,
+            decision: data.validated
+              ? "validated"
+              : `rejected ${data.decision}`,
+            requestId: id,
+          },
+        });
+      });
   };
 
   reject = (id: number) => {

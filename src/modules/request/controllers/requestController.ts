@@ -22,9 +22,10 @@ export default class RequestController {
   @Put("/{id}")
   update(
     @Path() id: string,
-    @Body() data: RequestModel
+    @Body() data: RequestModel & { benef?: number[] }
   ): Promise<RequestModel> {
-    return requestService.update(Number(id), data);
+    const { benef, ...ndata } = data;
+    return requestService.update(Number(id), ndata, benef);
   }
 
   @Get("/")
@@ -56,7 +57,7 @@ export default class RequestController {
   @Put("/review/{id}")
   reviewed(
     @Path() id: string,
-    @Body() data: { userId: number; validated: boolean }
+    @Body() data: { userId: number; validated: boolean; decision?: string }
   ): Promise<RequestValidation> {
     return requestService.review(Number(id), data);
   }
