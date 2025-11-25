@@ -36,7 +36,11 @@ export class CommandRequestService {
 
   // Get all
   getAll = () => {
-    return prisma.commandRequest.findMany();
+    return prisma.commandRequest.findMany({
+      include: {
+        besoins: true,
+      },
+    });
   };
 
   // Get one
