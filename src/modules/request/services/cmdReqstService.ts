@@ -5,9 +5,11 @@ const prisma = new PrismaClient();
 export class CommandRequestService {
   // Create
   create = (data: CommandRequest, requests: number[]) => {
+    const ref = "ref-" + new Date().getTime();
     return prisma.commandRequest.create({
       data: {
         ...data,
+        reference: ref,
         besoins: {
           connect: requests.map((id) => {
             return { id };
