@@ -40,6 +40,8 @@ EXPOSE 5000
 #   npx prisma migrate deploy && \
 #   npm run start"
 
-CMD sh -c "npx prisma migrate reset --force && npx prisma migrate deploy && \
+# CMD sh -c "npx prisma migrate reset --force && npx prisma migrate deploy && \
+#   npm run start"
+CMD sh -c "npx prisma migrate deploy && \
   npm run start"
 

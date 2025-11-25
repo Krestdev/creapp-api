@@ -104,7 +104,7 @@ export class DepartmentService {
         },
         data: {
           label: "final_validator",
-          validator: true,
+          validator: false,
           finalValidator: true,
         },
       });
