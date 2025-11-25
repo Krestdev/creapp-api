@@ -121,7 +121,7 @@ export class RequestService {
       .update({
         where: { id },
         data: {
-          state: "rejected",
+          state: data.validated ? "validated" : "rejected",
         },
       })
       .then(() => {
