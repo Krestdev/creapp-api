@@ -108,6 +108,7 @@ model RequestModel {
   updatedAt        DateTime            @updatedAt
   commandRequest   CommandRequest?     @relation(fields: [commandRequestId], references: [id])
   commandRequestId Int?
+  devis            devis[]
 }
 
 model Category {
@@ -141,6 +142,17 @@ model CommandRequest {
   userId        Int
 }
 
+model Devi {
+  id             Int          @id @default(autoincrement())
+  request        RequestModel @relation(fields: [requestModelId], references: [id])
+  provider       Provider     @relation(fields: [providerId], references: [id])
+  quantity       Int
+  priceProposed  Int
+  proof          String
+  requestModelId Int
+  providerId     Int
+}
+
 model Document {
   id        Int             @id @default(autoincrement())
   path      String          @unique
@@ -160,6 +172,7 @@ model Provider {
   commandRequest CommandRequest[]
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
+  devis          devis[]
 }
 
 model Payment {
