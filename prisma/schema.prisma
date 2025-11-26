@@ -108,7 +108,7 @@ model RequestModel {
   updatedAt        DateTime            @updatedAt
   commandRequest   CommandRequest?     @relation(fields: [commandRequestId], references: [id])
   commandRequestId Int?
-  devis            devis[]
+  devis            Devi[]
 }
 
 model Category {
@@ -172,7 +172,7 @@ model Provider {
   commandRequest CommandRequest[]
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
-  devis          devis[]
+  devis          Devi[]
 }
 
 model Payment {
