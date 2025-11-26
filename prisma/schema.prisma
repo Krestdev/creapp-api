@@ -108,7 +108,9 @@ model RequestModel {
   updatedAt        DateTime            @updatedAt
   commandRequest   CommandRequest?     @relation(fields: [commandRequestId], references: [id])
   commandRequestId Int?
-  devis            Devi[]
+  command          Command?            @relation(fields: [commandId], references: [id])
+  commandId        Int?
+  deviElements     DeviElement[]
 }
 
 model Category {
@@ -143,14 +145,36 @@ model CommandRequest {
 }
 
 model Devi {
-  id             Int          @id @default(autoincrement())
-  request        RequestModel @relation(fields: [requestModelId], references: [id])
-  provider       Provider     @relation(fields: [providerId], references: [id])
+  id         Int           @id @default(autoincrement())
+  provider   Provider      @relation(fields: [providerId], references: [id])
+  providerId Int
+  proof      String
+  element    DeviElement[]
+}
+
+model DeviElement {
+  id             Int           @id @default(autoincrement())
+  request        RequestModel? @relation(fields: [requestModelId], references: [id])
+  requestModelId Int?
   quantity       Int
   priceProposed  Int
-  proof          String
-  requestModelId Int
-  providerId     Int
+  devi           Devi          @relation(fields: [deviId], references: [id])
+  deviId         Int
+}
+
+model Command {
+  id               Int            @id @default(autoincrement())
+  provider         Provider       @relation(fields: [providerId], references: [id])
+  deliveryDelay    DateTime
+  paymentTerms     String
+  paymentMethod    String
+  priority         String
+  deliveryLocation String
+  hasPenalties     Boolean
+  penaltyMode      String
+  amountBase       Int
+  requests         RequestModel[]
+  providerId       Int
 }
 
 model Document {
@@ -173,6 +197,7 @@ model Provider {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   devis          Devi[]
+  commands       Command[]
 }
 
 model Payment {
