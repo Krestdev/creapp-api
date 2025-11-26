@@ -30,7 +30,7 @@ export default class DeviController {
     return deviService.updateDeviElement(Number(id), data);
   }
 
-  @Put("/element/{id}")
+  @Put("/element/add/{id}")
   async addDeviElement(
     @Path() id: string,
     @Body() data: { ndata: DeviElement[]; ids?: number[] }
