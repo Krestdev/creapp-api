@@ -1,3 +1,4 @@
+name: creapp
 services:
   creappapi:
     container_name: creappapi
@@ -6,7 +7,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file:
-      - ../.env
+      - ./.env
     volumes:
       - /root/backup/creapp/api-data:/app/uploads
     ports:
