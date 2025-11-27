@@ -53,9 +53,9 @@ model Department {
 model Member {
   id             Int        @id @default(autoincrement())
   label          String
-  user           User       @relation(fields: [userId], references: [id])
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId         Int
-  department     Department @relation(fields: [departmentId], references: [id])
+  department     Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   departmentId   Int
   validator      Boolean    @default(false)
   chief          Boolean    @default(false)
@@ -79,9 +79,9 @@ model Project {
 model RequestValidation {
   id          Int          @id @default(autoincrement())
   decision    String
-  validator   User         @relation(references: [id], fields: [validatorId])
+  validator   User         @relation(references: [id], fields: [validatorId], onDelete: Cascade)
   validatorId Int
-  request     RequestModel @relation(references: [id], fields: [requestId])
+  request     RequestModel @relation(references: [id], fields: [requestId], onDelete: Cascade)
   requestId   Int
 }
 
@@ -100,13 +100,13 @@ model RequestModel {
   proprity         String              @default("normal")
   category         Category            @relation(name: "RequestCategory", references: [id], fields: [categoryId])
   categoryId       Int
-  user             User                @relation(fields: [userId], references: [id])
+  user             User                @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId           Int
   project          Project?            @relation(fields: [projectId], references: [id], onDelete: SetNull)
   projectId        Int?
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
-  commandRequest   CommandRequest?     @relation(fields: [commandRequestId], references: [id])
+  commandRequest   CommandRequest?     @relation(fields: [commandRequestId], references: [id], onDelete: SetNull)
   commandRequestId Int?
   command          Command?            @relation(fields: [commandId], references: [id])
   commandId        Int?
@@ -137,7 +137,7 @@ model CommandRequest {
   justification String
   provider      Provider?      @relation(fields: [providerId], references: [id], onDelete: SetNull)
   providerId    Int?
-  user          User           @relation(fields: [userId], references: [id])
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   documents     Document[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -154,17 +154,17 @@ model Devi {
 
 model DeviElement {
   id             Int           @id @default(autoincrement())
-  request        RequestModel? @relation(fields: [requestModelId], references: [id])
+  request        RequestModel? @relation(fields: [requestModelId], references: [id], onDelete: SetNull)
   requestModelId Int?
   quantity       Int
   priceProposed  Int
-  devi           Devi          @relation(fields: [deviId], references: [id])
+  devi           Devi          @relation(fields: [deviId], references: [id], onDelete: Cascade)
   deviId         Int
 }
 
 model Command {
   id               Int            @id @default(autoincrement())
-  provider         Provider       @relation(fields: [providerId], references: [id])
+  provider         Provider       @relation(fields: [providerId], references: [id], onDelete: Cascade)
   deliveryDelay    DateTime
   paymentTerms     String
   paymentMethod    String
@@ -181,7 +181,7 @@ model Document {
   id        Int             @id @default(autoincrement())
   path      String          @unique
   size      String
-  cmdRqst   CommandRequest? @relation(fields: [cmdRqstId], references: [id])
+  cmdRqst   CommandRequest? @relation(fields: [cmdRqstId], references: [id], onDelete: SetNull)
   cmdRqstId Int?
 }
 
@@ -206,7 +206,7 @@ model Payment {
   createdAt       DateTime
   status          String
   userId          Int
-  paymentTicket   PaymentTicket @relation(fields: [paymentTicketId], references: [id])
+  paymentTicket   PaymentTicket @relation(fields: [paymentTicketId], references: [id], onDelete: Cascade)
   paymentTicketId Int
 }
 
