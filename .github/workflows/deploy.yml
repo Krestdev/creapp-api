@@ -72,7 +72,7 @@ jobs:
 
             # Remove any containers that might conflict
             docker rm -f creappapi 2>/dev/null || true
-            docker rmi current-creappapi:latest 2>/dev/null || true
+            docker rmi creapp-creappapi:latest 2>/dev/null || true
 
             # Build and run the new image
             docker compose up -d --build
