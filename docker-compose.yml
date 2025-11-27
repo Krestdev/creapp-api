@@ -1,7 +1,5 @@
-name: creapp
 services:
   creappapi:
-    container_name: creappapi
     build:
       context: ./
       dockerfile: Dockerfile
@@ -18,7 +16,6 @@ services:
       - caddy-net
   
   postgres:
-    container_name: creapp_postgres
     image: postgres:16
     restart: unless-stopped
     env_file:
