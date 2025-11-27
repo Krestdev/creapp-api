@@ -19,7 +19,7 @@ services:
     image: postgres:16
     restart: unless-stopped
     env_file:
-      - ../.env
+      - ./.env
     volumes:
       - /root/backup/creapp/postgres-data:/var/lib/postgresql/data
     ports:
