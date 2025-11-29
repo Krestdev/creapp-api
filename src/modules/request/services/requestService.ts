@@ -83,6 +83,7 @@ export class RequestService {
         userId: id,
       },
       include: {
+        revieweeList: true,
         beficiaryList: {
           omit: {
             password: true,
