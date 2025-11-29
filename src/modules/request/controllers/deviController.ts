@@ -32,7 +32,7 @@ export default class DeviController {
 
   @Put("/element/remove/{id}")
   removeElement(
-    @Path() id: String,
+    @Path() id: string,
     @Body() elementIds: number[]
   ): Promise<Devi> {
     return deviService.removeElement(Number(id), elementIds);
