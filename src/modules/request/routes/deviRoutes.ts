@@ -56,6 +56,30 @@ export default class DeviRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    // delete
+    this.routes.delete("/element/:id", (req, res) => {
+      this.deviController
+        .deleteElement(req.params.id)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    // delete
+    this.routes.delete("/element/", (req, res) => {
+      this.deviController
+        .getAllElement()
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // getAll
     this.routes.get("/", (req, res) => {
       this.deviController
@@ -68,10 +92,58 @@ export default class DeviRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    // getAll
+    this.routes.get("/element/", (req, res) => {
+      this.deviController
+        .getAllElement()
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // getOne
     this.routes.get("/:id", (req, res) => {
       this.deviController
         .getOne(req.params.id)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    // update devis element
+    this.routes.put("/element/:id", (req, res) => {
+      this.deviController
+        .updateDeviElement(req.params.id, req.body)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    // add devis element
+    this.routes.put("/element/add/:id", (req, res) => {
+      this.deviController
+        .addDeviElement(req.params.id, req.body)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    // add devis element
+    this.routes.put("/element/remove/:id", (req, res) => {
+      this.deviController
+        .removeElement(req.params.id, req.body)
         .then((request) =>
           res
             .status(201)

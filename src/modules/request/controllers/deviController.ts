@@ -30,6 +30,14 @@ export default class DeviController {
     return deviService.updateDeviElement(Number(id), data);
   }
 
+  @Put("/element/remove/{id}")
+  removeElement(
+    @Path() id: String,
+    @Body() elementIds: number[]
+  ): Promise<Devi> {
+    return deviService.removeElement(Number(id), elementIds);
+  }
+
   @Put("/element/add/{id}")
   async addDeviElement(
     @Path() id: string,
@@ -44,8 +52,8 @@ export default class DeviController {
   }
 
   @Delete("/element/{id}")
-  deleteElement(@Path() id: number): Promise<DeviElement> {
-    return deviService.deleteElement(id);
+  deleteElement(@Path() id: string): Promise<DeviElement> {
+    return deviService.deleteElement(Number(id));
   }
 
   @Get("/element/")

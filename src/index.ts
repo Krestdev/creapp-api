@@ -102,7 +102,10 @@ class ApiServer {
       console.log(`Server is running on port ${GENERAL_CONFIG.app.port}`);
 
       // server base urls
-      console.table(this.appUrl);
+      console.table([
+        ...this.appUrl,
+        { url: "docs", value: "http://localhost:5000/docs" },
+      ]);
 
       const ModulesState = await checkModules(MODULES_LIST);
       // server modules
