@@ -21,9 +21,10 @@ export default class CmdRequestController {
   @Put("/{id}")
   update(
     @Path() id: string,
-    @Body() data: CommandRequest
+    @Body() data: CommandRequest & { requests: number[] }
   ): Promise<CommandRequest> {
-    return cmdRequestService.update(Number(id), data);
+    const { requests, ...ndata } = data;
+    return cmdRequestService.update(Number(id), ndata, requests);
   }
 
   @Delete("/{id}")

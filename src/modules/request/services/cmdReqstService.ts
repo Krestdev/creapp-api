@@ -20,10 +20,17 @@ export class CommandRequestService {
   };
 
   // Update
-  update = (id: number, data: CommandRequest) => {
+  update = (id: number, data: CommandRequest, requests: number[]) => {
     return prisma.commandRequest.update({
       where: { id },
-      data,
+      data: {
+        ...data,
+        besoins: {
+          connect: requests.map((id) => {
+            return { id };
+          }),
+        },
+      },
     });
   };
 
