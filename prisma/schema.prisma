@@ -124,32 +124,30 @@ model Category {
 }
 
 model CommandRequest {
-  id            Int            @id @default(autoincrement())
-  title         String
-  besoins       RequestModel[]
-  dueDate       DateTime
-  reference     String         @unique
-  totalPrice    Int
-  modality      String
-  deliveryDate  DateTime       @default(now())
-  state         String
-  submited      Boolean
-  justification String
-  provider      Provider?      @relation(fields: [providerId], references: [id], onDelete: SetNull)
-  providerId    Int?
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  documents     Document[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  userId        Int
+  id           Int            @id @default(autoincrement())
+  title        String
+  besoins      RequestModel[]
+  dueDate      DateTime
+  reference    String         @unique
+  deliveryDate DateTime       @default(now())
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents    Document[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  userId       Int
+  devi         Devi[]
+  provider     Provider?      @relation(fields: [providerId], references: [id])
+  providerId   Int?
 }
 
 model Devi {
-  id         Int           @id @default(autoincrement())
-  provider   Provider      @relation(fields: [providerId], references: [id])
-  providerId Int
-  proof      String
-  element    DeviElement[]
+  id               Int             @id @default(autoincrement())
+  provider         Provider        @relation(fields: [providerId], references: [id])
+  providerId       Int
+  proof            String
+  commandRequestId Int?
+  commandRequest   CommandRequest? @relation(fields: [commandRequestId], references: [id], onDelete: Cascade)
+  element          DeviElement[]
 }
 
 model DeviElement {
