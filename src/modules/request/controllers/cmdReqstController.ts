@@ -42,27 +42,12 @@ export default class CmdRequestController {
     return cmdRequestService.getAll();
   }
 
-  @Put("/validate/{id}")
-  validate(@Path() id: string): Promise<CommandRequest> {
-    return cmdRequestService.validate(Number(id));
-  }
-
-  @Put("/reject/{id}")
-  reject(@Path() id: string): Promise<CommandRequest> {
-    return cmdRequestService.reject(Number(id));
-  }
-
   @Put("/attachDoc/{id}/{docId}")
   attachDoc(
     @Path() id: string,
     @Path() docId: string
   ): Promise<CommandRequest> {
     return cmdRequestService.attachDoc(Number(id), Number(docId));
-  }
-
-  @Put("/submit/{id}")
-  submit(@Path() id: string): Promise<CommandRequest> {
-    return cmdRequestService.submit(Number(id));
   }
 
   @Put("/linkProvider/{id}/{providerId}")

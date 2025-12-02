@@ -57,36 +57,6 @@ export class CommandRequestService {
     });
   };
 
-  // Validate
-  validate = (id: number) => {
-    return prisma.commandRequest.update({
-      where: { id },
-      data: {
-        state: "validated",
-      },
-    });
-  };
-
-  // Reject
-  reject = (id: number) => {
-    return prisma.commandRequest.update({
-      where: { id },
-      data: {
-        state: "rejected",
-      },
-    });
-  };
-
-  // Submit
-  submit = (id: number) => {
-    return prisma.commandRequest.update({
-      where: { id },
-      data: {
-        submited: true,
-      },
-    });
-  };
-
   // Link-Provider
   linkProvider = (id: number, providerId: number) => {
     return prisma.commandRequest.update({

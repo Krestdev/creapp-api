@@ -80,42 +80,6 @@ export default class CmdRequestRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
-    // validate
-    this.routes.get("/validate/:id", (req, res) => {
-      this.cmdRequestController
-        .validate(req.params.id)
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
-
-    // Reject
-    this.routes.get("/reject/:id", (req, res) => {
-      this.cmdRequestController
-        .reject(req.params.id)
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
-
-    // submit
-    this.routes.get("/submit/:id", (req, res) => {
-      this.cmdRequestController
-        .submit(req.params.id)
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
-
     // attach doc
     this.routes.get("/attachDoc/:id/:docId", (req, res) => {
       this.cmdRequestController
