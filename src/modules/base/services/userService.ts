@@ -157,7 +157,7 @@ export class UserService {
 
   getAll() {
     return prisma.user.findMany({
-      include: { role: true, members: true },
+      include: { role: true, members: { include: { department: true } } },
       omit: { password: true },
     });
   }
