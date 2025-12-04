@@ -19,7 +19,14 @@ const userService = new UserService();
 @Tags("User Controller")
 export default class UserController {
   @Post("/register")
-  create(@Body() data: User & { roleId: number }) {
+  register(@Body() data: User & { roleId: number }) {
+    return userService.create(data);
+  }
+
+  @Post("/create")
+  create(
+    @Body() data: User & { roleId: number; post?: string; department?: number }
+  ) {
     return userService.create(data);
   }
 

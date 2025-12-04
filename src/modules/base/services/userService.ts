@@ -14,7 +14,9 @@ function generateOTP(length = 6): string {
 
 export class UserService {
   email = new Mailer();
-  async create(data: User & { roleId: number }) {
+  async create(
+    data: User & { roleId: number; post?: string; department?: number }
+  ) {
     // Try to find an existing role by label (use findFirst to avoid requiring a unique constraint on label)
 
     const { email, name, password } = data;
@@ -37,15 +39,11 @@ export class UserService {
         console.error("could not send mail");
       });
 
-    let existingRole = await prisma.role.findUnique({
-      where: { id: data.roleId ?? -1 },
+    let existingRole = await prisma.role.findFirst({
+      where: {
+        OR: [{ id: data.roleId }, { label: "USER" }],
+      },
     });
-
-    if (existingRole === null) {
-      existingRole = await prisma.role.findFirst({
-        where: { label: "USER" },
-      });
-    }
 
     if (existingRole === null) {
       existingRole = await prisma.role.create({
@@ -63,6 +61,14 @@ export class UserService {
         role: {
           connect: { id: existingRole.id },
         },
+        members: data.department
+          ? {
+              create: {
+                departmentId: data.department,
+                label: data.post ?? "Employee",
+              },
+            }
+          : {},
       },
       include: { role: true },
       omit: { password: true },

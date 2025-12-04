@@ -24,6 +24,17 @@ export default class UserRouter {
   private config() {
     this.routes.post("/register", validateData("create"), (req, res) => {
       this.userController
+        .register(req.body)
+        .then((user) =>
+          res
+            .status(201)
+            .json({ message: register.success.register, data: user })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.post("/create", (req, res) => {
+      this.userController
         .create(req.body)
         .then((user) =>
           res
