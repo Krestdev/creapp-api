@@ -147,7 +147,7 @@ model Devi {
   provider         Provider        @relation(fields: [providerId], references: [id])
   providerId       Int
   proof            String
-  ref              String
+  ref              String          @default("none")
   commandRequestId Int?
   commandRequest   CommandRequest? @relation(fields: [commandRequestId], references: [id], onDelete: Cascade)
   element          DeviElement[]
