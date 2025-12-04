@@ -33,7 +33,13 @@ export class DepartmentService {
 
   getAll() {
     return prisma.department.findMany({
-      include: { members: true },
+      include: {
+        members: {
+          include: {
+            user: true,
+          },
+        },
+      },
     });
   }
 
