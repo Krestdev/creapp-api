@@ -153,10 +153,22 @@ export class UserService {
   }
 
   changeStatus(id: number, status: string) {
+    console.log(status);
     return prisma.user.update({
       where: { id },
       data: {
         status,
+      },
+      omit: {
+        password: true,
+        phone: true,
+        email: true,
+        lastConnection: true,
+        createdAt: true,
+        updatedAt: true,
+        verificationOtp: true,
+        verified: true,
+        projectId: true,
       },
     });
   }

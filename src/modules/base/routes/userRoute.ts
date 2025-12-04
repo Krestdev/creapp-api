@@ -67,9 +67,9 @@ export default class UserRouter {
         .catch((error) => res.status(400).json({ error: error.message }))
     );
 
-    this.routes.put("/:id", validateData("update"), (req, res) => {
+    this.routes.put("/changeStatus/:id", (req, res) => {
       this.userController
-        .update(Number(req.params.id!), req.body)
+        .changeStatus(Number(req.params.id!), req.body)
         .then((user) =>
           res
             .status(200)
@@ -78,7 +78,7 @@ export default class UserRouter {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
-    this.routes.put("/changeStatus/:id", (req, res) => {
+    this.routes.put("/:id", validateData("update"), (req, res) => {
       this.userController
         .update(Number(req.params.id!), req.body)
         .then((user) =>

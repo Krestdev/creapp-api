@@ -47,9 +47,13 @@ export default class UserController {
 
   @Put("/changeStatus/{id}")
   changeStatus(
-    @Path() id: string,
+    @Path() id: number,
     @Body() data: { status: string }
-  ): Promise<User> {
+  ): Promise<{
+    id: number;
+    name: string;
+    status: string;
+  }> {
     return userService.changeStatus(Number(id), data.status);
   }
 
