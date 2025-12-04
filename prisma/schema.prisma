@@ -20,6 +20,8 @@ model User {
   requestReveiwed RequestValidation[]
   spending        Spending[]
   project         Project?            @relation("ProjectChief")
+  status          String              @default("active")
+  lastConnection  DateTime?
   projectId       Int?                @unique
   verificationOtp String?
   verified        Boolean             @default(false)

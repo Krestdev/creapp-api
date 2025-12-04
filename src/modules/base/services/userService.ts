@@ -81,6 +81,7 @@ export class UserService {
       data: {
         verified: true,
         verificationOtp: null,
+        status: "active",
       },
     });
     return true;
@@ -100,6 +101,12 @@ export class UserService {
       expiresIn: "1d",
     });
     console.log("User logged in", user.email);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        lastConnection: new Date(),
+      },
+    });
     return { user, token };
   }
 
@@ -136,6 +143,15 @@ export class UserService {
   delete(id: number) {
     return prisma.user.delete({
       where: { id },
+    });
+  }
+
+  changeStatus(id: number, status: string) {
+    return prisma.user.update({
+      where: { id },
+      data: {
+        status,
+      },
     });
   }
 
