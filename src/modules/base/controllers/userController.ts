@@ -40,7 +40,7 @@ export default class UserController {
 
   @Put("/changeStatus/{id}")
   changeStatus(@Path() id: string, @Body() status: string): Promise<User> {
-    return userService.delete(Number(id));
+    return userService.changeStatus(Number(id), status);
   }
 
   @Delete("/{id}")
