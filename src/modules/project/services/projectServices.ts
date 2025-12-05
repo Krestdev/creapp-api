@@ -3,12 +3,28 @@ const prisma = new PrismaClient();
 
 export class ProjectService {
   async create(data: Omit<Project, "createdAt" | "updatedAt">) {
+    const ref = "PRJ-" + new Date().getTime();
     return prisma.project.create({
       data: {
         label: data.label,
         description: data.description,
         chiefId: data.chiefId ?? null,
-        budget: data.budget ?? null,
+        budget: data.budget ?? 0,
+      },
+      include: {
+        chief: {
+          omit: {
+            createdAt: true,
+            updatedAt: true,
+            email: true,
+            password: true,
+            phone: true,
+            status: true,
+            verificationOtp: true,
+            verified: true,
+            lastConnection: true,
+          },
+        },
       },
     });
   }

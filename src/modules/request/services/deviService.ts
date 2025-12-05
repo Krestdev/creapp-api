@@ -4,13 +4,19 @@ const prisma = new PrismaClient();
 
 export class DeviService {
   // Create
+
   create = (data: Devi, elements: DeviElement[]) => {
+    const ref = "ref-" + new Date().getTime();
     return prisma.devi.create({
       data: {
         ...data,
+        ref,
         element: {
           create: elements,
         },
+      },
+      include: {
+        element: true,
       },
     });
   };

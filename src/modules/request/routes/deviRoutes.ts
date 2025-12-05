@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { request } from "../../../../assets/messages/requestMessages.json";
 import DeviController from "../controllers/deviController";
+import upload from "../../../utils/upload";
 
 const {
   create,
@@ -21,9 +22,10 @@ export default class DeviRoute {
 
   private config() {
     // create
-    this.routes.post("/", (req, res) => {
+    this.routes.post("/", upload.single("proof"), (req, res) => {
       this.deviController
-        .create(req.body)
+
+        .create({ ...req.body, filename: req.file?.filename ?? null })
         .then((request) =>
           res
             .status(201)

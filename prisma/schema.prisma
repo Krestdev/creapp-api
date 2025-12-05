@@ -28,6 +28,7 @@ model User {
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
   commandRequests CommandRequest[]
+  devis           Devi[]
 }
 
 model Role {
@@ -71,10 +72,12 @@ model Member {
 model Project {
   id          Int            @id @default(autoincrement())
   label       String
-  description String?
+  reference   String         @default("none")
+  status      String         @default("ongoing")
+  description String?        @default("Aucun description")
   chief       User?          @relation("ProjectChief", fields: [chiefId], references: [id], onDelete: SetNull)
   chiefId     Int?           @unique
-  budget      Float
+  budget      Float          @default(0)
   requests    RequestModel[]
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
@@ -150,6 +153,8 @@ model Devi {
   providerId       Int
   proof            String
   ref              String          @default("none")
+  user             User            @relation(fields: [userId], references: [id])
+  userId           Int
   commandRequestId Int?
   commandRequest   CommandRequest? @relation(fields: [commandRequestId], references: [id], onDelete: Cascade)
   element          DeviElement[]
@@ -209,21 +214,11 @@ model Provider {
 }
 
 model Payment {
-  id              Int           @id @default(autoincrement())
-  reference       String
-  createdAt       DateTime
-  status          String
-  userId          Int
-  paymentTicket   PaymentTicket @relation(fields: [paymentTicketId], references: [id], onDelete: Cascade)
-  paymentTicketId Int
-}
-
-model PaymentTicket {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   reference String
   createdAt DateTime
   status    String
-  payments  Payment[]
+  price     Int
   userId    Int
 }
 

@@ -9,9 +9,16 @@ const deviService = new DeviService();
 export default class DeviController {
   @Post("/")
   create(
-    @Body() data: { devis: Devi; elements: DeviElement[] }
+    @Body() data: { devis: Devi & { userId: number }; elements: DeviElement[] }
   ): Promise<Devi> {
-    return deviService.create(data.devis, data.elements);
+    const devi: Devi & { proof: string } = {
+      ...(JSON.parse(data.devis as unknown as string) as Devi),
+      proof: (data as unknown as { filename: string }).filename,
+    };
+    const deviElem: DeviElement[] = JSON.parse(
+      data.elements as unknown as string
+    ) as DeviElement[];
+    return deviService.create(devi, deviElem);
   }
 
   /**
