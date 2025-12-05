@@ -6,6 +6,7 @@ export class ProjectService {
     const ref = "PRJ-" + new Date().getTime();
     return prisma.project.create({
       data: {
+        reference: ref,
         label: data.label,
         description: data.description,
         chiefId: data.chiefId ?? null,
