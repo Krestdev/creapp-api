@@ -51,19 +51,64 @@ export class ProjectService {
   }
 
   async getAll() {
-    return prisma.project.findMany();
+    return prisma.project.findMany({
+      include: {
+        chief: {
+          omit: {
+            createdAt: true,
+            updatedAt: true,
+            email: true,
+            password: true,
+            phone: true,
+            status: true,
+            verificationOtp: true,
+            verified: true,
+            lastConnection: true,
+          },
+        },
+      },
+    });
   }
 
   async getOne(id: number) {
     return prisma.project.findUnique({
       where: { id },
+      include: {
+        chief: {
+          omit: {
+            createdAt: true,
+            updatedAt: true,
+            email: true,
+            password: true,
+            phone: true,
+            status: true,
+            verificationOtp: true,
+            verified: true,
+            lastConnection: true,
+          },
+        },
+      },
     });
   }
 
   async getChief(id: number) {
     return prisma.project.findUnique({
       where: { id },
-      include: { chief: true },
+      include: {
+        chief: {
+          omit: {
+            createdAt: true,
+            updatedAt: true,
+            email: true,
+            password: true,
+            phone: true,
+            status: true,
+            verificationOtp: true,
+            verified: true,
+            lastConnection: true,
+          },
+        },
+      },
     });
   }
 }
