@@ -40,7 +40,7 @@ export class ProjectService {
       updateData.description = data.description;
     return prisma.project.update({
       where: { id },
-      data: updateData,
+      data: { ...updateData, ...data },
     });
   }
 
