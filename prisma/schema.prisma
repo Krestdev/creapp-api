@@ -63,6 +63,7 @@ model Member {
   department     Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   departmentId   Int
   validator      Boolean    @default(false)
+  position       Int        @default(0)
   chief          Boolean    @default(false)
   finalValidator Boolean    @default(false)
   createdAt      DateTime   @default(now())
@@ -188,6 +189,7 @@ model Command {
   amountBase       Int
   requests         RequestModel[]
   providerId       Int
+  payments         Payment[]
 }
 
 model Document {
@@ -220,6 +222,8 @@ model Payment {
   status    String
   price     Int
   userId    Int
+  command   Command  @relation(fields: [commandId], references: [id], onDelete: Cascade)
+  commandId Int
 }
 
 model Accounting {

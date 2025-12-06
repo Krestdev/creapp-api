@@ -6,8 +6,23 @@ const { add_final_validator, add_validator, add_member } = department;
 const prisma = new PrismaClient();
 
 export class DepartmentService {
-  async create(data: Omit<Department, "createdAt" | "updatedAt">) {
-    return prisma.department.create({ data });
+  async create(
+    data: Omit<Department, "createdAt" | "updatedAt"> & { chiefId: number }
+  ) {
+    const { chiefId, ...ndata } = data;
+    return prisma.department.create({
+      data: {
+        ...ndata,
+        status: "active",
+        members: {
+          create: {
+            label: "chief",
+            userId: chiefId,
+            finalValidator: true,
+          },
+        },
+      },
+    });
   }
 
   async update(
@@ -21,7 +36,10 @@ export class DepartmentService {
 
     return prisma.department.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...updateData,
+        ...data,
+      },
     });
   }
 

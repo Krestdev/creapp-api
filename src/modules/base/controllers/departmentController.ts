@@ -9,7 +9,8 @@ const departmentService = new DepartmentService();
 export default class DepartmentController {
   @Post()
   create(
-    @Body() data: Omit<Department, "createdAt" | "updatedAt">
+    @Body()
+    data: Omit<Department, "createdAt" | "updatedAt"> & { chiefId: number }
   ): Promise<Department> {
     return departmentService.create(data);
   }

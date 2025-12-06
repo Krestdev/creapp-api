@@ -4,11 +4,14 @@ import Joi from "joi";
 const department = Joi.object({
   label: Joi.string().required(),
   description: Joi.string().allow(""),
+  chiefId: Joi.number(),
 });
 
 const departmentUpdate = Joi.object({
   label: Joi.string(),
   description: Joi.string().allow(""),
+  status: Joi.string(),
+  chiefId: Joi.number(),
 });
 
 const departmentParam = Joi.object({
