@@ -160,6 +160,17 @@ export default class RequestRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    this.routes.delete("/category/:id", (req, res) => {
+      this.requestController
+        .deleteCategory(req.params.id)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     this.routes.get("/category/:id", (req, res) => {
       this.requestController
         .getOneCategory(req.params.id)

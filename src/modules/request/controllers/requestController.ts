@@ -112,4 +112,9 @@ export default class RequestController {
   getSpecialCategories(): Promise<Category[]> {
     return requestService.getAllSpecialCategory(true);
   }
+
+  @Delete("/category/{id}")
+  deleteCategory(@Path() id: string): Promise<Category> {
+    return requestService.deleteCategory(Number(id));
+  }
 }
