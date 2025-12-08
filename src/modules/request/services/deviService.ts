@@ -22,13 +22,25 @@ export class DeviService {
   };
 
   // Update
-  update = (id: number, data: Devi, element: DeviElement[]) => {
+  update = (id: number, data: Devi, elements: DeviElement[]) => {
+    const existing = elements.filter((e) => !!e.id).map((e) => ({ id: e.id }));
+
+    const toCreate = elements
+      .filter((e) => !e.id)
+      .map((e) => ({
+        requestModelId: e.requestModelId,
+        quantity: e.quantity,
+        unit: e.unit,
+        title: e.title,
+        priceProposed: e.priceProposed,
+      }));
     return prisma.devi.update({
       where: { id },
       data: {
         ...data,
         element: {
-          set: element,
+          set: existing,
+          create: toCreate,
         },
       },
     });
