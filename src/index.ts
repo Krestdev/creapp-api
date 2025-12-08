@@ -97,6 +97,10 @@ class ApiServer {
       swaggerUI.serve,
       swaggerUI.setup(swaggerJson)
     );
+    this.app.use(
+      `/api/v${PROJECT_MODULE_CONFIG.version}/uploads`,
+      express.static("uploads")
+    );
     this.app.listen(GENERAL_CONFIG.app.port, async () => {
       // Server end point
       console.log(`Server is running on port ${GENERAL_CONFIG.app.port}`);

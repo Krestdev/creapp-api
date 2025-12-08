@@ -18,7 +18,10 @@ export default class DepartmentController {
   @Put("/{id}")
   update(
     @Path() id: string,
-    @Body() data: Partial<Omit<Department, "createdAt" | "updatedAt">>
+    @Body()
+    data: Partial<Omit<Department, "createdAt" | "updatedAt">> & {
+      members: Member[];
+    }
   ): Promise<Department> {
     return departmentService.update(Number(id), data);
   }

@@ -237,12 +237,10 @@ export default class DepartmentRouter {
         this.departmentController
           .unSetDepartmentChief(req.params.id!, req.body)
           .then((member) =>
-            res
-              .status(200)
-              .json({
-                message: unset_department_chief.success.chief,
-                data: member,
-              })
+            res.status(200).json({
+              message: unset_department_chief.success.chief,
+              data: member,
+            })
           )
           .catch((error) => res.status(400).json({ error: error.message }));
       }

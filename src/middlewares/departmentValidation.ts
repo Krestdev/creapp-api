@@ -12,6 +12,18 @@ const departmentUpdate = Joi.object({
   description: Joi.string().allow(""),
   status: Joi.string(),
   chiefId: Joi.number(),
+  members: Joi.array()
+    .items(
+      Joi.object({
+        chief: Joi.boolean(),
+        finalValidator: Joi.boolean(),
+        id: Joi.number(),
+        label: Joi.string(),
+        userId: Joi.number(),
+        validator: Joi.boolean(),
+      })
+    )
+    .optional(),
 });
 
 const departmentParam = Joi.object({
@@ -113,7 +125,7 @@ export const validateData = (
         if (result.error || params.error) {
           res
             .status(400)
-            .json({ error: result.error?.details && params.error?.details });
+            .json({ error: result.error?.details, ...params.error?.details });
         } else {
           next();
         }

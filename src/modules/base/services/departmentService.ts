@@ -1,4 +1,4 @@
-import { Department, PrismaClient } from "@prisma/client";
+import { Department, Member, PrismaClient } from "@prisma/client";
 import { department } from "../../../../assets/messages/departmentMessages.json";
 
 const { add_final_validator, add_validator, add_member } = department;
@@ -27,18 +27,48 @@ export class DepartmentService {
 
   async update(
     id: number,
-    data: Partial<Omit<Department, "createdAt" | "updatedAt">>
+    data: Partial<Omit<Department, "createdAt" | "updatedAt">> & {
+      members: Member[];
+    }
   ) {
+    const { members, ...department } = data;
+
+    const existing = members.filter((e) => !!e.id);
+    const toCreate = members.filter((e) => !e.id);
+    const existingIds = existing.map((e) => e.id);
+
     const updateData: any = {};
-    if (data.label !== undefined) updateData.label = data.label;
-    if (data.description !== undefined)
-      updateData.description = data.description;
+    if (department.label !== undefined) updateData.label = department.label;
+    if (department.description !== undefined)
+      updateData.description = department.description;
 
     return prisma.department.update({
       where: { id },
       data: {
         ...updateData,
         ...data,
+        members: {
+          deleteMany: {
+            departmentId: id,
+            id: { notIn: existingIds },
+          },
+          updateMany: existing.map((e) => ({
+            where: { id: e.id },
+            data: {
+              label: e.label,
+              validator: e.validator,
+              chief: e.chief,
+              finalValidator: e.finalValidator,
+            },
+          })),
+          create: toCreate.map((e) => ({
+            label: e.label,
+            validator: e.validator,
+            chief: e.chief,
+            finalValidator: e.finalValidator,
+            userId: e.userId,
+          })),
+        },
       },
     });
   }
