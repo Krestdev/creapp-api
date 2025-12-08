@@ -25,8 +25,18 @@ export default class DeviController {
    * @summary Update Command request
    */
   @Put("/{id}")
-  update(@Path() id: string, @Body() data: Devi): Promise<Devi> {
-    return deviService.update(Number(id), data);
+  update(
+    @Path() id: string,
+    @Body() data: { devis: Devi & { userId: number }; elements: DeviElement[] }
+  ): Promise<Devi> {
+    const devi: Devi & { proof: string } = {
+      ...(JSON.parse(data.devis as unknown as string) as Devi),
+      proof: (data as unknown as { filename: string }).filename,
+    };
+    const deviElem: DeviElement[] = JSON.parse(
+      data.elements as unknown as string
+    ) as DeviElement[];
+    return deviService.update(Number(id), devi, deviElem);
   }
 
   @Put("/element/{id}")

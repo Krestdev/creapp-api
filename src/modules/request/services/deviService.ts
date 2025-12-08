@@ -22,10 +22,15 @@ export class DeviService {
   };
 
   // Update
-  update = (id: number, data: Devi) => {
+  update = (id: number, data: Devi, element: DeviElement[]) => {
     return prisma.devi.update({
       where: { id },
-      data,
+      data: {
+        ...data,
+        element: {
+          set: element,
+        },
+      },
     });
   };
 
