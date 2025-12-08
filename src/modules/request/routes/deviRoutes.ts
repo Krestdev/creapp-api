@@ -35,7 +35,7 @@ export default class DeviRoute {
     });
 
     // update
-    this.routes.put("/:id", (req, res) => {
+    this.routes.put("/:id", upload.single("proof"), (req, res) => {
       this.deviController
         .update(req.params.id!, req.body)
         .then((request) =>
