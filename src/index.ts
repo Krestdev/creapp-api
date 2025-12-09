@@ -10,10 +10,10 @@ import {
   MODULES_LIST,
 } from "./config";
 import { checkModules, findIpAddress } from "./utils/serverUtils";
-import { connectBaseRoutes } from "./modules/base/routes";
+import { connectBaseRoutes } from "./modules/routes";
 import { PROJECT_MODULE_CONFIG } from "./config/ProjectModuleConfig";
-import { connectProjectRoutes } from "./modules/project/routes";
-import { connectRequestRoutes } from "./modules/request/routes";
+import { connectProjectRoutes } from "./modules/routes";
+import { connectRequestRoutes } from "./modules/routes";
 import * as swaggerUI from "swagger-ui-express";
 import * as swaggerJson from "../build/swagger.json";
 

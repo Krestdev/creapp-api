@@ -156,10 +156,14 @@ model Devi {
   ref              String          @default("none")
   user             User            @relation(fields: [userId], references: [id])
   userId           Int
+  status           String          @default("PENDING")
   commandRequestId Int?
   commandRequest   CommandRequest? @relation(fields: [commandRequestId], references: [id], onDelete: Cascade)
   element          DeviElement[]
   dueDate          DateTime?
+  // one to one relation with Command
+  command          Command?        @relation(fields: [commandId], references: [id], onDelete: SetNull)
+  commandId        Int?            @unique()
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 }
@@ -171,6 +175,7 @@ model DeviElement {
   quantity       Int
   unit           String
   title          String
+  status         String        @default("NOT_SELECTED")
   priceProposed  Int
   devi           Devi          @relation(fields: [deviId], references: [id], onDelete: Cascade)
   deviId         Int
@@ -190,6 +195,9 @@ model Command {
   requests         RequestModel[]
   providerId       Int
   payments         Payment[]
+  // one to one relation with Devi
+  devi             Devi?
+  deviId           Int?           @unique()
 }
 
 model Document {

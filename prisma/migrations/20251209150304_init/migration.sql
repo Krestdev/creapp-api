@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Devi" ALTER COLUMN "status" SET DEFAULT 'PENDING';
+
+-- AlterTable
+ALTER TABLE "DeviElement" ALTER COLUMN "status" SET DEFAULT 'NOT_SELECTED';
