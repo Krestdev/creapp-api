@@ -89,6 +89,19 @@ export default class UserController {
     return userService.createRole(data);
   }
 
+  @Put("/role/{id}/update")
+  updateRole(
+    @Path() id: string,
+    @Body() data: { label: string }
+  ): Promise<Role> {
+    return userService.updateRole(Number(id), data);
+  }
+
+  @Delete("/role/{id}/")
+  deleteRole(@Path() id: string): Promise<Role> {
+    return userService.deleteRole(Number(id));
+  }
+
   @Post("/{id}/roles")
   addRole(
     @Path() id: string,

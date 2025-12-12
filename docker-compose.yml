@@ -34,17 +34,3 @@ networks:
   caddy-net:
     driver: bridge
     attachable: true
-
-
-  # mongo_loumo:
-  #   container_name: mongo_loumo
-  #   image: mongo:6
-  #   restart: unless-stopped
-  #   environment:
-  #     MONGO_INITDB_DATABASE: loumo-db
-  #   volumes:
-  #     - /root/backup/loumo/mongo-data:/data/db
-  #   ports:
-  #     - "27017:27017"
-  #   networks:
-  #     - caddy-net

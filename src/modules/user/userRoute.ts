@@ -140,6 +140,32 @@ export default class UserRouter {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    this.routes.delete("/role/:id", (req, res) => {
+      this.userController
+        .deleteRole(req.params.id!)
+        .then((role) =>
+          res
+            .status(200)
+            .json({ message: "Role created successfully", data: role })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.put(
+      "/role/:id/update",
+      validateData("createRole"),
+      (req, res) => {
+        this.userController
+          .updateRole(req.params.id!, req.body)
+          .then((role) =>
+            res
+              .status(200)
+              .json({ message: "Role created successfully", data: role })
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      }
+    );
+
     this.routes.post("/:id/roles", validateData("addRole"), (req, res) => {
       this.userController
         .addRole(req.params.id!, req.body)

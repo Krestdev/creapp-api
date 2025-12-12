@@ -194,6 +194,19 @@ export class UserService {
     });
   }
 
+  deleteRole(id: number) {
+    return prisma.role.delete({
+      where: { id },
+    });
+  }
+
+  updateRole(id: number, data: { label: string }) {
+    return prisma.role.update({
+      where: { id },
+      data,
+    });
+  }
+
   addRoleToUser(userId: number, roleId: string) {
     return prisma.user.update({
       where: { id: userId },

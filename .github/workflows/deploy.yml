@@ -47,14 +47,14 @@ jobs:
       - name: Set env vars
         run: |
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
-          echo "DEPLOY_DIR=~/deployments/creapp/api/current" >> $GITHUB_ENV
+          echo "DEPLOY_DIR=~/deployments/creapp/api" >> $GITHUB_ENV
 
       - name: Deploy to VPS
         run: |
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'bash -s' << EOF
             set -euo pipefail
 
-            DEPLOY_DIR=~/deployments/creapp/api/current
+            DEPLOY_DIR=~/deployments/creapp/api
 
             if [ ! -d $DEPLOY_DIR ]; then
               mkdir -p $DEPLOY_DIR
