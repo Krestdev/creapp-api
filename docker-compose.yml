@@ -33,4 +33,4 @@ services:
 networks:
   caddy-net:
     driver: bridge
-    external: true
+    attachable: true
