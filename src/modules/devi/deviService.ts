@@ -7,23 +7,21 @@ export class DeviService {
 
   create = (data: Devi, elements: DeviElement[]) => {
     const ref = "ref-" + new Date().getTime();
-    // | "SUBMITTED"          // Soumis, en attente d’analyse / comparaison
-    // | "APPROVED"           // Toutes les lignes du devis sont retenues
-    // | "REJECTED"           // Aucune ligne retenue
-    // | "PENDING";         // Annulé manuellement
-
-    const devis = [
-      {
-        deviId: 1,
-        elements: [
-          {
-            name: "group1",
-            elementIds: [1, 2, 3, 4, 5],
-          },
-        ],
-      },
-    ];
-
+    // | "SUBMITTED" Soumis, en attente d’analyse / comparaison
+    // | "APPROVED" Toutes les lignes du devis sont retenues
+    // | "REJECTED" Aucune ligne retenue
+    // | "PENDING";
+    // const devis = [
+    //   {
+    //     deviId: 1,
+    //     elements: [
+    //       {
+    //         name: "group1",
+    //         elementIds: [1, 2, 3, 4, 5],
+    //       },
+    //     ],
+    //   },
+    // ];
     return prisma.devi.create({
       data: {
         ...data,
