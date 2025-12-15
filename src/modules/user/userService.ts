@@ -232,7 +232,15 @@ export class UserService {
   }
 
   getRoles() {
-    return prisma.role.findMany();
+    return prisma.role.findMany({
+      include: {
+        users: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
   }
 
   createRolePages(pageIds: string[]) {
