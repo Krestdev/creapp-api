@@ -209,19 +209,24 @@ model Document {
 }
 
 model Provider {
-  id             Int              @id @default(autoincrement())
-  name           String
-  phone          String?
-  email          String?
-  address        String?
-  taxId          String?
-  rating         Int              @default(0)
-  status         Boolean          @default(false)
-  commandRequest CommandRequest[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  devis          Devi[]
-  commands       Command[]
+  id                 Int              @id @default(autoincrement())
+  name               String
+  phone              String?
+  email              String?
+  address            String?
+  taxId              String?
+  rating             Int              @default(0)
+  status             Boolean          @default(false)
+  commandRequest     CommandRequest[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  devis              Devi[]
+  commands           Command[]
+  carte_contribuable String?
+  acf                String?
+  plan_localisation  String?
+  commerce_registre  String?
+  banck_attestation  String?
 }
 
 model Payment {

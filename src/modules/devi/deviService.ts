@@ -11,17 +11,6 @@ export class DeviService {
     // | "APPROVED" Toutes les lignes du devis sont retenues
     // | "REJECTED" Aucune ligne retenue
     // | "PENDING";
-    // const devis = [
-    //   {
-    //     deviId: 1,
-    //     elements: [
-    //       {
-    //         name: "group1",
-    //         elementIds: [1, 2, 3, 4, 5],
-    //       },
-    //     ],
-    //   },
-    // ];
     return prisma.devi.create({
       data: {
         ...data,
@@ -80,6 +69,45 @@ export class DeviService {
         console.log(e, existing, toCreate);
         throw e;
       });
+  };
+
+  validateDevi = (
+    data: [
+      {
+        deviId: number;
+        elements: [
+          {
+            name: string;
+            elementIds: number[];
+          }
+        ];
+      }
+    ]
+  ) => {
+    return Promise.all(
+      data.map(async (devi) => {
+        return prisma.devi.update({
+          where: {
+            id: devi.deviId,
+          },
+          data: {
+            status: "APPROVED",
+            element: {
+              updateMany: {
+                where: {
+                  id: {
+                    in: devi.elements.map((x) => x.elementIds).flat(),
+                  },
+                },
+                data: {
+                  status: "SELECTED",
+                },
+              },
+            },
+          },
+        });
+      })
+    );
   };
 
   // Update

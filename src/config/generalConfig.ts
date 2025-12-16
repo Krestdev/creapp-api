@@ -12,12 +12,12 @@ export const GENERAL_CONFIG = {
     name: isProduction ? env.APP_NAME : "Creapp",
   },
   email: {
-    from: isProduction ? env.EMAIL_FROM : "noreply@example.com",
+    from: isProduction ? env.EMAIL_FROM : "contact@krestdev.com",
     smtp: {
       host: isProduction ? env.SMTP_HOST : "smtp.titan.email",
       port: isProduction ? Number(env.SMTP_PORT) : 465,
-      user: isProduction ? env.SMTP_USER : "info@loumo.com",
-      pass: isProduction ? env.SMTP_PASS : "admin@loumo2024",
+      user: isProduction ? env.SMTP_USER : "contact@krestdev.com",
+      pass: isProduction ? env.SMTP_PASS : "Krestdev@2024",
     },
   },
   jwt: {

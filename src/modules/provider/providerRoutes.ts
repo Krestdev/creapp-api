@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { request } from "../../../assets/messages/requestMessages.json";
 import ProviderController from "./providerController";
+import upload from "../../utils/upload";
 
 const {
   create,
@@ -21,16 +22,26 @@ export default class ProviderRoute {
 
   private config() {
     // create
-    this.routes.post("/", (req, res) => {
-      this.providerController
-        .create(req.body)
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
+    this.routes.post(
+      "/",
+      upload.fields([
+        { name: "carte_contribuable", maxCount: 1 },
+        { name: "acf", maxCount: 1 },
+        { name: "plan_localisation", maxCount: 1 },
+        { name: "commerce_registre", maxCount: 1 },
+        { name: "banck_attestation", maxCount: 1 },
+      ]),
+      (req, res) => {
+        this.providerController
+          .create({ ...req.body, ...req.files })
+          .then((request) =>
+            res
+              .status(201)
+              .json({ message: create.success.create, data: request })
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      }
+    );
 
     // update
     this.routes.put("/:id", (req, res) => {

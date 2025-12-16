@@ -35,6 +35,18 @@ export default class DeviRoute {
     });
 
     // update
+    this.routes.put("/validerDevis", (req, res) => {
+      this.deviController
+        .validerDevis(req.body)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    // update
     this.routes.put("/:id", upload.single("proof"), (req, res) => {
       this.deviController
         .update(req.params.id!, req.body)

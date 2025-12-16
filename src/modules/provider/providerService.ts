@@ -1,17 +1,63 @@
 import { Provider, PrismaClient } from "@prisma/client";
+import { MyFile } from "./providerController";
 
 const prisma = new PrismaClient();
 
 export class ProviderService {
   // Create
-  create = (data: Provider) => {
+  create = async (data: {
+    name: string;
+    phone: string | null;
+    email: string | null;
+    address: string | null;
+    taxId: string | null;
+    rating: number;
+    status: boolean;
+    carte_contribuable: string | null;
+    acf: string | null;
+    plan_localisation: string | null;
+    commerce_registre: string | null;
+    banck_attestation: string | null;
+  }) => {
+    const exist = await prisma.provider.findFirst({
+      where: {
+        name: data.name,
+      },
+    });
+    if (exist?.id) {
+      throw Error("Provider Exist");
+    }
     return prisma.provider.create({
       data,
     });
   };
 
   // Update
-  update = (id: number, data: Provider) => {
+  update = async (
+    id: number,
+    data: {
+      name: string;
+      phone: string | null;
+      email: string | null;
+      address: string | null;
+      taxId: string | null;
+      rating: number;
+      status: boolean;
+      carte_contribuable: string | null;
+      acf: string | null;
+      plan_localisation: string | null;
+      commerce_registre: string | null;
+      banck_attestation: string | null;
+    }
+  ) => {
+    const exist = await prisma.provider.findFirst({
+      where: {
+        name: data.name,
+      },
+    });
+    if (exist?.id) {
+      throw Error("Provider Exist");
+    }
     return prisma.provider.update({
       where: { id },
       data,

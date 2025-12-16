@@ -133,7 +133,10 @@ export class UserService {
     if (data.email !== undefined) updateData.email = data.email;
     if (data.name !== undefined) updateData.name = data.name;
     if (data.phone !== undefined) updateData.phone = data.phone;
-    if (data.password !== undefined) updateData.password = data.password;
+    if (data.password !== undefined) {
+      const hashedPassword = await bcrypt.hash(data.password, 10);
+      updateData.password = hashedPassword;
+    }
     if (roleConnectOrCreate !== undefined)
       updateData.role = roleConnectOrCreate;
 

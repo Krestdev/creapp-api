@@ -1,6 +1,7 @@
-import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
+import { Body, Delete, Get, Patch, Path, Post, Put, Route, Tags } from "tsoa";
 import { DeviService } from "../devi/deviService";
 import { Devi, DeviElement } from "@prisma/client";
+import { date } from "joi";
 
 const deviService = new DeviService();
 
@@ -37,6 +38,24 @@ export default class DeviController {
       data.elements as unknown as string
     ) as DeviElement[];
     return deviService.update(Number(id), devi, deviElem);
+  }
+
+  @Put("/validerDevis")
+  validerDevis(
+    @Body()
+    date: [
+      {
+        deviId: number;
+        elements: [
+          {
+            name: string;
+            elementIds: number[];
+          }
+        ];
+      }
+    ]
+  ): Promise<Devi[]> {
+    return deviService.validateDevi(date);
   }
 
   @Put("/element/{id}")
