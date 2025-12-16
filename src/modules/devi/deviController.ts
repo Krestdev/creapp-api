@@ -42,17 +42,13 @@ export default class DeviController {
   @Put("/validerDevis")
   validerDevis(
     @Body()
-    date: [
-      {
-        deviId: number;
-        elements: [
-          {
-            name: string;
-            elementIds: number[];
-          }
-        ];
-      }
-    ]
+    date: {
+      deviId: number;
+      elements: {
+        name: string;
+        elementIds: number[];
+      }[];
+    }[]
   ): Promise<Devi[]> {
     return deviService.validateDevi(date);
   }

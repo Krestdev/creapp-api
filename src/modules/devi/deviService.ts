@@ -72,17 +72,13 @@ export class DeviService {
   };
 
   validateDevi = (
-    data: [
-      {
-        deviId: number;
-        elements: [
-          {
-            name: string;
-            elementIds: number[];
-          }
-        ];
-      }
-    ]
+    data: {
+      deviId: number;
+      elements: {
+        name: string;
+        elementIds: number[];
+      }[];
+    }[]
   ) => {
     return Promise.all(
       data.map(async (devi) => {
