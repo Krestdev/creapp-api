@@ -1,5 +1,4 @@
-import { Provider, PrismaClient } from "@prisma/client";
-import { MyFile } from "./providerController";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 

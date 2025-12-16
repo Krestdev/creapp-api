@@ -1,7 +1,6 @@
-import { Body, Delete, Get, Patch, Path, Post, Put, Route, Tags } from "tsoa";
-import { DeviService } from "../devi/deviService";
 import { Devi, DeviElement } from "@prisma/client";
-import { date } from "joi";
+import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
+import { DeviService } from "../devi/deviService";
 
 const deviService = new DeviService();
 
