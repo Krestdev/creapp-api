@@ -11,6 +11,7 @@ import SignatureRoute from "../signature/signatureRoutes";
 import DeviRoute from "../devi/deviRoutes";
 import CommandRoute from "../command/commandRoutes";
 import RequestRoute from "../request/requestRoutes";
+import CategoryRoute from "../category/categoryRoutes";
 
 export function connectBaseRoutes() {
   const router = Router();
@@ -57,9 +58,13 @@ export function connectRequestRoutes() {
   const signatureRoute = new SignatureRoute();
   const deviRoute = new DeviRoute();
   const commandRoute = new CommandRoute();
+  const categoryRoute = new CategoryRoute();
 
   // request routes connection
   router.use("/object", request.routes);
+
+  // category routes connection
+  router.use("/category", categoryRoute.routes);
 
   // command request connection
   router.use("/cmdrqst", cmdRequest.routes);

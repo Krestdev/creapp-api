@@ -82,6 +82,7 @@ model Project {
   requests    RequestModel[]
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+  payments    Payment[]
 }
 
 model RequestValidation {
@@ -229,15 +230,20 @@ model Provider {
   banck_attestation  String?
 }
 
+// working on
 model Payment {
   id        Int      @id @default(autoincrement())
   reference String
   createdAt DateTime
   status    String
+  type      String // RH, FAC, BC
+  title     String
   price     Int
   userId    Int
-  command   Command  @relation(fields: [commandId], references: [id], onDelete: Cascade)
-  commandId Int
+  command   Command? @relation(fields: [commandId], references: [id], onDelete: Cascade)
+  commandId Int?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  projectId Int?
 }
 
 model Accounting {
