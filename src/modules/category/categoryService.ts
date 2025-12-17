@@ -4,16 +4,28 @@ const prisma = new PrismaClient();
 
 export class CategoryService {
   // Category
-  createCategory = (data: Category) => {
+  createCategory = (
+    data: Category,
+    validators: { userId: number; rank: number }[]
+  ) => {
     return prisma.category.create({
-      data: data,
+      data: {
+        ...data,
+        validators: {
+          createMany: {
+            data: validators,
+          },
+        },
+      },
     });
   };
 
   updateCategory = (id: number, data: Category) => {
     return prisma.category.update({
       where: { id },
-      data: data,
+      data: {
+        ...data,
+      },
     });
   };
 
@@ -31,14 +43,6 @@ export class CategoryService {
     return prisma.category.findMany({
       where: {
         parentId,
-      },
-    });
-  };
-
-  getAllSpecialCategory = (isSpecial: boolean) => {
-    return prisma.category.findMany({
-      where: {
-        isSpecial,
       },
     });
   };

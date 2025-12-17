@@ -20,17 +20,6 @@ export default class CategoryRoute {
   }
 
   private config() {
-    this.routes.get("/special", (req, res) => {
-      this.categoryController
-        .getSpecialCategories()
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
-
     this.routes.delete("/:id", (req, res) => {
       this.categoryController
         .deleteCategory(req.params.id)

@@ -26,18 +26,16 @@ export default class CategoryController {
   }
 
   @Post("/category")
-  createCategory(@Body() data: Category): Promise<Category> {
-    return categoryService.createCategory(data);
+  createCategory(
+    @Body() data: Category & { validators: { userId: number; rank: number }[] }
+  ): Promise<Category> {
+    const { validators, ...ndata } = data;
+    return categoryService.createCategory(ndata, validators);
   }
 
   @Get("/category/{id}/children")
   getChilrenCategories(@Path() id: string): Promise<Category[]> {
     return categoryService.getAllChildren(Number(id));
-  }
-
-  @Get("/category/special")
-  getSpecialCategories(): Promise<Category[]> {
-    return categoryService.getAllSpecialCategory(true);
   }
 
   @Delete("/category/{id}")

@@ -29,6 +29,7 @@ model User {
   updatedAt       DateTime            @updatedAt
   commandRequests CommandRequest[]
   devis           Devi[]
+  validators      Validator[]
 }
 
 model Role {
@@ -123,13 +124,20 @@ model RequestModel {
 }
 
 model Category {
-  id        Int            @id @default(autoincrement())
-  label     String
-  parent    Category?      @relation(name: "CategoryToCategory", fields: [parentId], references: [id], onDelete: SetNull)
-  parentId  Int?
-  children  Category[]     @relation(name: "CategoryToCategory")
-  requests  RequestModel[] @relation(name: "RequestCategory")
-  isSpecial Boolean
+  id          Int            @id @default(autoincrement())
+  label       String
+  description String?
+  requests    RequestModel[] @relation(name: "RequestCategory")
+  validators  Validator[]
+}
+
+model Validator {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  ctegory    Category @relation(fields: [categoryId], references: [id])
+  rank       Int
+  userId     Int
+  categoryId Int
 }
 
 model CommandRequest {
