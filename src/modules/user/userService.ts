@@ -33,9 +33,11 @@ export class UserService {
       .sendWelcomeEmail({
         userName: name,
         email,
-        loginUrl: `${GENERAL_CONFIG.app.baseUrl}/auth/register/${otp}?email=${email}`,
+        password,
+        otp,
       })
-      .catch(() => {
+      .catch((e) => {
+        console.log(e);
         console.error("could not send mail");
       });
 

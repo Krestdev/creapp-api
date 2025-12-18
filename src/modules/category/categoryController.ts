@@ -20,9 +20,10 @@ export default class CategoryController {
   @Put("/category/{id}")
   updateOneCategory(
     @Path() id: string,
-    @Body() data: Category
+    @Body() data: Category & { validators: { userId: number; rank: number }[] }
   ): Promise<Category> {
-    return categoryService.updateCategory(Number(id), data);
+    const { validators, ...ndata } = data;
+    return categoryService.updateCategory(Number(id), ndata, validators);
   }
 
   @Post("/category")
@@ -31,11 +32,6 @@ export default class CategoryController {
   ): Promise<Category> {
     const { validators, ...ndata } = data;
     return categoryService.createCategory(ndata, validators);
-  }
-
-  @Get("/category/{id}/children")
-  getChilrenCategories(@Path() id: string): Promise<Category[]> {
-    return categoryService.getAllChildren(Number(id));
   }
 
   @Delete("/category/{id}")

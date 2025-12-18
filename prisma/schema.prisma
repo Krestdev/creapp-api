@@ -17,7 +17,6 @@ model User {
   members         Member[]
   benefits        RequestModel[]      @relation(name: "userbeneficiary")
   requests        RequestModel[]
-  requestReveiwed RequestValidation[]
   spending        Spending[]
   project         Project?            @relation("ProjectChief")
   status          String              @default("active")
@@ -89,7 +88,7 @@ model Project {
 model RequestValidation {
   id          Int          @id @default(autoincrement())
   decision    String
-  validator   User         @relation(references: [id], fields: [validatorId], onDelete: Cascade)
+  validator   Validator    @relation(references: [id], fields: [validatorId], onDelete: Cascade)
   validatorId Int
   request     RequestModel @relation(references: [id], fields: [requestId], onDelete: Cascade)
   requestId   Int
@@ -135,6 +134,7 @@ model Validator {
   id         Int      @id @default(autoincrement())
   user       User     @relation(fields: [userId], references: [id])
   ctegory    Category @relation(fields: [categoryId], references: [id])
+  RequestValidated RequestValidation[]
   rank       Int
   userId     Int
   categoryId Int

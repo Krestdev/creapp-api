@@ -105,11 +105,17 @@ export class RequestService {
     });
   };
 
-  validate = (id: number) => {
+  validate = (id: number, userId: number) => {
     return prisma.requestModel.update({
       where: { id },
       data: {
         state: "validated",
+        revieweeList: {
+          create: {
+            decision: "validated",
+            validatorId: userId,
+          },
+        },
       },
     });
   };

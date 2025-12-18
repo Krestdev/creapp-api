@@ -21,6 +21,11 @@ export class DeviService {
       },
       include: {
         element: true,
+        commandRequest: {
+          include: {
+            besoins: true,
+          },
+        },
       },
     });
   };
@@ -174,6 +179,11 @@ export class DeviService {
     return prisma.devi.findMany({
       include: {
         element: true,
+        commandRequest: {
+          include: {
+            besoins: true,
+          },
+        },
       },
     });
   };
@@ -182,6 +192,14 @@ export class DeviService {
   getOne = (id: number) => {
     return prisma.devi.findUniqueOrThrow({
       where: { id },
+      include: {
+        element: true,
+        commandRequest: {
+          include: {
+            besoins: true,
+          },
+        },
+      },
     });
   };
 }

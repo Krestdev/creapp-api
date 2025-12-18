@@ -20,11 +20,25 @@ export class CategoryService {
     });
   };
 
-  updateCategory = (id: number, data: Category) => {
+  updateCategory = async (
+    id: number,
+    data: Category,
+    validators: { userId: number; rank: number }[]
+  ) => {
+    await prisma.validator.deleteMany({
+      where: {
+        categoryId: id,
+      },
+    });
     return prisma.category.update({
       where: { id },
       data: {
         ...data,
+        validators: {
+          createMany: {
+            data: validators,
+          },
+        },
       },
     });
   };
@@ -36,13 +50,9 @@ export class CategoryService {
   };
 
   getAllCategories = () => {
-    return prisma.category.findMany();
-  };
-
-  getAllChildren = (parentId: number) => {
     return prisma.category.findMany({
-      where: {
-        parentId,
+      include: {
+        validators: true,
       },
     });
   };

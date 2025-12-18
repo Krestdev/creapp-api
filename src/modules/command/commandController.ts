@@ -8,8 +8,8 @@ const commandService = new CommandService();
 @Tags("Command Routes")
 export default class CommandController {
   @Post("/")
-  create(@Body() data: { commands: Command; ids: number[] }): Promise<Command> {
-    return commandService.create(data.commands, data.ids);
+  create(@Body() data: { command: Command; ids: number[] }): Promise<Command> {
+    return commandService.create(data.command, data.ids);
   }
 
   /**

@@ -20,27 +20,34 @@ export default class Mailer {
 
   sendWelcomeEmail = async ({
     userName,
-    loginUrl,
-    // phone,
+    password,
     email,
+    otp,
   }: {
     userName: string | null;
     email: string;
-    loginUrl: string;
-    // phone?: string;
+    password: string;
+    otp: string;
   }) => {
     const year = new Date().getFullYear();
     const resetUrl = "http://example.com/reset";
     const unsubscribeUrl = "http://example.com/unsubscribe";
-    const supportEmail = "support@example.com";
-    const phone = "123-456-7890";
-    const companyAddress = "123 Main St, City, Country";
-    const logoUrl = "http://example.com/logo.png";
     const helpUrl = "http://example.com/help";
     const socialLinks = {
       facebook: "http://facebook.com/yourpage",
       twitter: "http://twitter.com/yourhandle",
     };
+
+    const logoUrl = "https://creappui.krestdev.com";
+    const userEmail = email;
+    const userPassword = password;
+    const loginUrl = "https://creapp-two.vercel.app/connexion";
+    const supportEmail = "support@example.com";
+    const companyAddress = "Douala Akwa";
+    const phone = "123-456-789";
+    const verifyAccount = `https://creappapi.krestdev.com/api/v1.0.0/base/user/verify/${otp}?email=${encodeURIComponent(
+      email
+    )}`;
 
     // Render EJS template
     const html = await ejs.renderFile(
@@ -52,6 +59,9 @@ export default class Mailer {
         loginUrl,
         logoUrl,
         companyAddress,
+        userEmail,
+        userPassword,
+        verifyAccount,
         helpUrl,
         socialLinks,
         year,

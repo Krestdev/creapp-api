@@ -50,8 +50,11 @@ export default class RequestController {
   }
 
   @Put("/validate/{id}")
-  validate(@Path() id: string): Promise<RequestModel> {
-    return requestService.validate(Number(id));
+  validate(
+    @Path() id: string,
+    @Body() data: { userId: number }
+  ): Promise<RequestModel> {
+    return requestService.validate(Number(id), data.userId);
   }
 
   @Put("/review/{id}")

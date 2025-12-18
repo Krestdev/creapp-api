@@ -86,7 +86,7 @@ export default class RequestRoute {
 
     this.routes.put("/validate/:id", (req, res) => {
       this.requestController
-        .validate(req.params.id)
+        .validate(req.params.id, req.body)
         .then((request) =>
           res
             .status(201)
