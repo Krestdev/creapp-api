@@ -51,7 +51,7 @@ export default class Mailer {
 
     // Render EJS template
     const html = await ejs.renderFile(
-      path.join(__dirname, "../../assets/templates/userWelcome.ejs"),
+      path.join(__dirname, "../../assets/templates/userwelcome.ejs"),
       {
         userName,
         email,
@@ -104,7 +104,7 @@ export default class Mailer {
 
     // Render EJS template
     const html = await ejs.renderFile(
-      path.join(__dirname, "../../assets/templates/userWelcome.ejs"),
+      path.join(__dirname, "../../assets/templates/userwelcome.ejs"),
       {
         year,
         resetUrl,
