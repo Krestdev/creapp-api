@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Command" ALTER COLUMN "status" SET DEFAULT 'PENDING';

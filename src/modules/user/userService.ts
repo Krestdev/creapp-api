@@ -173,7 +173,6 @@ export class UserService {
         updatedAt: true,
         verificationOtp: true,
         verified: true,
-        projectId: true,
       },
     });
   }

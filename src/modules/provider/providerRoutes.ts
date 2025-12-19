@@ -44,16 +44,26 @@ export default class ProviderRoute {
     );
 
     // update
-    this.routes.put("/:id", (req, res) => {
-      this.providerController
-        .update(req.params.id!, req.body)
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
+    this.routes.put(
+      "/:id",
+      upload.fields([
+        { name: "carte_contribuable", maxCount: 1 },
+        { name: "acf", maxCount: 1 },
+        { name: "plan_localisation", maxCount: 1 },
+        { name: "commerce_registre", maxCount: 1 },
+        { name: "banck_attestation", maxCount: 1 },
+      ]),
+      (req, res) => {
+        this.providerController
+          .update(req.params.id!, { ...req.body, ...req.files })
+          .then((request) =>
+            res
+              .status(201)
+              .json({ message: create.success.create, data: request })
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      }
+    );
 
     // delete
     this.routes.delete("/:id", (req, res) => {

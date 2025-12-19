@@ -37,7 +37,6 @@ export default class CmdRequestController {
   ): Promise<Provider> {
     const newProvider = {
       ...data,
-      rating: Number(data.rating ?? 0),
       carte_contribuable:
         data.carte_contribuable && data.carte_contribuable[0]
           ? data.carte_contribuable[0].filename
@@ -83,7 +82,6 @@ export default class CmdRequestController {
   ): Promise<Provider> {
     const newProvider = {
       ...data,
-      rating: Number(data.rating ?? 0),
       carte_contribuable:
         data.carte_contribuable && data.carte_contribuable[0]
           ? data.carte_contribuable[0].filename
@@ -102,6 +100,7 @@ export default class CmdRequestController {
           ? data.banck_attestation[0].filename
           : null,
     };
+
     return cmdRequestService.update(Number(id), newProvider);
   }
 

@@ -9,8 +9,6 @@ export class ProviderService {
     phone: string | null;
     email: string | null;
     address: string | null;
-    taxId: string | null;
-    rating: number;
     status: boolean;
     carte_contribuable: string | null;
     acf: string | null;
@@ -39,8 +37,9 @@ export class ProviderService {
       phone: string | null;
       email: string | null;
       address: string | null;
-      taxId: string | null;
-      rating: number;
+      RCCM: string | null;
+      NIU: string | null;
+      regem: string | null;
       status: boolean;
       carte_contribuable: string | null;
       acf: string | null;
@@ -52,6 +51,11 @@ export class ProviderService {
     const exist = await prisma.provider.findFirst({
       where: {
         name: data.name,
+        id: {
+          not: {
+            in: [id],
+          },
+        },
       },
     });
     if (exist?.id) {

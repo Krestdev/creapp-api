@@ -18,10 +18,9 @@ model User {
   benefits        RequestModel[]      @relation(name: "userbeneficiary")
   requests        RequestModel[]
   spending        Spending[]
-  project         Project?            @relation("ProjectChief")
+  project         Project[]           @relation("ProjectChief")
   status          String              @default("active")
   lastConnection  DateTime?
-  projectId       Int?                @unique
   verificationOtp String?
   verified        Boolean             @default(false)
   createdAt       DateTime            @default(now())
@@ -77,7 +76,7 @@ model Project {
   status      String         @default("ongoing")
   description String?        @default("Aucun description")
   chief       User?          @relation("ProjectChief", fields: [chiefId], references: [id], onDelete: SetNull)
-  chiefId     Int?           @unique
+  chiefId     Int?
   budget      Float          @default(0)
   requests    RequestModel[]
   createdAt   DateTime       @default(now())
@@ -107,7 +106,7 @@ model RequestModel {
   revieweeList     RequestValidation[]
   state            String              @default("pending")
   proprity         String              @default("normal")
-  category         Category            @relation(name: "RequestCategory", references: [id], fields: [categoryId])
+  category         Category            @relation(name: "RequestCategory", references: [id], fields: [categoryId], onDelete: Cascade)
   categoryId       Int
   user             User                @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId           Int
@@ -133,7 +132,7 @@ model Category {
 model Validator {
   id         Int      @id @default(autoincrement())
   user       User     @relation(fields: [userId], references: [id])
-  ctegory    Category @relation(fields: [categoryId], references: [id])
+  ctegory    Category @relation(fields: [categoryId], references: [id], onDelete:Cascade)
   RequestValidated RequestValidation[]
   rank       Int
   userId     Int
@@ -175,6 +174,7 @@ model Devi {
   commandId        Int?            @unique()
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+  @@unique([providerId,commandRequestId])
 }
 
 model DeviElement {
@@ -204,9 +204,13 @@ model Command {
   requests         RequestModel[]
   providerId       Int
   payments         Payment[]
+  reference        String @default("none")
   // one to one relation with Devi
   devi             Devi?
   deviId           Int?           @unique()
+  status           String?        @default("PENDING")
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt @default(now())
 }
 
 model Document {
@@ -219,12 +223,16 @@ model Document {
 
 model Provider {
   id                 Int              @id @default(autoincrement())
+  
   name               String
   phone              String?
   email              String?
   address            String?
-  taxId              String?
-  rating             Int              @default(0)
+
+  RCCM               String?
+  NIU                String?
+  regem              String?
+
   status             Boolean          @default(false)
   commandRequest     CommandRequest[]
   createdAt          DateTime         @default(now())
