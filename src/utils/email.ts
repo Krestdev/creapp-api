@@ -42,12 +42,13 @@ export default class Mailer {
     const userEmail = email;
     const userPassword = password;
     const loginUrl = "https://creapp-two.vercel.app/connexion";
-    const supportEmail = "support@example.com";
+    const supportEmail = "support@krestdev.com";
     const companyAddress = "Douala Akwa";
     const phone = "123-456-789";
-    const verifyAccount = `https://creappapi.krestdev.com/api/v1.0.0/base/user/verify/${otp}?email=${encodeURIComponent(
-      email
-    )}`;
+    const verifyAccount = `https://creap-two.vercel.app/auth?otp=${otp}&email=${email}`;
+    // const verifyAccount = `https://creappapi.krestdev.com/api/v1.0.0/base/user/verify/${otp}?email=${encodeURIComponent(
+    //   email
+    // )}`;
 
     // Render EJS template
     const html = await ejs.renderFile(

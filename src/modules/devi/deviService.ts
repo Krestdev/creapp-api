@@ -87,6 +87,26 @@ export class DeviService {
   ) => {
     return Promise.all(
       data.map(async (devi) => {
+        await prisma.devi.update({
+          where: {
+            id: devi.deviId,
+          },
+          data: {
+            element: {
+              updateMany: {
+                where: {
+                  id: {
+                    notIn: devi.elements.map((x) => x.elementIds).flat(),
+                  },
+                },
+                data: {
+                  status: "REJECTED",
+                },
+              },
+            },
+          },
+        });
+
         return prisma.devi.update({
           where: {
             id: devi.deviId,
