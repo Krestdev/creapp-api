@@ -120,7 +120,7 @@ export class RequestService {
 
   review = (
     id: number,
-    data: { userId: number; validated: boolean; decision?: string }
+    data: { validatorId: number; validated: boolean; decision?: string }
   ) => {
     return prisma.requestModel
       .update({
@@ -132,7 +132,7 @@ export class RequestService {
       .then(() => {
         return prisma.requestValidation.create({
           data: {
-            validatorId: data.userId,
+            validatorId: data.validatorId,
             decision: data.validated
               ? "validated"
               : `rejected ${data.decision}`,
