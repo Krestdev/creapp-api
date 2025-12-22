@@ -130,6 +130,8 @@ export class UserService {
     //     : { create: { label: data.role } };
     // }
 
+    console.log(data);
+
     // Build an update object that only includes provided fields to avoid assigning undefined.
     const updateData: Partial<User> = {};
     if (data.email !== undefined) updateData.email = data.email;
@@ -141,6 +143,8 @@ export class UserService {
     }
     // if (roleConnectOrCreate !== undefined)
     //   updateData.role = roleConnectOrCreate;
+
+    console.log(updateData);
 
     const user = await prisma.user.update({
       where: { id },
@@ -155,6 +159,7 @@ export class UserService {
       include: { role: true },
       omit: { password: true },
     });
+    console.log(user);
     return user;
   }
 
