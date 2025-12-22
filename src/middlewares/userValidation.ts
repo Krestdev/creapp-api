@@ -119,7 +119,9 @@ export const validateData = (
         if (result.error || params.error) {
           res
             .status(400)
-            .json({ error: result.error?.details && params.error?.details });
+            .json({
+              error: { ...result.error?.details, ...params.error?.details },
+            });
         } else {
           next();
         }
@@ -140,7 +142,9 @@ export const validateData = (
         if (result.error || params.error) {
           res
             .status(400)
-            .json({ error: result.error?.details && params.error?.details });
+            .json({
+              error: { ...result.error?.details, ...params.error?.details },
+            });
         } else {
           next();
         }
@@ -161,7 +165,9 @@ export const validateData = (
         if (result.error || params.error) {
           res
             .status(400)
-            .json({ error: result.error?.details && params.error?.details });
+            .json({
+              error: { ...result.error?.details, ...params.error?.details },
+            });
         } else {
           next();
         }
