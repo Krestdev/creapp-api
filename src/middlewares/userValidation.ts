@@ -18,7 +18,7 @@ const userUpdate = Joi.object({
   email: Joi.string().email().optional(),
   password: Joi.string().min(6).max(100).optional(),
   phone: Joi.string().min(9).optional(),
-  role: Joi.string().optional(),
+  role: Joi.array().items(Joi.number()),
 });
 
 const userParam = Joi.object({
@@ -111,8 +111,11 @@ export const validateData = (
         break;
 
       case "update":
-        result = userUpdate.validate(req.body);
-        params = userParam.validate({ id: req.params.id });
+        result = userUpdate.validate(req.body, { abortEarly: false });
+        params = userParam.validate(
+          { id: req.params.id },
+          { abortEarly: false }
+        );
         if (result.error || params.error) {
           res
             .status(400)
