@@ -99,7 +99,7 @@ export class UserService {
     console.log("User login");
     const user = await prisma.user.findUnique({
       where: { email: data.email },
-      include: { role: true },
+      include: { role: true, validators: true },
     });
     if (!user || !user.verified)
       throw new Error("Invalid credentials or unverified account");
@@ -118,20 +118,20 @@ export class UserService {
     return { user, token };
   }
 
-  async update(id: number, data: Partial<User> & { role?: string }) {
+  async update(id: number, data: Partial<User> & { role: number[] }) {
     // If a role is provided, find or create it
-    let roleConnectOrCreate;
-    if (data.role) {
-      const existingRole = await prisma.role.findFirst({
-        where: { label: data.role },
-      });
-      roleConnectOrCreate = existingRole
-        ? { connect: { id: existingRole.id } }
-        : { create: { label: data.role } };
-    }
+    // let roleConnectOrCreate;
+    // if (data.role) {
+    //   const existingRole = await prisma.role.findFirst({
+    //     where: { label: data.role },
+    //   });
+    //   roleConnectOrCreate = existingRole
+    //     ? { connect: { id: existingRole.id } }
+    //     : { create: { label: data.role } };
+    // }
 
     // Build an update object that only includes provided fields to avoid assigning undefined.
-    const updateData: any = {};
+    const updateData: Partial<User> = {};
     if (data.email !== undefined) updateData.email = data.email;
     if (data.name !== undefined) updateData.name = data.name;
     if (data.phone !== undefined) updateData.phone = data.phone;
@@ -139,12 +139,19 @@ export class UserService {
       const hashedPassword = await bcrypt.hash(data.password, 10);
       updateData.password = hashedPassword;
     }
-    if (roleConnectOrCreate !== undefined)
-      updateData.role = roleConnectOrCreate;
+    // if (roleConnectOrCreate !== undefined)
+    //   updateData.role = roleConnectOrCreate;
 
     const user = await prisma.user.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...updateData,
+        role: {
+          connect: data.role.map((id) => {
+            return { id };
+          }),
+        },
+      },
       include: { role: true },
       omit: { password: true },
     });
@@ -179,7 +186,11 @@ export class UserService {
 
   getAll() {
     return prisma.user.findMany({
-      include: { role: true, members: { include: { department: true } } },
+      include: {
+        role: true,
+        validators: true,
+        members: { include: { department: true } },
+      },
       omit: { password: true },
     });
   }
@@ -187,7 +198,7 @@ export class UserService {
   getOne(id: number) {
     return prisma.user.findFirstOrThrow({
       where: { id },
-      include: { role: true },
+      include: { role: true, validators: true },
       omit: { password: true },
     });
   }
