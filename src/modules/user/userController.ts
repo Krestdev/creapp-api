@@ -41,7 +41,7 @@ export default class UserController {
   }
 
   @Put("/{id}")
-  update(@Path() id: number, @Body() data: Partial<User> & { role?: string }) {
+  update(@Path() id: number, @Body() data: Partial<User> & { role: number[] }) {
     return userService.update(Number(id), data);
   }
 
