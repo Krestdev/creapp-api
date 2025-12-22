@@ -60,6 +60,7 @@ export class UserService {
         phone: data.phone,
         password: hashedPassword,
         verificationOtp: otp,
+        post: data.post,
         role: {
           connect: { id: existingRole.id },
         },
@@ -137,6 +138,7 @@ export class UserService {
     if (data.email !== undefined) updateData.email = data.email;
     if (data.name !== undefined) updateData.name = data.name;
     if (data.phone !== undefined) updateData.phone = data.phone;
+    if (data.post !== undefined) updateData.post = data.post;
     if (data.password !== undefined) {
       const hashedPassword = await bcrypt.hash(data.password, 10);
       updateData.password = hashedPassword;
