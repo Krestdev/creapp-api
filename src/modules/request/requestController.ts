@@ -52,9 +52,9 @@ export default class RequestController {
   @Put("/validate/{id}")
   validate(
     @Path() id: string,
-    @Body() data: { userId: number }
+    @Body() data: { validatorId: number }
   ): Promise<RequestModel> {
-    return requestService.validate(Number(id), data.userId);
+    return requestService.validate(Number(id), data.validatorId);
   }
 
   @Put("/review/{id}")

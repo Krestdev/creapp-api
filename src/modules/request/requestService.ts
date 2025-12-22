@@ -103,7 +103,7 @@ export class RequestService {
     });
   };
 
-  validate = (id: number, userId: number) => {
+  validate = (id: number, validatorId: number) => {
     return prisma.requestModel.update({
       where: { id },
       data: {
@@ -111,7 +111,7 @@ export class RequestService {
         revieweeList: {
           create: {
             decision: "validated",
-            validatorId: userId,
+            validatorId: validatorId,
           },
         },
       },
