@@ -147,7 +147,7 @@ export class UserService {
       data: {
         ...updateData,
         role: {
-          connect: data.role.map((id) => {
+          set: data.role.map((id) => {
             return { id };
           }),
         },
