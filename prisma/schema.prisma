@@ -13,6 +13,7 @@ model User {
   name            String
   phone           String
   password        String
+  post            String           @default("Employee")
   role            Role[]
   members         Member[]
   benefits        RequestModel[]   @relation(name: "userbeneficiary")
