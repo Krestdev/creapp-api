@@ -60,7 +60,7 @@ export default class RequestController {
   @Put("/review/{id}")
   reviewed(
     @Path() id: string,
-    @Body() data: { validatorId: number; validated: boolean; decision?: string }
+    @Body() data: { userId: number; validated: boolean; decision?: string }
   ): Promise<RequestValidation> {
     return requestService.review(Number(id), data);
   }
