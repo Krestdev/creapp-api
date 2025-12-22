@@ -8,23 +8,23 @@ generator client {
 }
 
 model User {
-  id              Int                 @id @default(autoincrement())
-  email           String              @unique
+  id              Int              @id @default(autoincrement())
+  email           String           @unique
   name            String
   phone           String
   password        String
   role            Role[]
   members         Member[]
-  benefits        RequestModel[]      @relation(name: "userbeneficiary")
+  benefits        RequestModel[]   @relation(name: "userbeneficiary")
   requests        RequestModel[]
   spending        Spending[]
-  project         Project[]           @relation("ProjectChief")
-  status          String              @default("active")
+  project         Project[]        @relation("ProjectChief")
+  status          String           @default("active")
   lastConnection  DateTime?
   verificationOtp String?
-  verified        Boolean             @default(false)
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  verified        Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   commandRequests CommandRequest[]
   devis           Devi[]
   validators      Validator[]
@@ -130,13 +130,13 @@ model Category {
 }
 
 model Validator {
-  id         Int      @id @default(autoincrement())
-  user       User     @relation(fields: [userId], references: [id])
-  ctegory    Category @relation(fields: [categoryId], references: [id], onDelete:Cascade)
+  id               Int                 @id @default(autoincrement())
+  user             User                @relation(fields: [userId], references: [id])
+  ctegory          Category            @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   RequestValidated RequestValidation[]
-  rank       Int
-  userId     Int
-  categoryId Int
+  rank             Int
+  userId           Int
+  categoryId       Int
 }
 
 model CommandRequest {
@@ -150,6 +150,8 @@ model CommandRequest {
   documents    Document[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+  name         String?
+  phone        String?
   userId       Int
   devi         Devi[]
   provider     Provider?      @relation(fields: [providerId], references: [id])
@@ -174,7 +176,8 @@ model Devi {
   commandId        Int?            @unique()
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
-  @@unique([providerId,commandRequestId])
+
+  @@unique([providerId, commandRequestId])
 }
 
 model DeviElement {
@@ -204,13 +207,13 @@ model Command {
   requests         RequestModel[]
   providerId       Int
   payments         Payment[]
-  reference        String @default("none")
+  reference        String         @default("none")
   // one to one relation with Devi
   devi             Devi?
   deviId           Int?           @unique()
   status           String?        @default("PENDING")
   createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt @default(now())
+  updatedAt        DateTime       @default(now()) @updatedAt
 }
 
 model Document {
@@ -222,16 +225,16 @@ model Document {
 }
 
 model Provider {
-  id                 Int              @id @default(autoincrement())
-  
-  name               String
-  phone              String?
-  email              String?
-  address            String?
+  id Int @id @default(autoincrement())
 
-  RCCM               String?
-  NIU                String?
-  regem              String?
+  name    String
+  phone   String?
+  email   String?
+  address String?
+
+  RCCM  String?
+  NIU   String?
+  regem String?
 
   status             Boolean          @default(false)
   commandRequest     CommandRequest[]
