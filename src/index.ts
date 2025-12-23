@@ -36,7 +36,11 @@ class ApiServer {
   constructor() {
     this.app.use(morgan("dev"));
     this.app.use(helmet());
-    this.app.use(cors());
+    this.app.use(
+      cors({
+        origin: "*",
+      })
+    );
     this.app.use(express.json());
     this.app.use(express.urlencoded());
     this.app.use(bodyParser.json());
@@ -99,6 +103,11 @@ class ApiServer {
     );
     this.app.use(
       `/api/v${PROJECT_MODULE_CONFIG.version}/uploads`,
+      (req, res, next) => {
+        res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        next();
+      },
       express.static("uploads")
     );
     this.app.listen(GENERAL_CONFIG.app.port, async () => {
