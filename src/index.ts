@@ -94,11 +94,11 @@ class ApiServer {
             break;
 
           default:
-            this.healthCheck();
             break;
         }
       }
     }
+    this.healthCheck();
   }
 
   public start() {
