@@ -70,6 +70,12 @@ class ApiServer {
     );
   }
 
+  healthCheck() {
+    this.app.get("/health", (req, res) => {
+      res.status(200).send("OK");
+    });
+  }
+
   // connect selected modules
   connectModules() {
     for (const module of MODULES_LIST) {
@@ -88,6 +94,7 @@ class ApiServer {
             break;
 
           default:
+            this.healthCheck();
             break;
         }
       }
