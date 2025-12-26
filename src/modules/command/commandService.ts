@@ -61,7 +61,16 @@ export class CommandService {
       include: {
         devi: {
           include: {
-            commandRequest: true,
+            commandRequest: {
+              include: {
+                besoins: {
+                  include: {
+                    project: true,
+                  },
+                },
+              },
+            },
+            element: true,
           },
         },
         provider: true,
@@ -77,6 +86,7 @@ export class CommandService {
         devi: {
           include: {
             commandRequest: true,
+            element: true,
           },
         },
         provider: true,

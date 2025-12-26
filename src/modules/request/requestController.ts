@@ -1,4 +1,9 @@
-import { RequestModel, RequestValidation } from "@prisma/client";
+import {
+  Command,
+  Payment,
+  RequestModel,
+  RequestValidation,
+} from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { RequestService } from "./requestService";
 
@@ -81,5 +86,26 @@ export default class RequestController {
   @Put("/submit/{id}")
   submit(@Path() id: string): Promise<RequestModel> {
     return requestService.submit(Number(id));
+  }
+
+  @Post("/special")
+  specialRequest(
+    @Body()
+    data: RequestModel & { type: string; proof?: string } & { benef?: number[] }
+  ): Promise<{ request: RequestModel; payment: Payment }> {
+    // create request, command and payment
+    const { proof, benef, ...reqData } = data;
+
+    const request: RequestModel & { type: string; proof: string | null } = {
+      ...(JSON.parse(reqData as unknown as string) as RequestModel & {
+        type: string;
+      }),
+      proof: proof ?? null,
+    };
+
+    return requestService.specialRequest(
+      request,
+      JSON.parse(benef as unknown as string)
+    );
   }
 }

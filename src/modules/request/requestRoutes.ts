@@ -1,6 +1,7 @@
 import { Router } from "express";
 import RequestController from "./requestController";
 import { request } from "../../../assets/messages/requestMessages.json";
+import upload from "../../utils/upload";
 
 const {
   create,
@@ -63,6 +64,18 @@ export default class RequestRoute {
         )
         .catch((error) => res.status(400).json({ error: error.message }));
     });
+
+    this.routes.post("/special", upload.single("proof"), (req, res) => {
+      this.requestController
+        .specialRequest({ ...req.body, proof: req.file?.filename ?? null })
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     this.routes.put("/:id", (req, res) => {
       this.requestController
         .update(req.params.id, req.body)

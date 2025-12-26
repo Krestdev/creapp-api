@@ -169,4 +169,47 @@ export class RequestService {
       },
     });
   };
+
+  specialRequest = async (
+    data: RequestModel & { type: string; proof: string | null },
+    benef?: number[]
+  ) => {
+    // create request, command and payment
+    const ref = "ref-" + new Date().getTime();
+    const { type, proof, ...requestData } = data;
+
+    const request = await prisma.requestModel
+      .create({
+        data: {
+          ...requestData,
+          ref,
+          state: "validated",
+          beficiaryList: {
+            connect: benef
+              ? benef.map((beId) => {
+                  return { id: beId };
+                })
+              : [],
+          },
+        },
+      })
+      .catch((e) => {
+        console.log(e);
+        throw e;
+      });
+
+    const refpay = "ref-" + new Date().getTime();
+    const payment = await prisma.payment.create({
+      data: {
+        title: "",
+        reference: refpay,
+        status: data.type == "FAC" ? "validated" : "pending",
+        type: data.type,
+        price: data.amount!,
+        proof: data.proof,
+      },
+    });
+
+    return { request: request, payment: payment };
+  };
 }

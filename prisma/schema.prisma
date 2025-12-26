@@ -29,6 +29,7 @@ model User {
   commandRequests CommandRequest[]
   devis           Devi[]
   validators      Validator[]
+  payments        Payment[]
 }
 
 model Role {
@@ -103,14 +104,15 @@ model RequestModel {
   dueDate          DateTime
   unit             String
   beneficiary      String
+  amount           Int?
   beficiaryList    User[]              @relation(name: "userbeneficiary")
   revieweeList     RequestValidation[]
   state            String              @default("pending")
   proprity         String              @default("normal")
   category         Category            @relation(name: "RequestCategory", references: [id], fields: [categoryId], onDelete: Cascade)
   categoryId       Int
-  user             User                @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId           Int
+  user             User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId           Int?
   project          Project?            @relation(fields: [projectId], references: [id], onDelete: SetNull)
   projectId        Int?
   createdAt        DateTime            @default(now())
@@ -254,12 +256,14 @@ model Provider {
 model Payment {
   id        Int      @id @default(autoincrement())
   reference String
-  createdAt DateTime
+  createdAt DateTime @default(now())
   status    String
   type      String // RH, FAC, BC
   title     String
+  proof     String?
   price     Int
-  userId    Int
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    Int?
   command   Command? @relation(fields: [commandId], references: [id], onDelete: Cascade)
   commandId Int?
   project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
