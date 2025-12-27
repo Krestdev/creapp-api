@@ -5,9 +5,9 @@ CREATE TABLE "User" (
     "name" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "post" TEXT NOT NULL DEFAULT 'Employee',
     "status" TEXT NOT NULL DEFAULT 'active',
     "lastConnection" TIMESTAMP(3),
-    "projectId" INTEGER,
     "verificationOtp" TEXT,
     "verified" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -96,10 +96,11 @@ CREATE TABLE "RequestModel" (
     "dueDate" TIMESTAMP(3) NOT NULL,
     "unit" TEXT NOT NULL,
     "beneficiary" TEXT NOT NULL,
+    "amount" INTEGER,
     "state" TEXT NOT NULL DEFAULT 'pending',
-    "proprity" TEXT NOT NULL DEFAULT 'normal',
+    "priority" TEXT NOT NULL DEFAULT 'normal',
     "categoryId" INTEGER NOT NULL,
-    "userId" INTEGER NOT NULL,
+    "userId" INTEGER,
     "projectId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -137,6 +138,8 @@ CREATE TABLE "CommandRequest" (
     "deliveryDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "name" TEXT,
+    "phone" TEXT,
     "userId" INTEGER NOT NULL,
     "providerId" INTEGER,
 
@@ -185,8 +188,13 @@ CREATE TABLE "Command" (
     "hasPenalties" BOOLEAN NOT NULL,
     "penaltyMode" TEXT NOT NULL,
     "amountBase" INTEGER NOT NULL,
+    "motif" TEXT,
     "providerId" INTEGER NOT NULL,
+    "reference" TEXT NOT NULL DEFAULT 'none',
     "deviId" INTEGER,
+    "status" TEXT DEFAULT 'PENDING',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Command_pkey" PRIMARY KEY ("id")
 );
@@ -208,8 +216,9 @@ CREATE TABLE "Provider" (
     "phone" TEXT,
     "email" TEXT,
     "address" TEXT,
-    "taxId" TEXT,
-    "rating" INTEGER NOT NULL DEFAULT 0,
+    "RCCM" TEXT,
+    "NIU" TEXT,
+    "regem" TEXT,
     "status" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -226,12 +235,14 @@ CREATE TABLE "Provider" (
 CREATE TABLE "Payment" (
     "id" SERIAL NOT NULL,
     "reference" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "status" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "title" TEXT NOT NULL,
+    "proof" TEXT,
+    "priority" TEXT NOT NULL DEFAULT 'medium',
     "price" INTEGER NOT NULL,
-    "userId" INTEGER NOT NULL,
+    "userId" INTEGER,
     "commandId" INTEGER,
     "projectId" INTEGER,
 
@@ -305,16 +316,13 @@ CREATE TABLE "_userbeneficiary" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_projectId_key" ON "User"("projectId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Project_chiefId_key" ON "Project"("chiefId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "CommandRequest_reference_key" ON "CommandRequest"("reference");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Devi_commandId_key" ON "Devi"("commandId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Devi_providerId_commandRequestId_key" ON "Devi"("providerId", "commandRequestId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Command_deviId_key" ON "Command"("deviId");
@@ -347,7 +355,7 @@ ALTER TABLE "RequestValidation" ADD CONSTRAINT "RequestValidation_validatorId_fk
 ALTER TABLE "RequestValidation" ADD CONSTRAINT "RequestValidation_requestId_fkey" FOREIGN KEY ("requestId") REFERENCES "RequestModel"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -365,7 +373,7 @@ ALTER TABLE "RequestModel" ADD CONSTRAINT "RequestModel_commandId_fkey" FOREIGN 
 ALTER TABLE "Validator" ADD CONSTRAINT "Validator_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Validator" ADD CONSTRAINT "Validator_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Validator" ADD CONSTRAINT "Validator_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "CommandRequest" ADD CONSTRAINT "CommandRequest_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -396,6 +404,9 @@ ALTER TABLE "Command" ADD CONSTRAINT "Command_providerId_fkey" FOREIGN KEY ("pro
 
 -- AddForeignKey
 ALTER TABLE "Document" ADD CONSTRAINT "Document_cmdRqstId_fkey" FOREIGN KEY ("cmdRqstId") REFERENCES "CommandRequest"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Payment" ADD CONSTRAINT "Payment_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Payment" ADD CONSTRAINT "Payment_commandId_fkey" FOREIGN KEY ("commandId") REFERENCES "Command"("id") ON DELETE CASCADE ON UPDATE CASCADE;
