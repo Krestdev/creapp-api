@@ -108,7 +108,7 @@ model RequestModel {
   beficiaryList    User[]              @relation(name: "userbeneficiary")
   revieweeList     RequestValidation[]
   state            String              @default("pending")
-  proprity         String              @default("normal")
+  priority         String              @default("normal")
   category         Category            @relation(name: "RequestCategory", references: [id], fields: [categoryId], onDelete: Cascade)
   categoryId       Int
   user             User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -207,6 +207,7 @@ model Command {
   hasPenalties     Boolean
   penaltyMode      String
   amountBase       Int
+  motif            String?
   requests         RequestModel[]
   providerId       Int
   payments         Payment[]
@@ -261,6 +262,7 @@ model Payment {
   type      String // RH, FAC, BC
   title     String
   proof     String?
+  priority  String   @default("medium")
   price     Int
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId    Int?

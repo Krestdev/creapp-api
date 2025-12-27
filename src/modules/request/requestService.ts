@@ -155,7 +155,7 @@ export class RequestService {
     return prisma.requestModel.update({
       where: { id },
       data: {
-        proprity: priority,
+        priority: priority,
       },
     });
   };
@@ -213,6 +213,7 @@ export class RequestService {
             ? "ghost"
             : "pending",
         type: data.type,
+        priority: "medium",
         price: data.amount!,
         proof: data.proof,
       },

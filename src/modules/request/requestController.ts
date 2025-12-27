@@ -107,7 +107,7 @@ export default class RequestController {
       amount: reqData.amount ? Number(reqData.amount) : 0,
       state: reqData.state,
       projectId: reqData.projectId ? Number(reqData.projectId) : null,
-      proprity: reqData.proprity,
+      priority: reqData.priority,
       categoryId: Number(reqData.categoryId),
       userId: Number(reqData.userId),
       proof: proof ?? null,
