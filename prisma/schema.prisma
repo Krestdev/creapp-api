@@ -122,6 +122,7 @@ model RequestModel {
   command          Command?            @relation(fields: [commandId], references: [id])
   commandId        Int?
   deviElements     DeviElement[]
+  payments         Payment[]
 }
 
 model Category {
@@ -255,20 +256,22 @@ model Provider {
 
 // working on
 model Payment {
-  id        Int      @id @default(autoincrement())
+  id        Int           @id @default(autoincrement())
   reference String
-  createdAt DateTime @default(now())
+  createdAt DateTime      @default(now())
   status    String
   type      String // RH, FAC, BC
   title     String
   proof     String?
-  priority  String   @default("medium")
+  priority  String        @default("medium")
   price     Int
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId    Int?
-  command   Command? @relation(fields: [commandId], references: [id], onDelete: Cascade)
+  command   Command?      @relation(fields: [commandId], references: [id], onDelete: Cascade)
   commandId Int?
-  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  project   Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  request   RequestModel? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  requestId Int?
   projectId Int?
 }
 

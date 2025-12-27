@@ -103,7 +103,22 @@ export class RequestService {
     });
   };
 
-  validate = (id: number, validatorId: number) => {
+  validate = async (id: number, validatorId: number) => {
+    const categoryId = await prisma.requestModel.findFirst({
+      where: { categoryId: 0, id: id },
+    });
+
+    if (categoryId) {
+      await prisma.payment.updateMany({
+        where: {
+          requestId: id,
+        },
+        data: {
+          status: "pending",
+        },
+      });
+    }
+
     return prisma.requestModel.update({
       where: { id },
       data: {
@@ -206,6 +221,7 @@ export class RequestService {
       data: {
         title: "",
         reference: refpay,
+        requestId: request.id,
         status:
           data.type == "SPECIAL"
             ? "validated"
