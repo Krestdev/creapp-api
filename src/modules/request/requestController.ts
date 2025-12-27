@@ -97,15 +97,30 @@ export default class RequestController {
     const { proof, benef, ...reqData } = data;
 
     const request: RequestModel & { type: string; proof: string | null } = {
-      ...(JSON.parse(reqData as unknown as string) as RequestModel & {
-        type: string;
-      }),
+      ...reqData,
+      label: reqData.label,
+      description: reqData.description,
+      quantity: reqData.quantity ? Number(reqData.quantity) : 0,
+      dueDate: reqData.dueDate,
+      unit: reqData.unit,
+      beneficiary: reqData.beneficiary,
+      amount: reqData.amount ? Number(reqData.amount) : 0,
+      state: reqData.state,
+      projectId: reqData.projectId ? Number(reqData.projectId) : null,
+      proprity: reqData.proprity,
+      categoryId: Number(reqData.categoryId),
+      userId: Number(reqData.userId),
       proof: proof ?? null,
     };
 
     return requestService.specialRequest(
       request,
-      JSON.parse(benef as unknown as string)
+      JSON.parse((benef as unknown as string) ?? "[]")
     );
+  }
+
+  @Get("/special")
+  specialGet(): Promise<RequestModel[]> {
+    return requestService.specialGet();
   }
 }

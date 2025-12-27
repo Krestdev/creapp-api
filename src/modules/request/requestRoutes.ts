@@ -32,6 +32,17 @@ export default class RequestRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    this.routes.get("/special", (req, res) => {
+      this.requestController
+        .specialGet()
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     this.routes.get("/:id", (req, res) => {
       this.requestController
         .getOne(req.params.id)

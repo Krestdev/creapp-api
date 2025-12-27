@@ -183,7 +183,7 @@ export class RequestService {
         data: {
           ...requestData,
           ref,
-          state: "validated",
+          state: data.type == "FAC" ? "pending" : "validated",
           beficiaryList: {
             connect: benef
               ? benef.map((beId) => {
@@ -191,6 +191,9 @@ export class RequestService {
                 })
               : [],
           },
+        },
+        include: {
+          beficiaryList: true,
         },
       })
       .catch((e) => {
@@ -203,7 +206,12 @@ export class RequestService {
       data: {
         title: "",
         reference: refpay,
-        status: data.type == "FAC" ? "validated" : "pending",
+        status:
+          data.type == "SPECIAL"
+            ? "validated"
+            : data.type == "FAC"
+            ? "ghost"
+            : "pending",
         type: data.type,
         price: data.amount!,
         proof: data.proof,
@@ -211,5 +219,11 @@ export class RequestService {
     });
 
     return { request: request, payment: payment };
+  };
+
+  specialGet = async () => {
+    return await prisma.requestModel.findMany({
+      where: { categoryId: 0 },
+    });
   };
 }
