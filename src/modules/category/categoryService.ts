@@ -4,10 +4,36 @@ const prisma = new PrismaClient();
 
 export class CategoryService {
   // Category
-  createCategory = (
+  createCategory = async (
     data: Category,
     validators: { userId: number; rank: number }[]
   ) => {
+    const manager = await prisma.role.findFirst({
+      where: {
+        label: "MANAGER",
+      },
+    });
+
+    if (!manager) throw Error("MANAGER Role not created");
+
+    await Promise.all(
+      validators.map(async (x) => {
+        // find manager Id
+        return await prisma.user.update({
+          where: {
+            id: x.userId,
+          },
+          data: {
+            role: {
+              connect: {
+                id: manager.id,
+              },
+            },
+          },
+        });
+      })
+    );
+
     return prisma.category.create({
       data: {
         ...data,
