@@ -212,10 +212,10 @@ export class RequestService {
             : data.type == "FAC"
             ? "ghost"
             : "pending",
-        type: data.type,
+        type: type,
         priority: "medium",
         price: data.amount!,
-        proof: data.proof,
+        proof: proof,
       },
     });
 
