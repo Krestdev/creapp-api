@@ -219,7 +219,7 @@ export class RequestService {
     const refpay = "ref-" + new Date().getTime();
     const payment = await prisma.payment.create({
       data: {
-        title: "",
+        title: request.label,
         reference: refpay,
         requestId: request.id,
         status:

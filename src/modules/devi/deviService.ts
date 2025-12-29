@@ -79,6 +79,8 @@ export class DeviService {
   validateDevi = (
     data: {
       deviId: number;
+      userId: number;
+      commandRequestId: number;
       elements: {
         name: string;
         elementIds: number[];
@@ -87,7 +89,21 @@ export class DeviService {
   ) => {
     return Promise.all(
       data.map(async (devi) => {
-        await prisma.devi.update({
+        await prisma.devi.updateMany({
+          where: {
+            id: {
+              notIn: [devi.deviId],
+            },
+            commandRequestId: {
+              equals: devi.commandRequestId,
+            },
+          },
+          data: {
+            status: "REJECTED",
+          },
+        });
+
+        const deviUpdated = await prisma.devi.update({
           where: {
             id: devi.deviId,
           },
@@ -103,6 +119,42 @@ export class DeviService {
                   status: "REJECTED",
                 },
               },
+            },
+          },
+          include: {
+            provider: true,
+            command: true,
+          },
+        });
+
+        const deviElements = await prisma.deviElement.findMany({
+          where: {
+            deviId: devi.deviId,
+            status: "SELECTED",
+          },
+        });
+
+        await prisma.reception.create({
+          data: {
+            Reference: "REC-" + new Date().getTime(),
+            Deadline: new Date(),
+            Status: "PENDING",
+            Proof: "",
+            user: {
+              connect: { id: devi.userId },
+            },
+            Command: {
+              connect: {
+                id: deviUpdated.command!.id,
+              },
+            },
+            Provider: {
+              connect: {
+                id: deviUpdated.providerId,
+              },
+            },
+            Deliverables: {
+              connect: deviElements.map((el) => ({ id: el.id })),
             },
           },
         });

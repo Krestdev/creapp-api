@@ -13,6 +13,7 @@ import CommandRoute from "../command/commandRoutes";
 import RequestRoute from "../request/requestRoutes";
 import CategoryRoute from "../category/categoryRoutes";
 import ValidatorRoute from "../validator/validatorRoutes";
+import ReceptionRoute from "../reception/receptionRoutes";
 
 export function connectBaseRoutes() {
   const router = Router();
@@ -61,6 +62,7 @@ export function connectRequestRoutes() {
   const commandRoute = new CommandRoute();
   const categoryRoute = new CategoryRoute();
   const validatorRoute = new ValidatorRoute();
+  const receptionRoute = new ReceptionRoute();
 
   // request routes connection
   router.use("/object", request.routes);
@@ -94,6 +96,9 @@ export function connectRequestRoutes() {
 
   // command request connection
   router.use("/command", commandRoute.routes);
+
+  // reception request connection
+  router.use("/reception", receptionRoute.routes);
 
   // base module connection
   router.use("/", (req, res) => {

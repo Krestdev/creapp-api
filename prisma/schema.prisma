@@ -30,6 +30,7 @@ model User {
   devis           Devi[]
   validators      Validator[]
   payments        Payment[]
+  receptions      Reception[]
 }
 
 model Role {
@@ -195,6 +196,8 @@ model DeviElement {
   priceProposed  Int
   devi           Devi          @relation(fields: [deviId], references: [id], onDelete: Cascade)
   deviId         Int
+  reception      Reception?    @relation(fields: [receptionId], references: [id])
+  receptionId    Int?
 }
 
 model Command {
@@ -219,6 +222,7 @@ model Command {
   status           String?        @default("PENDING")
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @default(now()) @updatedAt
+  réceptions      Reception[]
 }
 
 model Document {
@@ -252,6 +256,7 @@ model Provider {
   plan_localisation  String?
   commerce_registre  String?
   banck_attestation  String?
+  réceptions        Reception[]
 }
 
 // working on
@@ -304,4 +309,22 @@ model Signature {
   path      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Reception {
+  id           Int           @id @default(autoincrement())
+  Reference    String
+  Command      Command       @relation(fields: [CommandId], references: [id], onDelete: Cascade)
+  Provider     Provider      @relation(fields: [ProviderId], references: [id], onDelete: Cascade)
+  ProviderId   Int
+  Status       String
+  CommandId    Int
+  Deadline     DateTime
+  ReceiptDate  DateTime?
+  Deliverables DeviElement[]
+  Proof        String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }

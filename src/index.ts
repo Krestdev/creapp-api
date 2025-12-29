@@ -106,7 +106,7 @@ class ApiServer {
     this.app.use(
       ["/openapi", "/docs", "/swagger"],
       (req, res, next) => {
-        res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
         res.setHeader("Access-Control-Allow-Origin", "*");
         next();
       },

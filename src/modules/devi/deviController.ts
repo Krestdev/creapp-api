@@ -44,6 +44,8 @@ export default class DeviController {
     @Body()
     date: {
       deviId: number;
+      userId: number;
+      commandRequestId: number;
       elements: {
         name: string;
         elementIds: number[];
