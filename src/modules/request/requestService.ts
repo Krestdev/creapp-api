@@ -104,11 +104,11 @@ export class RequestService {
   };
 
   validate = async (id: number, validatorId: number) => {
-    const categoryId = await prisma.requestModel.findFirst({
+    const requestModel = await prisma.requestModel.findFirst({
       where: { categoryId: 0, id: id },
     });
 
-    if (categoryId) {
+    if (requestModel) {
       await prisma.payment.updateMany({
         where: {
           requestId: id,
@@ -133,6 +133,47 @@ export class RequestService {
     });
   };
 
+  validateBulk = async (ids: number[], validatorId: number) => {
+    const requestModel = await prisma.requestModel.findFirst({
+      where: {
+        categoryId: 0,
+        id: {
+          in: ids,
+        },
+      },
+    });
+
+    if (requestModel) {
+      await prisma.payment.updateMany({
+        where: {
+          requestId: {
+            in: ids,
+          },
+        },
+        data: {
+          status: "pending",
+        },
+      });
+    }
+
+    return Promise.all(
+      ids.map(async (id) => {
+        return await prisma.requestModel.update({
+          where: { id },
+          data: {
+            state: "validated",
+            revieweeList: {
+              create: {
+                decision: "validated",
+                validatorId: validatorId,
+              },
+            },
+          },
+        });
+      })
+    );
+  };
+
   review = (
     id: number,
     data: { userId: number; validated: boolean; decision?: string }
@@ -155,6 +196,34 @@ export class RequestService {
           },
         });
       });
+  };
+
+  reviewBulk = (
+    ids: number[],
+    data: { userId: number; validated: boolean; decision?: string }
+  ) => {
+    return Promise.all(
+      ids.map(async (id) => {
+        return await prisma.requestModel
+          .update({
+            where: { id },
+            data: {
+              state: data.validated ? "pending" : "rejected",
+            },
+          })
+          .then(() => {
+            return prisma.requestValidation.create({
+              data: {
+                validatorId: data.userId,
+                decision: data.validated
+                  ? "validated"
+                  : `rejected ${data.decision}`,
+                requestId: id,
+              },
+            });
+          });
+      })
+    );
   };
 
   reject = (id: number) => {

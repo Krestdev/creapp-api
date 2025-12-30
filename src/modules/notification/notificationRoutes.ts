@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { request } from "../../../assets/messages/requestMessages.json";
-import PaymentController from "./paymentController";
-import upload from "../../utils/upload";
+import NotificationController from "./notificationController";
 
 const {
   create,
@@ -12,9 +11,9 @@ const {
   // get_by_id
 } = request;
 
-export default class PaymentRoute {
+export default class NotificationRoute {
   routes: Router = Router();
-  paymentController = new PaymentController();
+  notificationController = new NotificationController();
 
   constructor() {
     this.config();
@@ -22,9 +21,9 @@ export default class PaymentRoute {
 
   private config() {
     // create
-    this.routes.post("/", upload.single("proof"), (req, res) => {
-      this.paymentController
-        .create({ ...req.body, proof: req.file?.filename ?? null })
+    this.routes.post("/", (req, res) => {
+      this.notificationController
+        .create(req.body)
         .then((request) =>
           res
             .status(201)
@@ -35,7 +34,7 @@ export default class PaymentRoute {
 
     // update
     this.routes.put("/:id", (req, res) => {
-      this.paymentController
+      this.notificationController
         .update(req.params.id!, req.body)
         .then((request) =>
           res
@@ -47,7 +46,7 @@ export default class PaymentRoute {
 
     // delete
     this.routes.delete("/:id", (req, res) => {
-      this.paymentController
+      this.notificationController
         .delete(req.params.id!)
         .then((request) =>
           res
@@ -59,7 +58,7 @@ export default class PaymentRoute {
 
     // getAll
     this.routes.get("/", (req, res) => {
-      this.paymentController
+      this.notificationController
         .getAll()
         .then((request) =>
           res
@@ -71,7 +70,7 @@ export default class PaymentRoute {
 
     // getOne
     this.routes.get("/:id", (req, res) => {
-      this.paymentController
+      this.notificationController
         .getOne(req.params.id)
         .then((request) =>
           res

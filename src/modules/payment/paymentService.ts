@@ -4,10 +4,79 @@ const prisma = new PrismaClient();
 
 export class PaymentService {
   // Create
-  create = (data: Payment) => {
-    return prisma.payment.create({
-      data,
+  create = async (data: Payment) => {
+    // verify is the payment is
+    // 0. command has been payed already
+    // 1. complete payment of the command
+    // 2. partial payment of the command
+    // 3. if the payement amount is valid (<= command amount due)
+
+    if (!data.commandId) {
+      throw new Error("Command ID is required for payment");
+    }
+
+    const command = await prisma.command.findUniqueOrThrow({
+      where: { id: data.commandId },
+      include: {
+        devi: {
+          include: {
+            element: true,
+          },
+        },
+      },
     });
+
+    const commandPayments = await prisma.payment.findMany({
+      where: { commandId: data.commandId },
+    });
+
+    const totalPaid = commandPayments.reduce(
+      (sum, payment) => sum + payment.price,
+      0
+    );
+
+    const commandAmount = command.devi?.element.reduce(
+      (sum, element) => sum + element.priceProposed * element.quantity,
+      0
+    );
+
+    const remainingAmount = (commandAmount ?? 0) - totalPaid;
+
+    // console.log("Total paid:", totalPaid);
+    // console.log("Remaining amount:", remainingAmount);
+    // console.log("Payment amount:", data.price);
+    // console.log("Command amount base:", command.amountBase);
+    // console.log("Command:", command);
+
+    if (data.price > remainingAmount) {
+      throw new Error("Payment amount exceeds the remaining command amount");
+    }
+
+    if (remainingAmount === 0) {
+      throw new Error("The command has already been fully paid");
+    }
+
+    if (data.price !== command.amountBase) {
+      data.isPartial = true;
+    }
+
+    const payment = await prisma.payment.create({
+      data: {
+        ...data,
+        reference: `PAY-${Date.now()}`, // simple reference generation
+        status: "pending",
+      },
+    });
+
+    if (data.price + totalPaid === command.amountBase) {
+      // update command status to paid
+      await prisma.command.update({
+        where: { id: data.commandId },
+        data: { status: "PAID" },
+      });
+    }
+
+    return payment;
   };
 
   // Update

@@ -65,6 +65,25 @@ export default class RequestController {
     return requestService.review(Number(id), data);
   }
 
+  @Put("/validateBulk")
+  validateBulk(
+    @Body() data: { validatorId: number } & { ids: number[] }
+  ): Promise<RequestModel[]> {
+    const { ids, ...valData } = data;
+    return requestService.validateBulk(ids, valData.validatorId);
+  }
+
+  @Put("/reviewBulk")
+  reviewedBulk(
+    @Body()
+    data: { userId: number; validated: boolean; decision?: string } & {
+      ids: number[];
+    }
+  ): Promise<RequestValidation[]> {
+    const { ids, ...revData } = data;
+    return requestService.reviewBulk(ids, revData);
+  }
+
   @Put("/reject/{id}")
   reject(@Path() id: string): Promise<RequestModel> {
     return requestService.reject(Number(id));

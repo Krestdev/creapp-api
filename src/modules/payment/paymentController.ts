@@ -8,8 +8,20 @@ const cmdRequestService = new PaymentService();
 @Tags("Payment Routes")
 export default class CmdRequestController {
   @Post("/")
-  create(@Body() data: Payment): Promise<Payment> {
-    return cmdRequestService.create(data);
+  create(
+    @Body() data: Omit<Payment, "proof"> & { proof: string }
+  ): Promise<Payment> {
+    const { proof, ...paymentData } = data;
+    console.log("paymentData", paymentData);
+    const payment: Payment & { proof: string } = {
+      ...paymentData,
+      deadline: paymentData.deadline ? new Date(paymentData.deadline) : null,
+      price: Number(paymentData.price),
+      userId: Number(paymentData.userId),
+      commandId: Number(paymentData.commandId),
+      proof,
+    };
+    return cmdRequestService.create(payment);
   }
 
   /**

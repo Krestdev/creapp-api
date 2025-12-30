@@ -31,13 +31,15 @@ model User {
   validators      Validator[]
   payments        Payment[]
   receptions      Reception[]
+  notifications   Notification[]
 }
 
 model Role {
-  id    Int         @id @default(autoincrement())
-  label String
-  users User[]
-  pages RolePages[]
+  id           Int            @id @default(autoincrement())
+  label        String
+  users        User[]
+  pages        RolePages[]
+  notification Notification[]
 }
 
 model RolePages {
@@ -270,6 +272,7 @@ model Payment {
   proof     String?
   priority  String        @default("medium")
   price     Int
+  isPartial Boolean       @default(false)
   user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId    Int?
   command   Command?      @relation(fields: [commandId], references: [id], onDelete: Cascade)
@@ -278,6 +281,10 @@ model Payment {
   request   RequestModel? @relation(fields: [requestId], references: [id], onDelete: SetNull)
   requestId Int?
   projectId Int?
+  method    String?
+  deadline  DateTime?
+  crearedAt DateTime      @default(now())
+  updatedAt DateTime      @default(now()) @updatedAt
 }
 
 model Accounting {
@@ -327,4 +334,17 @@ model Reception {
   userId       Int
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  title     String
+  message   String
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int?
+  group     Boolean  @default(false)
+  roles     Role[]
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

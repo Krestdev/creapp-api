@@ -87,6 +87,7 @@ export class DeviService {
       }[];
     }[]
   ) => {
+    // identify all requests concerned
     return Promise.all(
       data.map(async (devi) => {
         await prisma.devi.updateMany({
