@@ -314,11 +314,11 @@ model Signature {
 model Reception {
   id           Int           @id @default(autoincrement())
   Reference    String
-  Command      Command       @relation(fields: [CommandId], references: [id], onDelete: Cascade)
+  Command      Command?      @relation(fields: [CommandId], references: [id], onDelete: Cascade)
   Provider     Provider      @relation(fields: [ProviderId], references: [id], onDelete: Cascade)
   ProviderId   Int
   Status       String
-  CommandId    Int
+  CommandId    Int?
   Deadline     DateTime
   ReceiptDate  DateTime?
   Deliverables DeviElement[]

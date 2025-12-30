@@ -143,11 +143,6 @@ export class DeviService {
             user: {
               connect: { id: devi.userId },
             },
-            Command: {
-              connect: {
-                id: deviUpdated.command!.id,
-              },
-            },
             Provider: {
               connect: {
                 id: deviUpdated.providerId,
