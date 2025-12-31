@@ -34,9 +34,12 @@ export default class PaymentRoute {
     });
 
     // update
-    this.routes.put("/:id", (req, res) => {
+    this.routes.put("/:id", upload.single("justification"), (req, res) => {
       this.paymentController
-        .update(req.params.id!, req.body)
+        .update(req.params.id!, {
+          ...req.body,
+          justification: req.file?.filename ?? null,
+        })
         .then((request) =>
           res
             .status(201)

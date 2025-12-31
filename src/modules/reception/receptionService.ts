@@ -27,7 +27,13 @@ export class ReceptionService {
 
   // Get all
   getAll = () => {
-    return prisma.reception.findMany();
+    return prisma.reception.findMany({
+      include: {
+        Command: true,
+        Provider: true,
+        Deliverables: true,
+      },
+    });
   };
 
   // Get one

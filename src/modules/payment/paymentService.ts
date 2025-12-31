@@ -80,10 +80,14 @@ export class PaymentService {
   };
 
   // Update
-  update = (id: number, data: Payment) => {
+  update = async (id: number, data: Omit<Payment, "proof">) => {
     return prisma.payment.update({
       where: { id },
-      data,
+      data: {
+        ...data,
+        isPartial: Boolean(data.isPartial),
+        requestId: Number(data.requestId),
+      },
     });
   };
 

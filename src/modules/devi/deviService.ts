@@ -76,7 +76,7 @@ export class DeviService {
       });
   };
 
-  validateDevi = (
+  validateDevi = async (
     data: {
       deviId: number;
       userId: number;
@@ -87,96 +87,91 @@ export class DeviService {
       }[];
     }[]
   ) => {
-    // identify all requests concerned
-    return Promise.all(
-      data.map(async (devi) => {
-        await prisma.devi.updateMany({
-          where: {
+    const elements = data.map((el) => el.elements).flat();
+    const elementIds = elements.map((el) => el.elementIds[0]!);
+    const DelementIds = elements.map((el) => el.elementIds).flat();
+
+    //  find all the requests linked to the commandRequest
+    const requestList = await prisma.requestModel.findMany({
+      where: {
+        deviElements: {
+          some: {
             id: {
-              notIn: [devi.deviId],
-            },
-            commandRequestId: {
-              equals: devi.commandRequestId,
+              in: elementIds,
             },
           },
-          data: {
+        },
+      },
+    });
+
+    await prisma.deviElement.updateMany({
+      where: {
+        id: {
+          in: DelementIds,
+        },
+      },
+      data: { status: "SELECTED" },
+    });
+
+    await prisma.deviElement.updateMany({
+      where: {
+        id: {
+          notIn: DelementIds,
+        },
+        requestModelId: {
+          in: requestList.map((r) => r.id),
+        },
+      },
+      data: {
+        status: "REJECTED",
+      },
+    });
+
+    // console.log(data.map((d) => d.deviId));
+
+    await prisma.devi.updateMany({
+      where: {
+        element: {
+          every: {
             status: "REJECTED",
           },
-        });
+        },
+      },
+      data: {
+        status: "REJECTED",
+      },
+    });
 
-        const deviUpdated = await prisma.devi.update({
-          where: {
-            id: devi.deviId,
-          },
-          data: {
+    return prisma.devi.updateMany({
+      where: {
+        id: {
+          in: data.map((d) => d.deviId),
+        },
+        AND: [
+          {
             element: {
-              updateMany: {
-                where: {
-                  id: {
-                    notIn: devi.elements.map((x) => x.elementIds).flat(),
-                  },
-                },
-                data: {
-                  status: "REJECTED",
+              none: {
+                status: {
+                  equals: "NOT_SELECTED",
                 },
               },
             },
           },
-          include: {
-            provider: true,
-            command: true,
-          },
-        });
-
-        const deviElements = await prisma.deviElement.findMany({
-          where: {
-            deviId: devi.deviId,
-            status: "SELECTED",
-          },
-        });
-
-        await prisma.reception.create({
-          data: {
-            Reference: "REC-" + new Date().getTime(),
-            Deadline: new Date(),
-            Status: "PENDING",
-            Proof: "",
-            user: {
-              connect: { id: devi.userId },
-            },
-            Provider: {
-              connect: {
-                id: deviUpdated.providerId,
-              },
-            },
-            Deliverables: {
-              connect: deviElements.map((el) => ({ id: el.id })),
-            },
-          },
-        });
-
-        return prisma.devi.update({
-          where: {
-            id: devi.deviId,
-          },
-          data: {
-            status: "APPROVED",
+          {
             element: {
-              updateMany: {
-                where: {
-                  id: {
-                    in: devi.elements.map((x) => x.elementIds).flat(),
-                  },
-                },
-                data: {
-                  status: "SELECTED",
+              some: {
+                status: {
+                  equals: "SELECTED",
                 },
               },
             },
           },
-        });
-      })
-    );
+        ],
+      },
+      data: {
+        status: "APPROVED",
+      },
+    });
   };
 
   // Update

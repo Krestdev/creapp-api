@@ -1,4 +1,4 @@
-import { Devi, DeviElement } from "@prisma/client";
+import { Devi, DeviElement, Prisma } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { DeviService } from "../devi/deviService";
 
@@ -51,7 +51,7 @@ export default class DeviController {
         elementIds: number[];
       }[];
     }[]
-  ): Promise<Devi[]> {
+  ): Promise<Prisma.BatchPayload> {
     return deviService.validateDevi(date);
   }
 

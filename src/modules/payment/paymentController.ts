@@ -28,8 +28,21 @@ export default class CmdRequestController {
    * @summary Update Command request
    */
   @Put("/{id}")
-  update(@Path() id: string, @Body() data: Payment): Promise<Payment> {
-    return cmdRequestService.update(Number(id), data);
+  update(
+    @Path() id: string,
+    @Body() data: Omit<Payment, "proof"> & { justification: string }
+  ): Promise<Payment> {
+    const { justification, ...paymentData } = data;
+    const payment: Omit<Payment, "proof"> & { justification: string } = {
+      ...paymentData,
+      deadline: paymentData.deadline ? new Date(paymentData.deadline) : null,
+      price: Number(paymentData.price),
+      userId: Number(paymentData.userId),
+      commandId: Number(paymentData.commandId),
+      justification,
+    };
+
+    return cmdRequestService.update(Number(id), payment);
   }
 
   @Delete("/{id}")

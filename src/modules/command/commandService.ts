@@ -41,11 +41,38 @@ export class CommandService {
   };
 
   // Update
-  update = (id: number, data: Command) => {
-    return prisma.command.update({
+  update = async (id: number, data: Command) => {
+    const command = await prisma.command.update({
       where: { id },
       data,
+      include: {
+        devi: {
+          include: {
+            element: true,
+          },
+        },
+      },
     });
+
+    if (data.status === "APPROVED") {
+      await prisma.reception.create({
+        data: {
+          Reference: "ref-" + new Date().getTime(),
+          Status: "PENDING",
+          Deliverables: {
+            connect: command.devi
+              ? command.devi.element.map((el) => ({ id: el.id }))
+              : [],
+          },
+          Proof: "",
+          ProviderId: command.providerId,
+          userId: command.devi ? command.devi.userId : null,
+          Deadline: new Date(),
+        },
+      });
+    }
+
+    return command;
   };
 
   // Delete
