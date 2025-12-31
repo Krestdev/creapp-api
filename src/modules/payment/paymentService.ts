@@ -91,6 +91,14 @@ export class PaymentService {
     });
   };
 
+  // Update
+  validate = async (id: number, data: Payment) => {
+    return prisma.payment.update({
+      where: { id },
+      data,
+    });
+  };
+
   // Delete
   delete = (id: number) => {
     return prisma.payment.delete({

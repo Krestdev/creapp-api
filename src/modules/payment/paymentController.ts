@@ -45,6 +45,14 @@ export default class CmdRequestController {
     return cmdRequestService.update(Number(id), payment);
   }
 
+  /**
+   * @summary Update Command request
+   */
+  @Put("validate/{id}")
+  validate(@Path() id: string, @Body() data: Payment): Promise<Payment> {
+    return cmdRequestService.validate(Number(id), data);
+  }
+
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Payment> {
     return cmdRequestService.delete(Number(id));
