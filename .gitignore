@@ -10,3 +10,4 @@ generated
 error.test.log
 
 uploads/*
+seed.*
