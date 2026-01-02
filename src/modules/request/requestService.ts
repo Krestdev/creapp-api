@@ -11,6 +11,12 @@ export class RequestService {
     return prisma.requestModel.create({
       data: {
         ...data,
+        period: data.period
+          ? JSON.parse(data.period as unknown as string)
+          : null,
+        benFac: data.benFac
+          ? JSON.parse(data.benFac as unknown as string)
+          : null,
         ref,
         beficiaryList: {
           connect: benList
@@ -266,6 +272,12 @@ export class RequestService {
       .create({
         data: {
           ...requestData,
+          period: requestData.period
+            ? JSON.parse(requestData.period as unknown as string)
+            : null,
+          benFac: requestData.benFac
+            ? JSON.parse(requestData.benFac as unknown as string)
+            : null,
           ref,
           state: data.type == "FAC" ? "pending" : "validated",
           beficiaryList: {

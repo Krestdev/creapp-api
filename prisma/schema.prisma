@@ -105,6 +105,8 @@ model RequestModel {
   description      String?
   quantity         Int
   dueDate          DateTime
+  period           Json?
+  benFac           Json?
   unit             String
   beneficiary      String
   amount           Int?
@@ -165,6 +167,12 @@ model CommandRequest {
   providerId   Int?
 }
 
+model RequestTypes {
+  id          Int    @id @default(autoincrement())
+  label       String
+  description String
+}
+
 model Devi {
   id               Int             @id @default(autoincrement())
   provider         Provider        @relation(fields: [providerId], references: [id])
@@ -195,6 +203,7 @@ model DeviElement {
   unit           String
   title          String
   status         String        @default("NOT_SELECTED")
+  isDelivered    Boolean       @default(false)
   priceProposed  Int
   devi           Devi          @relation(fields: [deviId], references: [id], onDelete: Cascade)
   deviId         Int
@@ -216,6 +225,7 @@ model Command {
   motif            String?
   requests         RequestModel[]
   providerId       Int
+  instalments      Instalments[]
   payments         Payment[]
   reference        String         @default("none")
   // one to one relation with Devi
@@ -225,6 +235,13 @@ model Command {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @default(now()) @updatedAt
   réceptions      Reception[]
+}
+
+model Instalments {
+  id         Int      @id @default(autoincrement())
+  percentage Float
+  command    Command? @relation(fields: [commandId], references: [id])
+  commandId  Int?
 }
 
 model Document {

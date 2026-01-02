@@ -61,7 +61,9 @@ export class CommandService {
           Status: "PENDING",
           Deliverables: {
             connect: command.devi
-              ? command.devi.element.map((el) => ({ id: el.id }))
+              ? command.devi.element
+                  .filter((el) => el.status === "SELECTED")
+                  .map((el) => ({ id: el.id }))
               : [],
           },
           Proof: "",
