@@ -32,6 +32,7 @@ export default class ProviderRoute {
         { name: "banck_attestation", maxCount: 1 },
       ]),
       (req, res) => {
+        console.log(req.files);
         this.providerController
           .create({ ...req.body, ...req.files })
           .then((request) =>

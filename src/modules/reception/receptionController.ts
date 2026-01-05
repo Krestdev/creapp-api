@@ -4,6 +4,17 @@ import { Reception } from "@prisma/client";
 
 const receptionService = new ReceptionService();
 
+export type MyFile = {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  destination: string;
+  filename: string;
+  path: string;
+  size: number;
+}[];
+
 @Route("request/reception")
 @Tags("Reception Routes")
 export default class ReceptionController {
@@ -16,8 +27,26 @@ export default class ReceptionController {
    * @summary Update Command request
    */
   @Put("/{id}")
-  update(@Path() id: string, @Body() data: Reception): Promise<Reception> {
-    return receptionService.update(Number(id), data);
+  update(
+    @Path() id: string,
+    @Body()
+    data: Omit<Reception, "Proof"> & { proof: MyFile | null } & {
+      Deliverables: { id: number; state: boolean }[];
+    }
+  ): Promise<Reception> {
+    const { proof, Deliverables, ...restData } = data;
+
+    const newReception = {
+      ...restData,
+      Deliverables: [],
+      Proof: proof ? proof.map((p) => p.filename).join(";") : null,
+    };
+
+    if (Deliverables) {
+      newReception.Deliverables = JSON.parse(Deliverables as unknown as string);
+    }
+
+    return receptionService.update(Number(id), newReception);
   }
 
   @Delete("/{id}")

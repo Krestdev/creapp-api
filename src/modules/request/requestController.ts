@@ -76,7 +76,7 @@ export default class RequestController {
   @Put("/reviewBulk")
   reviewedBulk(
     @Body()
-    data: { userId: number; validated: boolean; decision?: string } & {
+    data: { validatorId: number; validated: boolean; decision?: string } & {
       ids: number[];
     }
   ): Promise<RequestValidation[]> {
@@ -128,6 +128,35 @@ export default class RequestController {
     };
 
     return requestService.specialRequest(
+      request,
+      JSON.parse((benef as unknown as string) ?? "[]")
+    );
+  }
+
+  @Post("/special/update")
+  specialRequestUpdate(
+    @Path() id: number,
+    @Body()
+    data: RequestModel & { type: string; proof?: string } & { benef?: number[] }
+  ): Promise<RequestModel> {
+    // create request, command and payment
+    const { proof, benef, ...reqData } = data;
+
+    const request: Partial<RequestModel> & {
+      type: string;
+      proof: string | null;
+    } = {
+      ...reqData,
+      quantity: reqData.quantity ? Number(reqData.quantity) : 0,
+      amount: reqData.amount ? Number(reqData.amount) : 0,
+      projectId: reqData.projectId ? Number(reqData.projectId) : null,
+      categoryId: Number(reqData.categoryId),
+      userId: Number(reqData.userId),
+      proof: proof ?? null,
+    };
+
+    return requestService.specialRequestUpdate(
+      id,
       request,
       JSON.parse((benef as unknown as string) ?? "[]")
     );

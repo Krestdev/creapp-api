@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { request } from "../../../assets/messages/requestMessages.json";
 import ReceptionController from "./receptionController";
+import upload from "../../utils/upload";
 
 const {
   create,
@@ -33,9 +34,9 @@ export default class ReceptionRoute {
     });
 
     // update
-    this.routes.put("/:id", (req, res) => {
+    this.routes.put("/:id", upload.array("Proof"), (req, res) => {
       this.receptionController
-        .update(req.params.id!, req.body)
+        .update(req.params.id!, { ...req.body, proof: req.files })
         .then((request) =>
           res
             .status(201)

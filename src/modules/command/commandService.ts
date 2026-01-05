@@ -12,6 +12,30 @@ export class CommandService {
       },
     });
 
+    // type Command = {
+    //   id: number;
+    //   status: string | null;
+    //   createdAt: Date;
+    //   updatedAt: Date;
+    //   deliveryDelay: Date;
+    //   paymentTerms: string;
+    //   paymentMethod: string;
+    //   priority: string;
+    //   deliveryLocation: string;
+    //   hasPenalties: boolean;
+    //   instalments: {
+    //     percentage: number;
+    //     deadLine: string;
+    //     status: string;
+    //   }[]
+    //   penaltyMode: string;
+    //   amountBase: number;
+    //   motif: string | null;
+    //   reference: string;
+    //   deviId: number | null;
+    //   providerId: number;
+    // }
+
     if (provider == null) throw Error("provider does not exist");
     const providerNotComplete = Object.entries(provider).some(([, value]) => {
       return value === null || value === "";

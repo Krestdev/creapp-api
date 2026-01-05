@@ -110,6 +110,7 @@ model RequestModel {
   unit             String
   beneficiary      String
   amount           Int?
+  type             String              @default("PURCHASE")
   beficiaryList    User[]              @relation(name: "userbeneficiary")
   revieweeList     RequestValidation[]
   state            String              @default("pending")
@@ -241,7 +242,9 @@ model Instalments {
   id         Int      @id @default(autoincrement())
   percentage Float
   command    Command? @relation(fields: [commandId], references: [id])
+  deadLine   DateTime @default(now())
   commandId  Int?
+  status     String?
 }
 
 model Document {
@@ -348,8 +351,8 @@ model Reception {
   CommandId    Int?
   Deadline     DateTime
   ReceiptDate  DateTime?
+  Proof        String?
   Deliverables DeviElement[]
-  Proof        String
   user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       Int?
   createdAt    DateTime      @default(now())

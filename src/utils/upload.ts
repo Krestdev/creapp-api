@@ -1,10 +1,25 @@
 import { Request } from "express";
+import { mkdirSync } from "fs";
 import multer from "multer";
 import path from "path";
 
 // Set up storage configuration
 const storage = multer.diskStorage({
   destination: function (req: Request, file: Express.Multer.File, cb) {
+    // const entity = req.path.split("/")[1];
+
+    // const entityId = req.params;
+    // console.log(req.files);
+    // console.table([
+    //   { entity: entity },
+    //   { entityId: entityId },
+    //   { url: req.path },
+    // ]);
+
+    // const folder = `${entity}`;
+
+    // mkdirSync(folder, { recursive: true });
+
     cb(null, "uploads/"); // Ensure this folder exists
   },
   filename: function (req: Request, file: Express.Multer.File, cb) {
@@ -23,14 +38,9 @@ const upload = multer({
       "image/jpeg",
       "image/png",
       "image/webp",
-      ".pdf",
-      ".doc",
-      ".docx",
-      ".txt",
-      ".xls",
-      ".xlsx",
-      ".ppt",
-      ".pptx",
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ];
     cb(null, allowedTypes.includes(file.mimetype));
   },

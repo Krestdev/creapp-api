@@ -3,3 +3,78 @@
 ### get all projects
 GET {{host}}
 Accept: application/json
+# Accept:  multipart/form-data
+
+###
+POST http://localhost:5000/api/v1.0.0/request/provider
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary123
+
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="name"
+WinterCode Provider
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="RCCM"
+
+RC/DLA/2024/B/1234
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="NIU"
+
+M123456789
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="regem"
+
+REGEM-001
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="address"
+
+Douala, Bonamoussadi
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="email"
+
+provider@wintercode.dev
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="phone"
+
++237657071178
+
+# === carte_contribuable files ===
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="carte_contribuable"; filename="carte1.pdf"
+Content-Type: application/pdf
+
+< ./files/carte1.pdf
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="carte_contribuable"; filename="carte2.jpg"
+Content-Type: image/jpeg
+
+< ./files/carte2.jpg
+
+# === acf files ===
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="acf"; filename="acf.pdf"
+Content-Type: application/pdf
+
+< ./files/acf.pdf
+
+# === plan_localisation files ===
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="plan_localisation"; filename="plan.png"
+Content-Type: image/png
+
+< ./files/plan.png
+
+# === commerce_registre files ===
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="commerce_registre"; filename="registre.pdf"
+Content-Type: application/pdf
+
+< ./files/registre.pdf
+
+# === banck_attestation files ===
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="banck_attestation"; filename="bank.pdf"
+Content-Type: application/pdf
+
+< ./files/bank.pdf
+
+------WebKitFormBoundary123--

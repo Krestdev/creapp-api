@@ -18,6 +18,7 @@ export class RequestService {
           ? JSON.parse(data.benFac as unknown as string)
           : null,
         ref,
+        type: "PURCHASE",
         beficiaryList: {
           connect: benList
             ? benList.map((beId) => {
@@ -206,10 +207,11 @@ export class RequestService {
 
   reviewBulk = (
     ids: number[],
-    data: { userId: number; validated: boolean; decision?: string }
+    data: { validatorId: number; validated: boolean; decision?: string }
   ) => {
     return Promise.all(
       ids.map(async (id) => {
+        console.log(id, data);
         return await prisma.requestModel
           .update({
             where: { id },
@@ -220,13 +222,17 @@ export class RequestService {
           .then(() => {
             return prisma.requestValidation.create({
               data: {
-                validatorId: data.userId,
+                validatorId: data.validatorId,
                 decision: data.validated
                   ? "validated"
                   : `rejected ${data.decision}`,
                 requestId: id,
               },
             });
+          })
+          .catch((e) => {
+            console.log(e);
+            throw e;
           });
       })
     );
@@ -279,6 +285,7 @@ export class RequestService {
             ? JSON.parse(requestData.benFac as unknown as string)
             : null,
           ref,
+          type: data.type,
           state: data.type == "FAC" ? "pending" : "validated",
           beficiaryList: {
             connect: benef
@@ -317,6 +324,47 @@ export class RequestService {
     });
 
     return { request: request, payment: payment };
+  };
+
+  specialRequestUpdate = async (
+    id: number,
+    data: Partial<RequestModel> & { type: string; proof: string | null },
+    benef?: number[]
+  ) => {
+    // create request, command and payment
+    const { type, proof, ...requestData } = data;
+
+    const request = await prisma.requestModel
+      .update({
+        where: {
+          id,
+        },
+        data: {
+          ...requestData,
+          period: requestData.period
+            ? JSON.parse(requestData.period as unknown as string)
+            : null,
+          benFac: requestData.benFac
+            ? JSON.parse(requestData.benFac as unknown as string)
+            : null,
+          beficiaryList: {
+            set: benef
+              ? benef.map((beId) => {
+                  return { id: beId };
+                })
+              : [],
+          },
+        },
+        include: {
+          beficiaryList: true,
+        },
+      })
+      .catch((e) => {
+        console.log(e);
+        throw e;
+      });
+
+    return request;
   };
 
   specialGet = async () => {
