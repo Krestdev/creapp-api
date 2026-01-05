@@ -334,6 +334,18 @@ export class RequestService {
     // create request, command and payment
     const { type, proof, ...requestData } = data;
 
+    await prisma.payment.updateMany({
+      where: {
+        requestId: id,
+        proof: {
+          not: proof,
+        },
+      },
+      data: {
+        proof: proof,
+      },
+    });
+
     const request = await prisma.requestModel
       .update({
         where: {

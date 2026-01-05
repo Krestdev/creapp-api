@@ -1,0 +1,61 @@
+import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
+import { BankService } from "./bankService";
+import { Bank } from "@prisma/client";
+import { MyFile } from "../reception/receptionController";
+
+const bankService = new BankService();
+
+@Route("request/bank")
+@Tags("Banking Routes")
+export default class BankController {
+  @Post("/")
+  create(
+    @Body()
+    data: Omit<Bank, "justification"> & { justification: MyFile }
+  ): Promise<Bank> {
+    const { justification, ...restData } = data;
+
+    const newBank = {
+      ...restData,
+    };
+    const newJustification = justification.map((p) => p.filename).join(";");
+
+    return bankService.create({ ...newBank, justification: newJustification });
+  }
+
+  /**
+   * @summary Update Command request
+   */
+  @Put("/{id}")
+  update(
+    @Path() id: string,
+    @Body()
+    data: Omit<Bank, "justification"> & { justification: MyFile | null }
+  ): Promise<Bank> {
+    const { justification, ...restData } = data;
+
+    const newBank = {
+      ...restData,
+    };
+    const newJustification = justification
+      ? justification.map((p) => p.filename).join(";")
+      : null;
+
+    return bankService.update(Number(id), newBank, newJustification);
+  }
+
+  @Delete("/{id}")
+  delete(@Path() id: string): Promise<Bank> {
+    return bankService.delete(Number(id));
+  }
+
+  @Get("/{id}")
+  getOne(@Path() id: string): Promise<Bank> {
+    return bankService.getOne(Number(id));
+  }
+
+  @Get("/")
+  getAll(): Promise<Bank[]> {
+    return bankService.getAll();
+  }
+}

@@ -22,6 +22,7 @@ export default class DeviRoute {
 
   private config() {
     // create
+    // multiple files
     this.routes.post("/", upload.single("proof"), (req, res) => {
       this.deviController
         .create({ ...req.body, filename: req.file?.filename ?? null })

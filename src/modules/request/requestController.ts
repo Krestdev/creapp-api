@@ -4,6 +4,30 @@ import { RequestService } from "./requestService";
 
 const requestService = new RequestService();
 
+type RequestModelDto = {
+  id: number;
+  ref: string;
+  label: string;
+  description: string | null;
+  quantity: number;
+  dueDate: Date;
+  period: string;
+  benFac: string;
+  unit: string;
+  beneficiary: string;
+  amount: number | null;
+  type: string;
+  state: string;
+  priority: string;
+  categoryId: number;
+  userId: number | null;
+  projectId: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+  commandRequestId: number | null;
+  commandId: number | null;
+};
+
 @Route("request/object")
 @Tags("Request Routes")
 export default class RequestController {
@@ -13,8 +37,10 @@ export default class RequestController {
   @Post("/")
   create(
     @Body()
-    data: Omit<RequestModel, "createdAt" | "updatedAt"> & { benef?: number[] }
-  ): Promise<RequestModel> {
+    data: Omit<RequestModelDto, "createdAt" | "updatedAt"> & {
+      benef?: number[];
+    }
+  ): Promise<unknown> {
     const { benef, ...ndata } = data;
     return requestService.create(ndata, benef);
   }
@@ -22,30 +48,30 @@ export default class RequestController {
   @Put("/{id}")
   update(
     @Path() id: string,
-    @Body() data: RequestModel & { benef?: number[] }
-  ): Promise<RequestModel> {
+    @Body() data: RequestModelDto & { benef?: number[] }
+  ): Promise<unknown> {
     const { benef, ...ndata } = data;
     return requestService.update(Number(id), ndata, benef);
   }
 
   @Get("/")
-  getAll(): Promise<RequestModel[]> {
+  getAll(): Promise<unknown[]> {
     return requestService.getAll();
   }
 
   @Get("/{id}")
-  getOne(@Path() id: string): Promise<RequestModel | null> {
+  getOne(@Path() id: string): Promise<unknown | null> {
     return requestService.getOne(Number(id));
   }
 
   @Get("/mine/{id}")
-  getMine(@Path() id: string): Promise<RequestModel[]> {
+  getMine(@Path() id: string): Promise<unknown[]> {
     // needs user Id
     return requestService.getMine(Number(id));
   }
 
   @Delete("/{id}")
-  delete(@Path() id: string): Promise<RequestModel | null> {
+  delete(@Path() id: string): Promise<unknown | null> {
     return requestService.delete(Number(id));
   }
 
@@ -53,7 +79,7 @@ export default class RequestController {
   validate(
     @Path() id: string,
     @Body() data: { validatorId: number }
-  ): Promise<RequestModel> {
+  ): Promise<unknown> {
     return requestService.validate(Number(id), data.validatorId);
   }
 
@@ -68,7 +94,7 @@ export default class RequestController {
   @Put("/validateBulk")
   validateBulk(
     @Body() data: { validatorId: number } & { ids: number[] }
-  ): Promise<RequestModel[]> {
+  ): Promise<unknown[]> {
     const { ids, ...valData } = data;
     return requestService.validateBulk(ids, valData.validatorId);
   }
@@ -85,7 +111,7 @@ export default class RequestController {
   }
 
   @Put("/reject/{id}")
-  reject(@Path() id: string): Promise<RequestModel> {
+  reject(@Path() id: string): Promise<unknown> {
     return requestService.reject(Number(id));
   }
 
@@ -93,24 +119,26 @@ export default class RequestController {
   priority(
     @Path() id: string,
     @Body() data: { priority: string }
-  ): Promise<RequestModel> {
+  ): Promise<unknown> {
     return requestService.priority(Number(id), data.priority);
   }
 
   @Put("/submit/{id}")
-  submit(@Path() id: string): Promise<RequestModel> {
+  submit(@Path() id: string): Promise<unknown> {
     return requestService.submit(Number(id));
   }
 
   @Post("/special")
   specialRequest(
     @Body()
-    data: RequestModel & { type: string; proof?: string } & { benef?: number[] }
-  ): Promise<{ request: RequestModel; payment: Payment }> {
+    data: RequestModelDto & { type: string; proof?: string } & {
+      benef?: number[];
+    }
+  ): Promise<{ request: unknown; payment: Payment }> {
     // create request, command and payment
     const { proof, benef, ...reqData } = data;
 
-    const request: RequestModel & { type: string; proof: string | null } = {
+    const request: RequestModelDto & { type: string; proof: string | null } = {
       ...reqData,
       label: reqData.label,
       description: reqData.description,
@@ -133,16 +161,18 @@ export default class RequestController {
     );
   }
 
-  @Post("/special/update")
+  @Post("/special/update/{id}")
   specialRequestUpdate(
     @Path() id: number,
     @Body()
-    data: RequestModel & { type: string; proof?: string } & { benef?: number[] }
-  ): Promise<RequestModel> {
+    data: RequestModelDto & { type: string; proof?: string } & {
+      benef?: number[];
+    }
+  ): Promise<unknown> {
     // create request, command and payment
     const { proof, benef, ...reqData } = data;
 
-    const request: Partial<RequestModel> & {
+    const request: Partial<RequestModelDto> & {
       type: string;
       proof: string | null;
     } = {
@@ -163,7 +193,7 @@ export default class RequestController {
   }
 
   @Get("/special")
-  specialGet(): Promise<RequestModel[]> {
+  specialGet(): Promise<unknown[]> {
     return requestService.specialGet();
   }
 }

@@ -1,19 +1,9 @@
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { ProviderService } from "./providerService";
 import { Provider } from "@prisma/client";
+import { MyFile } from "../reception/receptionController";
 
 const cmdRequestService = new ProviderService();
-
-export type MyFile = {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  destination: string;
-  filename: string;
-  path: string;
-  size: 93272;
-}[];
 
 @Route("request/provider")
 @Tags("Provider Routes")

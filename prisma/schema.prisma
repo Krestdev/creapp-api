@@ -371,3 +371,23 @@ model Notification {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Bank {
+  id            Int     @id @default(autoincrement())
+  label         String
+  type          String
+  balance       Float
+  // File
+  justification String
+  // bank
+  accountNumber String?
+  bankCode      String?
+  atmCode       String?
+  key           String?
+  // Mobile money
+  phoneNum      String?
+  merchantNum   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
