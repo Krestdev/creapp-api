@@ -68,6 +68,18 @@ export default class NotificationRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    // getAll
+    this.routes.get("/me/:id", (req, res) => {
+      this.notificationController
+        .getMyNotifications(Number(req.params.id))
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // getOne
     this.routes.get("/:id", (req, res) => {
       this.notificationController

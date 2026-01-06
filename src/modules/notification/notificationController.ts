@@ -37,4 +37,9 @@ export default class CmdRequestController {
   getAll(): Promise<Notification[]> {
     return cmdRequestService.getAll();
   }
+
+  @Get("/me/{id}")
+  getMyNotifications(@Path() id: number): Promise<Notification[]> {
+    return cmdRequestService.getMyNotif(id);
+  }
 }

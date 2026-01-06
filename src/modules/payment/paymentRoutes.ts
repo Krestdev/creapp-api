@@ -33,6 +33,24 @@ export default class PaymentRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    this.routes.post(
+      "/depense",
+      upload.fields([
+        { name: "proof", maxCount: 5 },
+        { name: "justification", maxCount: 5 },
+      ]),
+      (req, res) => {
+        this.paymentController
+          .createDepense({ ...req.body, ...(req.files ?? null) })
+          .then((request) =>
+            res
+              .status(201)
+              .json({ message: create.success.create, data: request })
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      }
+    );
+
     // update
     this.routes.put("/:id", upload.single("justification"), (req, res) => {
       this.paymentController

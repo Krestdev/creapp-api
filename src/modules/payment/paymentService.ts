@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 export class PaymentService {
   // Create
-  create = async (data: Payment) => {
+  create = async (data: Omit<Payment, "id" | "reference" | "status">) => {
     // verify is the payment is
     // 0. command has been payed already
     // 1. complete payment of the command
@@ -75,6 +75,21 @@ export class PaymentService {
         data: { status: "PAID" },
       });
     }
+
+    return payment;
+  };
+
+  // Create
+  createDepense = async (
+    data: Omit<Payment, "id" | "reference" | "status">
+  ) => {
+    const payment = await prisma.payment.create({
+      data: {
+        ...data,
+        reference: `PAY-${Date.now()}`, // simple reference generation
+        status: "paid",
+      },
+    });
 
     return payment;
   };

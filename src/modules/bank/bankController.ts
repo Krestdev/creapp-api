@@ -17,6 +17,8 @@ export default class BankController {
 
     const newBank = {
       ...restData,
+      balance: Number(data.balance),
+      Status: (data.Status as unknown as string) == "true" ? true : false,
     };
     const newJustification = justification.map((p) => p.filename).join(";");
 
@@ -36,6 +38,8 @@ export default class BankController {
 
     const newBank = {
       ...restData,
+      balance: Number(data.balance),
+      Status: (data.Status as unknown as string) == "true" ? true : false,
     };
     const newJustification = justification
       ? justification.map((p) => p.filename).join(";")

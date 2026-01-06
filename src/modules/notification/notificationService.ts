@@ -30,6 +30,15 @@ export class NotificationService {
     return prisma.notification.findMany();
   };
 
+  // Get all
+  getMyNotif = (id: number) => {
+    return prisma.notification.findMany({
+      where: {
+        id,
+      },
+    });
+  };
+
   // Get one
   getOne = (id: number) => {
     return prisma.notification.findUniqueOrThrow({

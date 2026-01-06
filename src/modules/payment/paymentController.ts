@@ -1,6 +1,7 @@
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { PaymentService } from "./paymentService";
 import { Payment } from "@prisma/client";
+import { MyFile } from "../reception/receptionController";
 
 const cmdRequestService = new PaymentService();
 
@@ -22,6 +23,38 @@ export default class CmdRequestController {
       proof,
     };
     return cmdRequestService.create(payment);
+  }
+
+  @Post("/depense")
+  createDepense(
+    @Body()
+    data: Omit<Payment, "proof"> & { justification: MyFile | null } & {
+      proof: MyFile | null;
+    }
+  ): Promise<Payment> {
+    const { proof, justification, ...paymentData } = data;
+    const payment: Payment = {
+      ...paymentData,
+      deadline: paymentData.deadline ? new Date(paymentData.deadline) : null,
+      price: Number(paymentData.price),
+      userId: Number(paymentData.userId),
+      commandId: Number(paymentData.commandId),
+      benefId: Number(paymentData.benefId),
+      isPartial: false,
+      proof: null,
+      justification: null,
+    };
+
+    if (proof) {
+      console.log("proof", proof);
+      payment.proof = proof.map((p) => p.filename).join(";");
+    }
+
+    if (justification) {
+      payment.justification = justification.map((p) => p.filename).join(";");
+    }
+
+    return cmdRequestService.createDepense(payment);
   }
 
   /**

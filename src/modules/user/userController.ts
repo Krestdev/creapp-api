@@ -51,7 +51,9 @@ export default class UserController {
     @Body() data: { status: string }
   ): Promise<{
     id: number;
-    name: string;
+    firstName: string | null;
+    lastName: string | null;
+    post: string;
     status: string;
   }> {
     return userService.changeStatus(Number(id), data.status);

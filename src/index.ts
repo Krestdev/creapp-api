@@ -16,7 +16,6 @@ import { connectProjectRoutes } from "./modules/routes";
 import { connectRequestRoutes } from "./modules/routes";
 import * as swaggerUI from "swagger-ui-express";
 import * as swaggerJson from "../build/swagger.json";
-import upload from "./utils/upload";
 
 class ApiServer {
   private app = express();
@@ -72,7 +71,7 @@ class ApiServer {
   }
 
   healthCheck() {
-    this.app.get("/health", upload.single("proof"), (req, res) => {
+    this.app.get("/health", (req, res) => {
       res.status(200).send("OK");
     });
   }

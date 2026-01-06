@@ -15,6 +15,7 @@ import CategoryRoute from "../category/categoryRoutes";
 import ValidatorRoute from "../validator/validatorRoutes";
 import ReceptionRoute from "../reception/receptionRoutes";
 import BankRoute from "../bank/bankRoutes";
+import NotificationRoute from "../notification/notificationRoutes";
 
 export function connectBaseRoutes() {
   const router = Router();
@@ -65,6 +66,7 @@ export function connectRequestRoutes() {
   const validatorRoute = new ValidatorRoute();
   const receptionRoute = new ReceptionRoute();
   const bankRoute = new BankRoute();
+  const notificationRoute = new NotificationRoute();
 
   // request routes connection
   router.use("/object", request.routes);
@@ -104,6 +106,9 @@ export function connectRequestRoutes() {
 
   // bank request connection
   router.use("/bank", bankRoute.routes);
+
+  // bank request connection
+  router.use("/notification", notificationRoute.routes);
 
   // base module connection
   router.use("/", (req, res) => {

@@ -126,7 +126,7 @@ export class RequestService {
       });
     }
 
-    return prisma.requestModel.update({
+    const request = await prisma.requestModel.update({
       where: { id },
       data: {
         state: "validated",
@@ -138,6 +138,21 @@ export class RequestService {
         },
       },
     });
+
+    try {
+      await prisma.notification.create({
+        data: {
+          userId: request.userId,
+          title: "Besoin Valider",
+          message: "Votre besoin a ete valider",
+          group: request.beneficiary.length > 1,
+        },
+      });
+    } catch (e) {
+      console.error(`Could not create notification ${e}`);
+    }
+
+    return request;
   };
 
   validateBulk = async (ids: number[], validatorId: number) => {
@@ -165,7 +180,7 @@ export class RequestService {
 
     return Promise.all(
       ids.map(async (id) => {
-        return await prisma.requestModel.update({
+        const request = await prisma.requestModel.update({
           where: { id },
           data: {
             state: "validated",
@@ -177,32 +192,39 @@ export class RequestService {
             },
           },
         });
+        this.createNotification(request);
+        return request;
       })
     );
   };
 
-  review = (
+  review = async (
     id: number,
     data: { userId: number; validated: boolean; decision?: string }
   ) => {
-    return prisma.requestModel
-      .update({
-        where: { id },
-        data: {
-          state: data.validated ? "pending" : "rejected",
-        },
-      })
-      .then(() => {
-        return prisma.requestValidation.create({
-          data: {
-            validatorId: data.userId,
-            decision: data.validated
-              ? "validated"
-              : `rejected ${data.decision}`,
-            requestId: id,
-          },
-        });
-      });
+    const request = await prisma.requestModel.update({
+      where: { id },
+      data: {
+        state: data.validated ? "pending" : "rejected",
+      },
+    });
+
+    const review = prisma.requestValidation.create({
+      data: {
+        validatorId: data.userId,
+        decision: data.validated ? "validated" : `rejected ${data.decision}`,
+        requestId: id,
+      },
+    });
+
+    if (!data.validated) {
+      try {
+        this.createNotification(request);
+      } catch (e) {
+        console.error(`Could not create notification ${e}`);
+      }
+    }
+    return review;
   };
 
   reviewBulk = (
@@ -211,40 +233,42 @@ export class RequestService {
   ) => {
     return Promise.all(
       ids.map(async (id) => {
-        console.log(id, data);
-        return await prisma.requestModel
-          .update({
-            where: { id },
-            data: {
-              state: data.validated ? "pending" : "rejected",
-            },
-          })
-          .then(() => {
-            return prisma.requestValidation.create({
-              data: {
-                validatorId: data.validatorId,
-                decision: data.validated
-                  ? "validated"
-                  : `rejected ${data.decision}`,
-                requestId: id,
-              },
-            });
-          })
-          .catch((e) => {
-            console.log(e);
-            throw e;
-          });
+        const request = await prisma.requestModel.update({
+          where: { id },
+          data: {
+            state: data.validated ? "pending" : "rejected",
+          },
+        });
+        const review = await prisma.requestValidation.create({
+          data: {
+            validatorId: data.validatorId,
+            decision: data.validated
+              ? "validated"
+              : `rejected ${data.decision}`,
+            requestId: id,
+          },
+        });
+
+        if (!data.validated) {
+          this.createNotification(request);
+        }
+
+        return review;
       })
     );
   };
 
-  reject = (id: number) => {
-    return prisma.requestModel.update({
+  reject = async (id: number) => {
+    const request = await prisma.requestModel.update({
       where: { id },
       data: {
         state: "rejected",
       },
     });
+
+    this.createNotification(request);
+
+    return request;
   };
 
   priority = (id: number, priority: string) => {
@@ -383,5 +407,22 @@ export class RequestService {
     return await prisma.requestModel.findMany({
       where: { categoryId: 0 },
     });
+  };
+
+  // create notification
+
+  createNotification = async (request: RequestModel) => {
+    try {
+      await prisma.notification.create({
+        data: {
+          userId: request.userId,
+          title: `Besoin ${request.state}`,
+          message: `Votre besoin a ete ${request.state}`,
+          group: request.beneficiary.length > 1,
+        },
+      });
+    } catch (e) {
+      console.error(`Could not create notification ${e}`);
+    }
   };
 }

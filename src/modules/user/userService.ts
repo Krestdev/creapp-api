@@ -19,7 +19,7 @@ export class UserService {
   ) {
     // Try to find an existing role by label (use findFirst to avoid requiring a unique constraint on label)
 
-    const { email, name, password } = data;
+    const { email, firstName, password } = data;
     const existing = await prisma.user.findUnique({
       where: { email: data.email },
     });
@@ -31,7 +31,7 @@ export class UserService {
 
     this.email
       .sendWelcomeEmail({
-        userName: name,
+        userName: firstName,
         email,
         password,
         otp,
@@ -56,7 +56,8 @@ export class UserService {
     const user = await prisma.user.create({
       data: {
         email: data.email,
-        name: data.name,
+        firstName: data.firstName,
+        lastName: data.lastName,
         phone: data.phone,
         password: hashedPassword,
         verificationOtp: otp,
@@ -136,7 +137,7 @@ export class UserService {
     // Build an update object that only includes provided fields to avoid assigning undefined.
     const updateData: Partial<User> = {};
     if (data.email !== undefined) updateData.email = data.email;
-    if (data.name !== undefined) updateData.name = data.name;
+    if (data.firstName !== undefined) updateData.firstName = data.firstName;
     if (data.phone !== undefined) updateData.phone = data.phone;
     if (data.post !== undefined) updateData.post = data.post;
     if (data.password !== undefined) {
@@ -258,7 +259,7 @@ export class UserService {
       include: {
         users: {
           select: {
-            name: true,
+            firstName: true,
           },
         },
       },
