@@ -21,7 +21,7 @@ export class ReceptionService {
       data.ReceiptDate = new Date(data.ReceiptDate);
     }
     if (data.Deadline) {
-      data;
+      data.Deadline = new Date(data.Deadline);
     }
     if (data.ProviderId) {
       data.ProviderId = Number(data.ProviderId);

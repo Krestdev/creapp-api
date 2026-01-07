@@ -1,5 +1,4 @@
 import { Request } from "express";
-import { mkdirSync } from "fs";
 import multer from "multer";
 import path from "path";
 

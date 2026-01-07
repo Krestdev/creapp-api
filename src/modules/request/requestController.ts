@@ -1,4 +1,4 @@
-import { Payment, RequestModel, RequestValidation } from "@prisma/client";
+import { Payment, RequestValidation } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { RequestService } from "./requestService";
 
