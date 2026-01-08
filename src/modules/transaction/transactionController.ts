@@ -1,6 +1,6 @@
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { TransactionService } from "./transactionService";
-import { Transaction } from "@prisma/client";
+import { Bank, Transaction } from "@prisma/client";
 import { MyFile } from "../reception/receptionController";
 
 const transactionService = new TransactionService();
@@ -11,14 +11,27 @@ export default class TransactionController {
   @Post("/")
   create(
     @Body()
-    data: Omit<Transaction, "proof"> & { proof: MyFile }
+    data: Omit<Transaction, "proof"> & { proof: MyFile } & {
+      from?: Bank;
+      to?: Bank;
+    }
   ): Promise<Transaction> {
     const { proof, ...restData } = data;
 
     const newTransaction = {
       ...restData,
-      balance: Number(data.amount),
+      amount: Number(data.amount),
+      date: new Date(data.date ?? "now"),
     };
+
+    if (data.from !== undefined) {
+      newTransaction.from = JSON.parse(data.from as unknown as string);
+    }
+
+    if (data.to !== undefined) {
+      newTransaction.to = JSON.parse(data.to as unknown as string);
+    }
+
     const newJustification = proof.map((p) => p.filename).join(";");
 
     return transactionService.create({

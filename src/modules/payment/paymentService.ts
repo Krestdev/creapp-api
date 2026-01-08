@@ -90,6 +90,9 @@ export class PaymentService {
         reference: `PAY-${Date.now()}`, // simple reference generation
         status: "pending",
       },
+      include: {
+        beneficiary: true,
+      },
     });
 
     return payment;

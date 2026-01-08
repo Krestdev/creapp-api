@@ -1,12 +1,39 @@
-import { Transaction, PrismaClient } from "@prisma/client";
+import { Transaction, PrismaClient, Bank } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export class TransactionService {
   // Create
-  create = (data: Transaction) => {
+  create = async (data: Transaction & { from?: Bank; to?: Bank }) => {
+    const { from, to, ...transak } = data;
+    let fromBank: Bank | null = null;
+    let toBank: Bank | null = null;
+    if (from) {
+      fromBank = await prisma.bank.create({
+        data: {
+          ...from,
+        },
+      });
+    } else {
+      transak.fromBankId = Number(transak.fromBankId);
+    }
+
+    if (to) {
+      toBank = await prisma.bank.create({
+        data: {
+          ...to,
+        },
+      });
+    } else {
+      transak.toBankId = Number(transak.toBankId);
+    }
+
     return prisma.transaction.create({
-      data,
+      data: {
+        ...transak,
+        fromBankId: transak.fromBankId ?? fromBank?.id,
+        toBankId: transak.toBankId ?? toBank?.id,
+      },
       include: {
         from: true,
         to: true,

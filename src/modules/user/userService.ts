@@ -314,6 +314,7 @@ export class UserService {
         users: {
           select: {
             firstName: true,
+            lastName: true,
           },
         },
       },
