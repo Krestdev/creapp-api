@@ -63,6 +63,7 @@ export class PaymentService {
     const payment = await prisma.payment.create({
       data: {
         ...data,
+        commandId: Number(data.commandId),
         reference: `PAY-${Date.now()}`, // simple reference generation
         status: "pending",
       },
@@ -87,7 +88,7 @@ export class PaymentService {
       data: {
         ...data,
         reference: `PAY-${Date.now()}`, // simple reference generation
-        status: "paid",
+        status: "pending",
       },
     });
 

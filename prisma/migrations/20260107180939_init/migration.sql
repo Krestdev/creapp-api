@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Bank" ALTER COLUMN "type" DROP NOT NULL,
+ALTER COLUMN "balance" DROP NOT NULL;

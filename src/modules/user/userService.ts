@@ -15,6 +15,76 @@ function generateOTP(length = 6): string {
 export class UserService {
   email = new Mailer();
   async create(
+    data: User & { roleId: number; post?: string; department?: number } & {
+      role: number[];
+    }
+  ) {
+    // Try to find an existing role by label (use findFirst to avoid requiring a unique constraint on label)
+
+    const { email, firstName, password } = data;
+    const existing = await prisma.user.findUnique({
+      where: { email: data.email },
+    });
+    if (existing) throw new Error("Email already in use");
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const otp = generateOTP();
+    // Save OTP and set verified to false
+
+    this.email
+      .sendWelcomeEmail({
+        userName: firstName,
+        email,
+        password,
+        otp,
+      })
+      .catch((e) => {
+        console.log(e);
+        console.error("could not send mail");
+      });
+
+    let existingRole = await prisma.role.findFirst({
+      where: {
+        OR: [{ id: data.roleId }, { label: "USER" }],
+      },
+    });
+
+    if (existingRole === null) {
+      existingRole = await prisma.role.create({
+        data: { label: "USER" },
+      });
+    }
+
+    const user = await prisma.user.create({
+      data: {
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+        password: hashedPassword,
+        verificationOtp: otp,
+        post: data.post,
+        role: {
+          connect: data.role.map((role) => {
+            return { id: role };
+          }),
+        },
+        members: data.department
+          ? {
+              create: {
+                departmentId: data.department,
+                label: data.post ?? "Employee",
+              },
+            }
+          : {},
+      },
+      include: { role: true },
+      omit: { password: true },
+    });
+    return user;
+  }
+
+  async register(
     data: User & { roleId: number; post?: string; department?: number }
   ) {
     // Try to find an existing role by label (use findFirst to avoid requiring a unique constraint on label)
@@ -121,33 +191,17 @@ export class UserService {
   }
 
   async update(id: number, data: Partial<User> & { role: number[] }) {
-    // If a role is provided, find or create it
-    // let roleConnectOrCreate;
-    // if (data.role) {
-    //   const existingRole = await prisma.role.findFirst({
-    //     where: { label: data.role },
-    //   });
-    //   roleConnectOrCreate = existingRole
-    //     ? { connect: { id: existingRole.id } }
-    //     : { create: { label: data.role } };
-    // }
-
-    console.log(data);
-
     // Build an update object that only includes provided fields to avoid assigning undefined.
     const updateData: Partial<User> = {};
     if (data.email !== undefined) updateData.email = data.email;
     if (data.firstName !== undefined) updateData.firstName = data.firstName;
+    if (data.lastName !== undefined) updateData.lastName = data.lastName;
     if (data.phone !== undefined) updateData.phone = data.phone;
     if (data.post !== undefined) updateData.post = data.post;
     if (data.password !== undefined) {
       const hashedPassword = await bcrypt.hash(data.password, 10);
       updateData.password = hashedPassword;
     }
-    // if (roleConnectOrCreate !== undefined)
-    //   updateData.role = roleConnectOrCreate;
-
-    console.log(updateData);
 
     const user = await prisma.user.update({
       where: { id },

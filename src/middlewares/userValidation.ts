@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import Joi from "joi";
 
 const user = Joi.object({
-  name: Joi.string().required(),
+  firstName: Joi.string().required(),
+  lastName: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(6).max(100).required(),
   phone: Joi.string().min(9).required(),
@@ -14,7 +15,8 @@ const login = Joi.object({
 });
 
 const userUpdate = Joi.object({
-  name: Joi.string(),
+  firstName: Joi.string().required(),
+  lastName: Joi.string().required(),
   email: Joi.string().email().optional(),
   password: Joi.string().min(6).max(100).optional(),
   phone: Joi.string().min(9).optional(),

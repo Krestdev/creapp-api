@@ -20,12 +20,15 @@ const userService = new UserService();
 export default class UserController {
   @Post("/register")
   register(@Body() data: User & { roleId: number }) {
-    return userService.create(data);
+    return userService.register(data);
   }
 
   @Post("/create")
   create(
-    @Body() data: User & { roleId: number; post?: string; department?: number }
+    @Body()
+    data: User & { roleId: number; post?: string; department?: number } & {
+      role: number[];
+    }
   ) {
     return userService.create(data);
   }

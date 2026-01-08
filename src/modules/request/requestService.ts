@@ -334,6 +334,7 @@ export class RequestService {
         title: request.label,
         reference: refpay,
         requestId: request.id,
+        projectId: Number(request.projectId),
         status:
           data.type == "SPECIAL"
             ? "validated"

@@ -391,10 +391,10 @@ model Notification {
 model Bank {
   id            Int     @id @default(autoincrement())
   label         String
-  type          String
-  balance       Float
+  type          String?
+  balance       Float?
   // File
-  justification String
+  justification String?
   // bank
   accountNumber String?
   bankCode      String?
@@ -406,6 +406,21 @@ model Bank {
 
   Status Boolean @default(false)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  incomming Transaction[] @relation(name: "incoming")
+  outgoing  Transaction[] @relation(name: "outgoing")
+}
+
+model Transaction {
+  id         Int      @id @default(autoincrement())
+  label      String
+  amount     Float
+  createdAt  DateTime
+  Type       String
+  from       Bank     @relation(name: "incoming", fields: [fromBankId], references: [id])
+  to         Bank     @relation(name: "outgoing", fields: [toBankId], references: [id])
+  fromBankId Int
+  toBankId   Int
+  proof      String?
 }
