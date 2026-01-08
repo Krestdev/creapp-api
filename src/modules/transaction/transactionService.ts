@@ -7,6 +7,10 @@ export class TransactionService {
   create = (data: Transaction) => {
     return prisma.transaction.create({
       data,
+      include: {
+        from: true,
+        to: true,
+      },
     });
   };
 
@@ -19,14 +23,19 @@ export class TransactionService {
     if (data.amount) {
       data.amount = Number(data.amount);
     }
+
     if (data.proof) {
-      data.proof = data.proof;
+      data.proof = proof;
     }
 
     return prisma.transaction.update({
       where: { id },
       data: {
         ...data,
+      },
+      include: {
+        from: true,
+        to: true,
       },
     });
   };
@@ -40,13 +49,22 @@ export class TransactionService {
 
   // Get all
   getAll = () => {
-    return prisma.transaction.findMany();
+    return prisma.transaction.findMany({
+      include: {
+        from: true,
+        to: true,
+      },
+    });
   };
 
   // Get one
   getOne = (id: number) => {
     return prisma.transaction.findUniqueOrThrow({
       where: { id },
+      include: {
+        from: true,
+        to: true,
+      },
     });
   };
 }

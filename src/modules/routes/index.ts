@@ -112,6 +112,9 @@ export function connectRequestRoutes() {
   // bank request connection
   router.use("/notification", notificationRoute.routes);
 
+  // transaction request connection
+  router.use("/transaction", transactionRoute.routes);
+
   // base module connection
   router.use("/", (req, res) => {
     res.json({ message: "Request Module" });

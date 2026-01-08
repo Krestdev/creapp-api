@@ -40,7 +40,7 @@ export default class TransactionController {
 
     const newTransaction = {
       ...restData,
-      balance: Number(data.proof),
+      amount: Number(data.amount),
     };
     const newProof = proof ? proof.map((p) => p.filename).join(";") : null;
 
