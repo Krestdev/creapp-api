@@ -6,7 +6,7 @@ const cmdRequestService = new NotificationService();
 
 @Route("request/notification")
 @Tags("Notification Routes")
-export default class CmdRequestController {
+export default class NotificationController {
   @Post("/")
   create(@Body() data: Notification): Promise<Notification> {
     return cmdRequestService.create(data);

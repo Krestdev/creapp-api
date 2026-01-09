@@ -32,6 +32,10 @@ export default class TransactionController {
       newTransaction.to = JSON.parse(data.to as unknown as string);
     }
 
+    if (data.userId) {
+      newTransaction.userId = Number(data.userId);
+    }
+
     const newJustification = proof.map((p) => p.filename).join(";");
 
     return transactionService.create({
@@ -64,7 +68,7 @@ export default class TransactionController {
   validate(
     @Path() id: string,
     @Body()
-    data: { userId: number; status: string; reason: string }
+    data: { validatorId: number; status: string; reason: string }
   ): Promise<Transaction> {
     return transactionService.validate(Number(id), data);
   }

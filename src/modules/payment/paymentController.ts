@@ -40,6 +40,7 @@ export default class CmdRequestController {
       userId: Number(paymentData.userId),
       commandId: Number(paymentData.commandId),
       benefId: Number(paymentData.benefId),
+      vehiclesId: Number(paymentData.vehiclesId),
       isPartial: false,
       proof: null,
       justification: null,

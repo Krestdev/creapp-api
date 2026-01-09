@@ -18,6 +18,7 @@ import BankRoute from "../bank/bankRoutes";
 import NotificationRoute from "../notification/notificationRoutes";
 import TransactionRoute from "../transaction/transactionRoutes";
 import VehicleRoute from "../vehicle/vehicleRoutes";
+import RequestTypeRoute from "../requesttype/requestTypeRoutes";
 
 export function connectBaseRoutes() {
   const router = Router();
@@ -71,6 +72,7 @@ export function connectRequestRoutes() {
   const notificationRoute = new NotificationRoute();
   const transactionRoute = new TransactionRoute();
   const vehicleRoute = new VehicleRoute();
+  const requestType = new RequestTypeRoute();
 
   // request routes connection
   router.use("/object", request.routes);
@@ -119,6 +121,9 @@ export function connectRequestRoutes() {
 
   // vehicle request connection
   router.use("/vehicle", vehicleRoute.routes);
+
+  // vehicle request connection
+  router.use("/requestType", requestType.routes);
 
   // base module connection
   router.use("/", (req, res) => {

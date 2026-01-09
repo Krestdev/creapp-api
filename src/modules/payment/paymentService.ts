@@ -88,10 +88,11 @@ export class PaymentService {
       data: {
         ...data,
         reference: `PAY-${Date.now()}`, // simple reference generation
-        status: "pending",
+        status: "pending_depense",
       },
       include: {
         beneficiary: true,
+        model: true,
       },
     });
 

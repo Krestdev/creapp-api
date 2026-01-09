@@ -33,6 +33,7 @@ export class TransactionService {
         ...transak,
         fromBankId: transak.fromBankId ?? fromBank?.id,
         toBankId: transak.toBankId ?? toBank?.id,
+        status: data.Type == "TRANSFER" ? "PENDING" : "APPROVED",
       },
       include: {
         from: true,
@@ -69,13 +70,14 @@ export class TransactionService {
   // Update
   validate = async (
     id: number,
-    data: { userId: number; status: string; reason: string }
+    data: { validatorId: number; status: string; reason: string }
   ) => {
     return prisma.transaction.update({
       where: { id },
       data: {
         status: data.status,
         reason: data.reason,
+        validatorId: data.validatorId,
       },
       include: {
         from: true,

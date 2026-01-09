@@ -441,15 +441,14 @@ model RequestType {
   id          Int     @id @default(autoincrement())
   label       String
   description String?
-  color       String?
+  type        String
 }
 
 model Vehicle {
   id        Int       @id @default(autoincrement())
   label     String
   mark      String
-  color     String?
-  capacity  Int?
+  matricule String    @unique
   payments  Payment[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
