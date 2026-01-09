@@ -432,7 +432,7 @@ model Transaction {
   fromBankId  Int
   toBankId    Int
   proof       String?
-  status      String? // APPROVED, PENDING, REJECTED
+  status      String? // APPROVED, PENDING, REJECTED, ACCEPTED
   reason      String?
   user        User?     @relation(name: "creator", fields: [userId], references: [id], onDelete: SetNull)
   userId      Int?
