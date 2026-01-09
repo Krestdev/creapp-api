@@ -151,11 +151,19 @@ export class UserService {
   }
 
   // Verify account with OTP
-  async verifyAccount(email: string, otp: string): Promise<boolean> {
+  async verifyAccount(email: string, otp: string): Promise<User> {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user || user.verified || user.verificationOtp !== otp) {
-      return false;
+    if (!user) {
+      throw Error("User not found");
     }
+    if (user.verified) {
+      throw Error("User is verified");
+    }
+
+    if (user.verificationOtp !== otp) {
+      throw Error("Wrong verification code");
+    }
+
     await prisma.user.update({
       where: { email },
       data: {
@@ -164,7 +172,8 @@ export class UserService {
         status: "active",
       },
     });
-    return true;
+
+    return user;
   }
 
   async login(data: { email: string; password: string }) {
