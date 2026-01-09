@@ -118,7 +118,7 @@ export function connectRequestRoutes() {
   router.use("/transaction", transactionRoute.routes);
 
   // vehicle request connection
-  router.use("/vehicle", transactionRoute.routes);
+  router.use("/vehicle", vehicleRoute.routes);
 
   // base module connection
   router.use("/", (req, res) => {
