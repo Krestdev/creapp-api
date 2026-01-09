@@ -84,6 +84,7 @@ export class PaymentService {
   createDepense = async (
     data: Omit<Payment, "id" | "reference" | "status">
   ) => {
+    console.log(data);
     const payment = await prisma.payment.create({
       data: {
         ...data,
@@ -93,6 +94,7 @@ export class PaymentService {
       include: {
         beneficiary: true,
         model: true,
+        bank: true,
       },
     });
 

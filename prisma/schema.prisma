@@ -326,8 +326,10 @@ model Payment {
   deadline  DateTime?
   createdAt DateTime      @default(now())
   updatedAt DateTime      @default(now()) @updatedAt
+  bank      Bank?         @relation(fields: [bankId], references: [id])
 
   vehiclesId Int?
+  bankId     Int?
 }
 
 model Accounting {
@@ -414,6 +416,7 @@ model Bank {
   updatedAt DateTime      @updatedAt
   incomming Transaction[] @relation(name: "incoming")
   outgoing  Transaction[] @relation(name: "outgoing")
+  payments  Payment[]
 }
 
 model Transaction {

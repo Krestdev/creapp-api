@@ -18,7 +18,7 @@ export class RequestService {
           ? JSON.parse(data.benFac as unknown as string)
           : null,
         ref,
-        type: "PURCHASE",
+        type: "ACHAT".toLowerCase(),
         beficiaryList: {
           connect: benList
             ? benList.map((beId) => {
@@ -310,7 +310,7 @@ export class RequestService {
             : null,
           ref,
           type: data.type,
-          state: data.type == "FAC" ? "pending" : "validated",
+          state: data.type == "FAC".toLowerCase() ? "pending" : "validated",
           beficiaryList: {
             connect: benef
               ? benef.map((beId) => {
@@ -334,11 +334,11 @@ export class RequestService {
         title: request.label,
         reference: refpay,
         requestId: request.id,
-        projectId: Number(request.projectId),
+        projectId: request.projectId ? Number(request.projectId) : null,
         status:
-          data.type == "SPECIAL"
+          data.type == "SPECIAL".toLowerCase()
             ? "validated"
-            : data.type == "FAC"
+            : data.type == "FAC".toLowerCase()
             ? "ghost"
             : "pending",
         type: type,

@@ -30,9 +30,9 @@ export default class CmdRequestController {
     @Body()
     data: Omit<Payment, "proof"> & { justification: MyFile | null } & {
       proof: MyFile | null;
-    }
+    } & { caisseId: number }
   ): Promise<Payment> {
-    const { proof, justification, ...paymentData } = data;
+    const { proof, justification, caisseId, ...paymentData } = data;
     const payment: Payment = {
       ...paymentData,
       deadline: paymentData.deadline ? new Date(paymentData.deadline) : null,
@@ -53,6 +53,11 @@ export default class CmdRequestController {
 
     if (justification) {
       payment.justification = justification.map((p) => p.filename).join(";");
+    }
+
+    if (caisseId) {
+      console.log("caise", caisseId);
+      payment.bankId = Number(caisseId);
     }
 
     return cmdRequestService.createDepense(payment);
