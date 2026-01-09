@@ -310,7 +310,8 @@ export class RequestService {
             : null,
           ref,
           type: data.type,
-          state: data.type == "FAC".toLowerCase() ? "pending" : "validated",
+          state:
+            data.type == "FACILITATION".toLowerCase() ? "pending" : "validated",
           beficiaryList: {
             connect: benef
               ? benef.map((beId) => {
