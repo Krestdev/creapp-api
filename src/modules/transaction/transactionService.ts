@@ -66,6 +66,23 @@ export class TransactionService {
       },
     });
   };
+  // Update
+  validate = async (
+    id: number,
+    data: { userId: number; status: string; reason: string }
+  ) => {
+    return prisma.transaction.update({
+      where: { id },
+      data: {
+        status: data.status,
+        reason: data.reason,
+      },
+      include: {
+        from: true,
+        to: true,
+      },
+    });
+  };
 
   // Delete
   delete = (id: number) => {

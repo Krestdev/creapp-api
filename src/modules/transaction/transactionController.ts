@@ -60,6 +60,15 @@ export default class TransactionController {
     return transactionService.update(Number(id), newTransaction, newProof);
   }
 
+  @Put("/validate/{id}")
+  validate(
+    @Path() id: string,
+    @Body()
+    data: { userId: number; status: string; reason: string }
+  ): Promise<Transaction> {
+    return transactionService.validate(Number(id), data);
+  }
+
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Transaction> {
     return transactionService.delete(Number(id));

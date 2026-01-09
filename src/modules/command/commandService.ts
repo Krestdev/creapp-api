@@ -4,7 +4,16 @@ const prisma = new PrismaClient();
 
 export class CommandService {
   // Create
-  create = async (data: Command, requestIds: number[]) => {
+  create = async (
+    data: Command & {
+      instalments: {
+        percentage: number;
+        deadLine?: string;
+        status?: boolean;
+      }[];
+    },
+    requestIds: number[]
+  ) => {
     if (data.providerId == null) throw Error("A provider is required");
     const provider = await prisma.provider.findFirst({
       where: {
@@ -46,22 +55,34 @@ export class CommandService {
 
     if (data.deviId == null) throw Error("Devi is required");
 
-    return prisma.command.create({
-      data: {
-        ...data,
-        reference: ref,
-        requests: {
-          connect: requestIds.map((id) => {
-            return { id };
-          }),
-        },
-        devi: {
-          connect: {
-            id: data.deviId,
+    return prisma.command
+      .create({
+        data: {
+          ...data,
+          reference: ref,
+          requests: {
+            connect: requestIds.map((id) => {
+              return { id };
+            }),
+          },
+          devi: {
+            connect: {
+              id: data.deviId,
+            },
+          },
+          instalments: {
+            create: data.instalments.map((inst) => {
+              return {
+                ...inst,
+              };
+            }),
           },
         },
-      },
-    });
+      })
+      .catch((e) => {
+        console.log(e);
+        throw e;
+      });
   };
 
   // Update

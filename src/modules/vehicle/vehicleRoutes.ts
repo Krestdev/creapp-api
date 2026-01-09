@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { request } from "../../../assets/messages/requestMessages.json";
-import TransactionController from "./transactionController";
-import upload from "../../utils/upload";
+import VehicleController from "./vehicleController";
 
 const {
   create,
@@ -12,9 +11,9 @@ const {
   // get_by_id
 } = request;
 
-export default class TransactionRoute {
+export default class VehicleRoute {
   routes: Router = Router();
-  trTransactionController = new TransactionController();
+  vehicleController = new VehicleController();
 
   constructor() {
     this.config();
@@ -22,9 +21,9 @@ export default class TransactionRoute {
 
   private config() {
     // create
-    this.routes.post("/", upload.array("proof"), (req, res) => {
-      this.trTransactionController
-        .create({ ...req.body, proof: req.files })
+    this.routes.post("/", (req, res) => {
+      this.vehicleController
+        .create(req.body)
         .then((request) =>
           res
             .status(201)
@@ -34,21 +33,9 @@ export default class TransactionRoute {
     });
 
     // update
-    this.routes.put("/:id", upload.array("proof"), (req, res) => {
-      this.trTransactionController
-        .update(req.params.id!, { ...req.body, proof: req.files })
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
-
-    // update
-    this.routes.put("/validate/:id", (req, res) => {
-      this.trTransactionController
-        .validate(req.params.id!, req.body)
+    this.routes.put("/:id", (req, res) => {
+      this.vehicleController
+        .update(req.params.id!, req.body)
         .then((request) =>
           res
             .status(201)
@@ -59,7 +46,7 @@ export default class TransactionRoute {
 
     // delete
     this.routes.delete("/:id", (req, res) => {
-      this.trTransactionController
+      this.vehicleController
         .delete(req.params.id!)
         .then((request) =>
           res
@@ -71,7 +58,7 @@ export default class TransactionRoute {
 
     // getAll
     this.routes.get("/", (req, res) => {
-      this.trTransactionController
+      this.vehicleController
         .getAll()
         .then((request) =>
           res
@@ -83,7 +70,7 @@ export default class TransactionRoute {
 
     // getOne
     this.routes.get("/:id", (req, res) => {
-      this.trTransactionController
+      this.vehicleController
         .getOne(req.params.id)
         .then((request) =>
           res

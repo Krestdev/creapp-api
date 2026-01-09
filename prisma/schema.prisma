@@ -8,33 +8,35 @@ generator client {
 }
 
 model User {
-  id              Int              @id @default(autoincrement())
-  email           String           @unique
-  firstName       String?
-  lastName        String?
-  phone           String
-  password        String
-  post            String           @default("Employee")
-  role            Role[]
-  members         Member[]
-  benefits        RequestModel[]   @relation(name: "userbeneficiary")
-  requests        RequestModel[]
-  spending        Spending[]
-  project         Project[]        @relation("ProjectChief")
-  status          String           @default("active")
-  lastConnection  DateTime?
-  verificationOtp String?
-  verified        Boolean          @default(false)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  commandRequests CommandRequest[]
-  devis           Devi[]
-  validators      Validator[]
-  payments        Payment[]
-  receptions      Reception[]
-  notifications   Notification[]
-  projects        Project[]        @relation("ProjectOwner")
-  beneficiat      Payment[]        @relation("paymentBenef")
+  id                    Int              @id @default(autoincrement())
+  email                 String           @unique
+  firstName             String?
+  lastName              String?
+  phone                 String
+  password              String
+  post                  String           @default("Employee")
+  role                  Role[]
+  members               Member[]
+  benefits              RequestModel[]   @relation(name: "userbeneficiary")
+  requests              RequestModel[]
+  spending              Spending[]
+  project               Project[]        @relation("ProjectChief")
+  status                String           @default("active")
+  lastConnection        DateTime?
+  verificationOtp       String?
+  verified              Boolean          @default(false)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  commandRequests       CommandRequest[]
+  devis                 Devi[]
+  validators            Validator[]
+  payments              Payment[]
+  receptions            Reception[]
+  notifications         Notification[]
+  projects              Project[]        @relation("ProjectOwner")
+  beneficiat            Payment[]        @relation("paymentBenef")
+  transactions          Transaction[]    @relation(name: "creator")
+  validatedTransactions Transaction[]    @relation(name: "validator")
 }
 
 model Role {
@@ -300,7 +302,7 @@ model Payment {
   beneficiary User?  @relation(name: "paymentBenef", fields: [benefId], references: [id], onDelete: SetNull)
   benefId     Int?
 
-  model  Vehicles? @relation(fields: [vehiclesId], references: [id])
+  model  Vehicle? @relation(fields: [vehiclesId], references: [id])
   km     String?
   liters String?
 
@@ -415,18 +417,24 @@ model Bank {
 }
 
 model Transaction {
-  id         Int       @id @default(autoincrement())
-  label      String
-  amount     Float
-  date       DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @default(now()) @updatedAt
-  Type       String
-  from       Bank      @relation(name: "incoming", fields: [fromBankId], references: [id])
-  to         Bank      @relation(name: "outgoing", fields: [toBankId], references: [id])
-  fromBankId Int
-  toBankId   Int
-  proof      String?
+  id          Int       @id @default(autoincrement())
+  label       String
+  amount      Float
+  date        DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  Type        String
+  from        Bank      @relation(name: "incoming", fields: [fromBankId], references: [id])
+  to          Bank      @relation(name: "outgoing", fields: [toBankId], references: [id])
+  fromBankId  Int
+  toBankId    Int
+  proof       String?
+  status      String? // APPROVED, PENDING, REJECTED
+  reason      String?
+  user        User?     @relation(name: "creator", fields: [userId], references: [id], onDelete: SetNull)
+  userId      Int?
+  validator   User?     @relation(name: "validator", fields: [validatorId], references: [id])
+  validatorId Int?
 }
 
 model RequestType {
@@ -436,8 +444,13 @@ model RequestType {
   color       String?
 }
 
-model Vehicles {
-  id       Int       @id @default(autoincrement())
-  label    String
-  payments Payment[]
+model Vehicle {
+  id        Int       @id @default(autoincrement())
+  label     String
+  mark      String
+  color     String?
+  capacity  Int?
+  payments  Payment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
 }

@@ -220,6 +220,23 @@ export class UserService {
     return user;
   }
 
+  async changePass(id: number, data: { password: string }) {
+    // Build an update object that only includes provided fields to avoid assigning undefined.
+    const updateData: Partial<User> = {};
+    if (data.password !== undefined) {
+      const hashedPassword = await bcrypt.hash(data.password, 10);
+      updateData.password = hashedPassword;
+    }
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: {
+        ...updateData,
+      },
+    });
+    return user;
+  }
+
   delete(id: number) {
     return prisma.user.delete({
       where: { id },

@@ -79,6 +79,17 @@ export default class UserRouter {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    this.routes.put("/changePassWord/:id", (req, res) => {
+      this.userController
+        .changePass(Number(req.params.id!), req.body)
+        .then((user) =>
+          res
+            .status(200)
+            .json({ message: update_profile.success.update, data: user })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     this.routes.put("/changeStatus/:id", (req, res) => {
       this.userController
         .changeStatus(Number(req.params.id!), req.body)

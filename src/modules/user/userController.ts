@@ -45,7 +45,13 @@ export default class UserController {
 
   @Put("/{id}")
   update(@Path() id: number, @Body() data: Partial<User> & { role: number[] }) {
+    console.log(data);
     return userService.update(Number(id), data);
+  }
+
+  @Put("/changePassWord/{id}")
+  changePass(@Path() id: number, @Body() data: { password: string }) {
+    return userService.changePass(Number(id), data);
   }
 
   @Put("/changeStatus/{id}")
