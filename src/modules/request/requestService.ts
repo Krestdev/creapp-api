@@ -339,7 +339,7 @@ export class RequestService {
         status:
           data.type == "SPECIAUX".toLowerCase()
             ? "validated"
-            : data.type == "FAC".toLowerCase()
+            : data.type == "FACILITATION".toLowerCase()
             ? "ghost"
             : "pending",
         type: type,
