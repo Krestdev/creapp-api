@@ -12,7 +12,7 @@
     "tsoa:spec": "tsoa spec",
     "dev": "nodemon --verbose ./src/index.ts",
     "lint": "eslint",
-    "build": "tsc",
+    "build": "tsoa spec-and-routes && tsc",
     "start": "node ./build/index.js",
     "seed": "ts-node prisma/seed.ts"
   },

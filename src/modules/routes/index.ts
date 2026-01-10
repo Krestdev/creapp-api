@@ -7,7 +7,6 @@ import ProviderRoute from "../provider/providerRoutes";
 import PaymentRoute from "../payment/paymentRoutes";
 import AccountingRoute from "../accounting/accountingRoutes";
 import SpendingRoute from "../spending/spendingRoutes";
-import SignatureRoute from "../signature/signatureRoutes";
 import DeviRoute from "../devi/deviRoutes";
 import CommandRoute from "../command/commandRoutes";
 import RequestRoute from "../request/requestRoutes";
@@ -62,7 +61,6 @@ export function connectRequestRoutes() {
   const paymentRoute = new PaymentRoute();
   const accountingRoute = new AccountingRoute();
   const spendingRoute = new SpendingRoute();
-  const signatureRoute = new SignatureRoute();
   const deviRoute = new DeviRoute();
   const commandRoute = new CommandRoute();
   const categoryRoute = new CategoryRoute();
@@ -88,9 +86,6 @@ export function connectRequestRoutes() {
 
   // command request connection
   router.use("/provider", providerRequest.routes);
-
-  // command request connection
-  router.use("/signature", signatureRoute.routes);
 
   // command request connection
   router.use("/spending", spendingRoute.routes);
