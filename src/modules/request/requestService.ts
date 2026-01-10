@@ -337,7 +337,7 @@ export class RequestService {
         requestId: request.id,
         projectId: request.projectId ? Number(request.projectId) : null,
         status:
-          data.type == "SPECIAL".toLowerCase()
+          data.type == "SPECIAUX".toLowerCase()
             ? "validated"
             : data.type == "FAC".toLowerCase()
             ? "ghost"

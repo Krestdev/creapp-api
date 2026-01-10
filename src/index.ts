@@ -34,7 +34,30 @@ class ApiServer {
 
   // server construction
   constructor() {
-    this.app.use(morgan("dev"));
+    morgan.token("ip", (req) => {
+      const forwarded = req.headers["x-forwarded-for"];
+
+      if (typeof forwarded === "string") {
+        return forwarded.split(",")[0]?.trim();
+      }
+
+      if (Array.isArray(forwarded)) {
+        return forwarded[0];
+      }
+
+      return req.socket.remoteAddress || "unknown";
+    });
+
+    // Request time (HH:MM:SS)
+    morgan.token("time", () => {
+      return new Date().toLocaleTimeString();
+    });
+
+    this.app.use(
+      morgan(
+        `:time :ip :method :url :status :response-time ms - :res[content-length]`
+      )
+    );
     this.app.use(helmet());
     this.app.use(
       cors({

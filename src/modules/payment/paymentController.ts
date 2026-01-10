@@ -77,9 +77,12 @@ export default class CmdRequestController {
       deadline: paymentData.deadline ? new Date(paymentData.deadline) : null,
       price: Number(paymentData.price),
       userId: Number(paymentData.userId),
-      commandId: Number(paymentData.commandId),
       justification,
     };
+
+    if (paymentData.commandId) {
+      payment.commandId = Number(paymentData.commandId);
+    }
 
     return cmdRequestService.update(Number(id), payment);
   }

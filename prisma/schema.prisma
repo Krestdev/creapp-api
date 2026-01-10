@@ -37,6 +37,7 @@ model User {
   beneficiat            Payment[]        @relation("paymentBenef")
   transactions          Transaction[]    @relation(name: "creator")
   validatedTransactions Transaction[]    @relation(name: "validator")
+  signatairs            Signatair[]
 }
 
 model Role {
@@ -355,12 +356,24 @@ model Spending {
   updatedAt     DateTime @updatedAt
 }
 
-model Signature {
+model Signatair {
   id        Int      @id @default(autoincrement())
   name      String
   path      String
+  user      User     @relation(fields: [userId], references: [id])
+  type      PayType  @relation(fields: [payTypeId], references: [id])
+  Bank      Bank     @relation(fields: [bankId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  userId    Int
+  payTypeId Int
+  bankId    Int
+}
+
+model PayType {
+  id         Int         @id @default(autoincrement())
+  label      String?
+  signatairs Signatair[]
 }
 
 model Reception {
@@ -412,11 +425,12 @@ model Bank {
 
   Status Boolean @default(false)
 
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  incomming Transaction[] @relation(name: "incoming")
-  outgoing  Transaction[] @relation(name: "outgoing")
-  payments  Payment[]
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  incomming  Transaction[] @relation(name: "incoming")
+  outgoing   Transaction[] @relation(name: "outgoing")
+  payments   Payment[]
+  signatairs Signatair[]
 }
 
 model Transaction {
