@@ -18,6 +18,8 @@ import NotificationRoute from "../notification/notificationRoutes";
 import TransactionRoute from "../transaction/transactionRoutes";
 import VehicleRoute from "../vehicle/vehicleRoutes";
 import RequestTypeRoute from "../requesttype/requestTypeRoutes";
+import PayTypeRoute from "../payType/payTypeRoutes";
+import SignatairRoute from "../signatair/signatairRoutes";
 
 export function connectBaseRoutes() {
   const router = Router();
@@ -71,6 +73,8 @@ export function connectRequestRoutes() {
   const transactionRoute = new TransactionRoute();
   const vehicleRoute = new VehicleRoute();
   const requestType = new RequestTypeRoute();
+  const payTypeRoute = new PayTypeRoute();
+  const signatairRoute = new SignatairRoute();
 
   // request routes connection
   router.use("/object", request.routes);
@@ -119,6 +123,12 @@ export function connectRequestRoutes() {
 
   // vehicle request connection
   router.use("/requestType", requestType.routes);
+
+  // Signatair request connection
+  router.use("/signatair", signatairRoute.routes);
+
+  // PayType request connection
+  router.use("/payType", payTypeRoute.routes);
 
   // base module connection
   router.use("/", (req, res) => {

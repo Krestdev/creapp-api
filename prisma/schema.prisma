@@ -293,11 +293,13 @@ model Provider {
 
 // working on
 model Payment {
-  id        Int    @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   reference String
   status    String
-  type      String // RH, FAC, BC
-  title     String
+  reason    String?
+
+  type  String // RH, FAC, BC
+  title String
 
   description String @default("none")
   beneficiary User?  @relation(name: "paymentBenef", fields: [benefId], references: [id], onDelete: SetNull)
@@ -358,22 +360,20 @@ model Spending {
 
 model Signatair {
   id        Int      @id @default(autoincrement())
-  name      String
-  path      String
-  user      User     @relation(fields: [userId], references: [id])
-  type      PayType  @relation(fields: [payTypeId], references: [id])
+  user      User[]
   Bank      Bank     @relation(fields: [bankId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  userId    Int
   payTypeId Int
   bankId    Int
+  payTypes  PayType  @relation(fields: [payTypeId], references: [id])
 }
 
 model PayType {
-  id         Int         @id @default(autoincrement())
-  label      String?
-  signatairs Signatair[]
+  id          Int         @id @default(autoincrement())
+  label       String?
+  signatairs  Signatair[]
+  signatairId Int?
 }
 
 model Reception {
