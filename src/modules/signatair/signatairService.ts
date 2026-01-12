@@ -1,4 +1,4 @@
-import { Signatair, PrismaClient, PayType, Prisma } from "@prisma/client";
+import { PayType, PrismaClient, Signatair } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -33,13 +33,12 @@ export class SignatairService {
   // Update
   update = (id: number, data: Signatair & { userIds: number[] }) => {
     const { userIds, ...restData } = data;
-    console.log(data);
     return prisma.signatair.update({
       where: { id },
       data: {
         ...restData,
         user: {
-          set: data.userIds.map((id) => {
+          set: userIds.map((id) => {
             return { id };
           }),
         },
