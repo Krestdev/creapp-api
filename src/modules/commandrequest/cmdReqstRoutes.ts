@@ -80,18 +80,6 @@ export default class CmdRequestRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
-    // attach doc
-    this.routes.get("/attachDoc/:id/:docId", (req, res) => {
-      this.cmdRequestController
-        .attachDoc(req.params.id, req.params.docId)
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
-
     // submit
     this.routes.get("/linkProvider/:id/:providerId", (req, res) => {
       this.cmdRequestController

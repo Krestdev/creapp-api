@@ -57,8 +57,12 @@ export default class TransactionController {
 
     const newTransaction = {
       ...restData,
-      amount: Number(data.amount),
     };
+
+    if (data.amount) {
+      newTransaction.amount = Number(data.amount);
+    }
+
     const newProof = proof ? proof.map((p) => p.filename).join(";") : null;
 
     return transactionService.update(Number(id), newTransaction, newProof);

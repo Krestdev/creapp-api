@@ -18,6 +18,7 @@ const storage = multer.diskStorage({
     // const folder = `${entity}`;
 
     // mkdirSync(folder, { recursive: true });
+    console.log(file);
 
     cb(null, "uploads/"); // Ensure this folder exists
   },

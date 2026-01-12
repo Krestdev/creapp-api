@@ -2,6 +2,7 @@ import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { PaymentService } from "./paymentService";
 import { Payment } from "@prisma/client";
 import { MyFile } from "../reception/receptionController";
+import { storeDocumentsBulk } from "../../utils/DocumentManager";
 
 const cmdRequestService = new PaymentService();
 
@@ -10,19 +11,32 @@ const cmdRequestService = new PaymentService();
 export default class CmdRequestController {
   @Post("/")
   create(
-    @Body() data: Omit<Payment, "proof"> & { proof: string }
+    @Body()
+    data: Omit<Payment, "proof" | "justification"> & {
+      proof: Express.Multer.File[] | null;
+      justification: Express.Multer.File[] | null;
+    }
   ): Promise<Payment> {
-    const { proof, ...paymentData } = data;
-    console.log("paymentData", paymentData);
-    const payment: Payment & { proof: string } = {
+    const { proof, justification, ...paymentData } = data;
+    const payment: Payment = {
       ...paymentData,
       deadline: paymentData.deadline ? new Date(paymentData.deadline) : null,
       price: Number(paymentData.price),
       userId: Number(paymentData.userId),
       commandId: Number(paymentData.commandId),
-      proof,
+      proof: null,
+      justification: null,
     };
-    return cmdRequestService.create(payment);
+
+    if (proof) {
+      payment.proof = proof.map((p) => p.filename).join(";");
+    }
+
+    if (justification) {
+      payment.justification = justification.map((p) => p.filename).join(";");
+    }
+
+    return cmdRequestService.create(payment, proof);
   }
 
   @Post("/depense")
@@ -47,7 +61,6 @@ export default class CmdRequestController {
     };
 
     if (proof) {
-      console.log("proof", proof);
       payment.proof = proof.map((p) => p.filename).join(";");
     }
 
@@ -56,7 +69,6 @@ export default class CmdRequestController {
     }
 
     if (caisseId) {
-      console.log("caise", caisseId);
       payment.bankId = Number(caisseId);
     }
 
@@ -69,19 +81,38 @@ export default class CmdRequestController {
   @Put("/{id}")
   update(
     @Path() id: string,
-    @Body() data: Omit<Payment, "proof"> & { justification: string }
+    @Body()
+    data: Partial<Omit<Payment, "proof">> & {
+      justification: Express.Multer.File[] | null;
+      proof: Express.Multer.File[] | null;
+    }
   ): Promise<Payment> {
-    const { justification, ...paymentData } = data;
-    const payment: Omit<Payment, "proof"> & { justification: string } = {
+    const { justification, proof, ...paymentData } = data;
+    const payment: Partial<Payment> = {
       ...paymentData,
-      deadline: paymentData.deadline ? new Date(paymentData.deadline) : null,
-      price: Number(paymentData.price),
-      userId: Number(paymentData.userId),
-      justification,
     };
 
+    if (paymentData.deadline) {
+      payment.deadline = paymentData.deadline
+        ? new Date(paymentData.deadline)
+        : null;
+    }
+    if (paymentData.price) {
+      payment.price = Number(paymentData.price);
+    }
+    if (paymentData.userId) {
+      payment.userId = Number(paymentData.userId);
+    }
     if (paymentData.commandId) {
       payment.commandId = Number(paymentData.commandId);
+    }
+
+    if (proof) {
+      payment.proof = proof.map((p) => p.filename).join(";");
+    }
+
+    if (justification) {
+      payment.justification = justification.map((p) => p.filename).join(";");
     }
 
     return cmdRequestService.update(Number(id), payment);

@@ -1,15 +1,21 @@
 import { Payment, PrismaClient } from "@prisma/client";
+import { storeDocumentsBulk } from "../../utils/DocumentManager";
 
 const prisma = new PrismaClient();
 
 export class PaymentService {
   // Create
-  create = async (data: Omit<Payment, "id" | "reference" | "status">) => {
+  create = async (
+    data: Omit<Payment, "id" | "reference" | "status">,
+    file: Express.Multer.File[] | null
+  ) => {
     // verify is the payment is
     // 0. command has been payed already
     // 1. complete payment of the command
     // 2. partial payment of the command
     // 3. if the payement amount is valid (<= command amount due)
+
+    console.log(file, data);
 
     if (!data.commandId) {
       throw new Error("Command ID is required for payment");
@@ -77,6 +83,17 @@ export class PaymentService {
       });
     }
 
+    let Docs;
+    if (file) {
+      Docs = await storeDocumentsBulk(file, {
+        role: "PROOF",
+        ownerId: payment.id.toString(),
+        ownerType: "COMMANDREQUEST",
+      });
+    }
+
+    console.log("document", Docs);
+
     return payment;
   };
 
@@ -102,7 +119,7 @@ export class PaymentService {
   };
 
   // Update
-  update = async (id: number, data: Omit<Payment, "proof">) => {
+  update = async (id: number, data: Partial<Omit<Payment, "proof">>) => {
     return prisma.payment.update({
       where: { id },
       data: {

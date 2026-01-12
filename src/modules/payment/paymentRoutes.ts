@@ -22,16 +22,20 @@ export default class PaymentRoute {
 
   private config() {
     // create
-    this.routes.post("/", upload.single("proof"), (req, res) => {
-      this.paymentController
-        .create({ ...req.body, proof: req.file?.filename ?? null })
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
+    this.routes.post(
+      "/",
+      upload.fields([{ name: "proof", maxCount: 5 }]),
+      (req, res) => {
+        this.paymentController
+          .create({ ...req.body, ...req.files })
+          .then((request) =>
+            res
+              .status(201)
+              .json({ message: create.success.create, data: request })
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      }
+    );
 
     this.routes.post(
       "/depense",
@@ -52,19 +56,26 @@ export default class PaymentRoute {
     );
 
     // update
-    this.routes.put("/:id", upload.single("justification"), (req, res) => {
-      this.paymentController
-        .update(req.params.id!, {
-          ...req.body,
-          justification: req.file?.filename ?? null,
-        })
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
+    this.routes.put(
+      "/:id",
+      upload.fields([
+        { name: "proof", maxCount: 5 },
+        { name: "justification", maxCount: 5 },
+      ]),
+      (req, res) => {
+        this.paymentController
+          .update(req.params.id!, {
+            ...req.body,
+            ...req.files,
+          })
+          .then((request) =>
+            res
+              .status(201)
+              .json({ message: create.success.create, data: request })
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      }
+    );
 
     // update
     this.routes.put("/validate/:id", (req, res) => {

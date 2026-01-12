@@ -42,14 +42,6 @@ export default class CmdRequestController {
     return cmdRequestService.getAll();
   }
 
-  @Put("/attachDoc/{id}/{docId}")
-  attachDoc(
-    @Path() id: string,
-    @Path() docId: string
-  ): Promise<CommandRequest> {
-    return cmdRequestService.attachDoc(Number(id), Number(docId));
-  }
-
   @Put("/linkProvider/{id}/{providerId}")
   linkProvider(
     @Path() id: string,

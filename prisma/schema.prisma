@@ -167,7 +167,6 @@ model CommandRequest {
   reference    String         @unique
   deliveryDate DateTime       @default(now())
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  documents    Document[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   name         String?
@@ -257,12 +256,45 @@ model Instalments {
   status     Boolean  @default(false)
 }
 
+enum DocumentCategory {
+  CONTRACT
+  RECEIPT
+  INVOICE
+  IDENTITY
+  PROOF
+  JUSTIFICATION
+}
+
+enum DocumentOwnerType {
+  PAYMENT
+  RECEPTION
+  PROVIDER
+  TRANSACTION
+  BANK
+  DEVI
+  COMMANDREQUEST
+}
+
 model Document {
-  id        Int             @id @default(autoincrement())
-  path      String          @unique
-  size      String
-  cmdRqst   CommandRequest? @relation(fields: [cmdRqstId], references: [id], onDelete: SetNull)
-  cmdRqstId Int?
+  id String @id @default(uuid())
+
+  fieldname    String
+  originalname String
+  encoding     String
+  mimetype     String
+  destination  String
+  filename     String
+  path         String
+  size         Float
+
+  role DocumentCategory
+
+  ownerId   String
+  ownerType DocumentOwnerType
+
+  createdAt DateTime @default(now())
+
+  @@index([ownerId, ownerType])
 }
 
 model Provider {

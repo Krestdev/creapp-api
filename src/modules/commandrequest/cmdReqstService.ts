@@ -66,16 +66,4 @@ export class CommandRequestService {
       },
     });
   };
-
-  // Attach-Doc
-  attachDoc = (id: number, documentId: number) => {
-    return prisma.commandRequest.update({
-      where: { id },
-      data: {
-        documents: {
-          connect: { id: documentId },
-        },
-      },
-    });
-  };
 }
