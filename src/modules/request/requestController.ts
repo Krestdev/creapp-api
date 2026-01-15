@@ -131,7 +131,10 @@ export default class RequestController {
   @Post("/special")
   specialRequest(
     @Body()
-    data: RequestModelDto & { type: string; proof?: string } & {
+    data: RequestModelDto & {
+      type: string;
+      proof: Express.Multer.File[] | null;
+    } & {
       benef?: number[];
     }
   ): Promise<{ request: unknown; payment: Payment }> {
@@ -152,11 +155,16 @@ export default class RequestController {
       priority: reqData.priority,
       categoryId: Number(reqData.categoryId),
       userId: Number(reqData.userId),
-      proof: proof ?? null,
+      proof: null,
     };
+
+    if (proof) {
+      request.proof = proof.map((p) => p.filename).join(";");
+    }
 
     return requestService.specialRequest(
       request,
+      proof,
       JSON.parse((benef as unknown as string) ?? "[]")
     );
   }
@@ -165,7 +173,10 @@ export default class RequestController {
   specialRequestUpdate(
     @Path() id: number,
     @Body()
-    data: RequestModelDto & { type: string; proof?: string } & {
+    data: Omit<RequestModelDto, "proof"> & {
+      type: string;
+      proof?: Express.Multer.File[] | null;
+    } & {
       benef?: number[];
     }
   ): Promise<unknown> {
@@ -174,7 +185,7 @@ export default class RequestController {
 
     const request: Partial<RequestModelDto> & {
       type: string;
-      proof: string | null;
+      proof?: string | null;
     } = {
       ...reqData,
       quantity: reqData.quantity ? Number(reqData.quantity) : 0,
@@ -182,12 +193,19 @@ export default class RequestController {
       projectId: reqData.projectId ? Number(reqData.projectId) : null,
       categoryId: Number(reqData.categoryId),
       userId: Number(reqData.userId),
-      proof: proof ?? null,
     };
+
+    let file;
+
+    if (proof && typeof proof !== "string") {
+      file = proof;
+      request.proof = proof.map((p) => p.filename).join(";");
+    }
 
     return requestService.specialRequestUpdate(
       id,
       request,
+      file,
       JSON.parse((benef as unknown as string) ?? "[]")
     );
   }

@@ -1,7 +1,6 @@
+import { Bank, Transaction } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { TransactionService } from "./transactionService";
-import { Bank, Transaction } from "@prisma/client";
-import { MyFile } from "../reception/receptionController";
 
 const transactionService = new TransactionService();
 
@@ -11,7 +10,9 @@ export default class TransactionController {
   @Post("/")
   create(
     @Body()
-    data: Omit<Transaction, "proof"> & { proof?: MyFile } & {
+    data: Omit<Transaction, "proof"> & {
+      proof: Express.Multer.File[] | null;
+    } & {
       from: Bank;
       to?: Bank;
       paymentId: number;
@@ -42,10 +43,13 @@ export default class TransactionController {
       newTransaction.proof = proof.map((p) => p.filename).join(";");
     }
 
-    return transactionService.create({
-      ...newTransaction,
-      paymentId: Number(paymentId),
-    });
+    return transactionService.create(
+      {
+        ...newTransaction,
+        paymentId: Number(paymentId),
+      },
+      proof
+    );
   }
 
   /**
@@ -56,7 +60,7 @@ export default class TransactionController {
     @Path() id: string,
     @Body()
     data: Omit<Transaction, "proof"> & {
-      proof: MyFile | null;
+      proof: Express.Multer.File[] | null;
       paymentId: number | null;
     }
   ): Promise<Transaction> {
@@ -85,7 +89,8 @@ export default class TransactionController {
       Number(id),
       newTransaction,
       newProof,
-      payId
+      payId,
+      proof
     );
   }
 

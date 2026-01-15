@@ -68,7 +68,6 @@ export default class UserRouter {
     );
 
     this.routes.put("/:id", validateData("update"), (req, res) => {
-      console.log(req.body);
       this.userController
         .update(Number(req.params.id!), req.body)
         .then((user) =>

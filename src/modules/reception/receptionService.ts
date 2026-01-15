@@ -1,4 +1,5 @@
 import { Reception, PrismaClient } from "@prisma/client";
+import { storeDocumentsBulk } from "../../utils/DocumentManager";
 
 const prisma = new PrismaClient();
 
@@ -15,7 +16,8 @@ export class ReceptionService {
     id: number,
     data: Reception & {
       Deliverables: { id: number; isDelivered: boolean }[];
-    }
+    },
+    file: Express.Multer.File[] | null
   ) => {
     if (data.ReceiptDate) {
       data.ReceiptDate = new Date(data.ReceiptDate);
@@ -41,61 +43,46 @@ export class ReceptionService {
 
     await Promise.all(
       Deliverables.map(async (deliv) => {
-        await prisma.deviElement
-          .updateMany({
-            where: {
-              id: deliv.id,
-            },
-            data: {
-              isDelivered: deliv.isDelivered,
-            },
-          })
-          .catch((e) => {
-            console.log("1", e);
-            throw e;
-          });
+        await prisma.deviElement.updateMany({
+          where: {
+            id: deliv.id,
+          },
+          data: {
+            isDelivered: deliv.isDelivered,
+          },
+        });
       })
     );
 
-    await prisma.reception
-      .update({
-        where: {
-          id,
-          Deliverables: {
-            some: {
-              isDelivered: true,
-            },
+    await prisma.reception.update({
+      where: {
+        id,
+        Deliverables: {
+          some: {
+            isDelivered: true,
           },
         },
-        data: {
-          Status: "PARTIAL",
-        },
-      })
-      .catch((e) => {
-        console.log("2", e);
-        throw e;
-      });
+      },
+      data: {
+        Status: "PARTIAL",
+      },
+    });
 
-    await prisma.reception
-      .updateMany({
-        where: {
-          id,
-          Deliverables: {
-            every: {
-              isDelivered: true,
-            },
+    await prisma.reception.updateMany({
+      where: {
+        id,
+        Deliverables: {
+          every: {
+            isDelivered: true,
           },
         },
-        data: {
-          Status: "COMPLETED",
-        },
-      })
-      .catch((e) => {
-        console.log("3", e);
-        throw e;
-      });
+      },
+      data: {
+        Status: "COMPLETED",
+      },
+    });
 
-    return prisma.reception.update({
+    const reception = await prisma.reception.update({
       where: { id },
       data: {
         ...dataRest,
@@ -104,6 +91,17 @@ export class ReceptionService {
           : prevReception.Proof,
       },
     });
+
+    let Docs;
+    if (file) {
+      Docs = await storeDocumentsBulk(file, {
+        role: "PROOF",
+        ownerId: reception.id.toString(),
+        ownerType: "RECEPTION",
+      });
+    }
+
+    return reception;
   };
 
   // Delete

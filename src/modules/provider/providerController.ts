@@ -1,7 +1,6 @@
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { ProviderService } from "./providerService";
 import { Provider } from "@prisma/client";
-import { MyFile } from "../reception/receptionController";
 
 const cmdRequestService = new ProviderService();
 
@@ -18,11 +17,11 @@ export default class CmdRequestController {
       | "commerce_registre"
       | "banck_attestation"
     > & {
-      carte_contribuable: MyFile | null;
-      acf: MyFile | null;
-      plan_localisation: MyFile | null;
-      commerce_registre: MyFile | null;
-      banck_attestation: MyFile | null;
+      carte_contribuable: Express.Multer.File[] | null;
+      acf: Express.Multer.File[] | null;
+      plan_localisation: Express.Multer.File[] | null;
+      commerce_registre: Express.Multer.File[] | null;
+      banck_attestation: Express.Multer.File[] | null;
     }
   ): Promise<Provider> {
     const newProvider = {
@@ -46,7 +45,7 @@ export default class CmdRequestController {
           : null,
     };
 
-    return cmdRequestService.create(newProvider);
+    return cmdRequestService.create(newProvider, { ...data });
   }
 
   /**
@@ -63,11 +62,11 @@ export default class CmdRequestController {
       | "commerce_registre"
       | "banck_attestation"
     > & {
-      carte_contribuable: MyFile | null;
-      acf: MyFile | null;
-      plan_localisation: MyFile | null;
-      commerce_registre: MyFile | null;
-      banck_attestation: MyFile | null;
+      carte_contribuable: Express.Multer.File[] | null;
+      acf: Express.Multer.File[] | null;
+      plan_localisation: Express.Multer.File[] | null;
+      commerce_registre: Express.Multer.File[] | null;
+      banck_attestation: Express.Multer.File[] | null;
     }
   ): Promise<Provider> {
     const newProvider = {

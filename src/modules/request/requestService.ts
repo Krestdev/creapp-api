@@ -1,4 +1,5 @@
 import { PrismaClient, RequestModel } from "@prisma/client";
+import { storeDocumentsBulk } from "../../utils/DocumentManager";
 
 const prisma = new PrismaClient();
 
@@ -292,42 +293,38 @@ export class RequestService {
 
   specialRequest = async (
     data: RequestModel & { type: string; proof: string | null },
+    file?: Express.Multer.File[] | null,
     benef?: number[]
   ) => {
     // create request, command and payment
     const ref = "ref-" + new Date().getTime();
     const { type, proof, ...requestData } = data;
 
-    const request = await prisma.requestModel
-      .create({
-        data: {
-          ...requestData,
-          period: requestData.period
-            ? JSON.parse(requestData.period as unknown as string)
-            : null,
-          benFac: requestData.benFac
-            ? JSON.parse(requestData.benFac as unknown as string)
-            : null,
-          ref,
-          type: data.type,
-          state:
-            data.type == "FACILITATION".toLowerCase() ? "pending" : "validated",
-          beficiaryList: {
-            connect: benef
-              ? benef.map((beId) => {
-                  return { id: beId };
-                })
-              : [],
-          },
+    const request = await prisma.requestModel.create({
+      data: {
+        ...requestData,
+        period: requestData.period
+          ? JSON.parse(requestData.period as unknown as string)
+          : null,
+        benFac: requestData.benFac
+          ? JSON.parse(requestData.benFac as unknown as string)
+          : null,
+        ref,
+        type: data.type,
+        state:
+          data.type == "FACILITATION".toLowerCase() ? "pending" : "validated",
+        beficiaryList: {
+          connect: benef
+            ? benef.map((beId) => {
+                return { id: beId };
+              })
+            : [],
         },
-        include: {
-          beficiaryList: true,
-        },
-      })
-      .catch((e) => {
-        console.log(e);
-        throw e;
-      });
+      },
+      include: {
+        beficiaryList: true,
+      },
+    });
 
     const refpay = "ref-" + new Date().getTime();
     const payment = await prisma.payment.create({
@@ -349,58 +346,70 @@ export class RequestService {
       },
     });
 
+    let Docs;
+    if (file) {
+      Docs = await storeDocumentsBulk(file, {
+        role: "PROOF",
+        ownerId: request.id.toString(),
+        ownerType: "PAYMENT",
+      });
+    }
+
     return { request: request, payment: payment };
   };
 
   specialRequestUpdate = async (
     id: number,
-    data: Partial<RequestModel> & { type: string; proof: string | null },
+    data: Partial<RequestModel> & { type: string; proof?: string | null },
+    file?: Express.Multer.File[] | null,
     benef?: number[]
   ) => {
     // create request, command and payment
     const { type, proof, ...requestData } = data;
-    console.log(type);
-    await prisma.payment.updateMany({
-      where: {
-        requestId: id,
-        proof: {
-          not: proof,
+    if (proof) {
+      await prisma.payment.updateMany({
+        where: {
+          requestId: id,
         },
+        data: {
+          proof: proof,
+        },
+      });
+    }
+
+    const request = await prisma.requestModel.update({
+      where: {
+        id,
       },
       data: {
-        proof: proof,
+        ...requestData,
+        period: requestData.period
+          ? JSON.parse(requestData.period as unknown as string)
+          : null,
+        benFac: requestData.benFac
+          ? JSON.parse(requestData.benFac as unknown as string)
+          : null,
+        beficiaryList: {
+          set: benef
+            ? benef.map((beId) => {
+                return { id: beId };
+              })
+            : [],
+        },
+      },
+      include: {
+        beficiaryList: true,
       },
     });
 
-    const request = await prisma.requestModel
-      .update({
-        where: {
-          id,
-        },
-        data: {
-          ...requestData,
-          period: requestData.period
-            ? JSON.parse(requestData.period as unknown as string)
-            : null,
-          benFac: requestData.benFac
-            ? JSON.parse(requestData.benFac as unknown as string)
-            : null,
-          beficiaryList: {
-            set: benef
-              ? benef.map((beId) => {
-                  return { id: beId };
-                })
-              : [],
-          },
-        },
-        include: {
-          beficiaryList: true,
-        },
-      })
-      .catch((e) => {
-        console.log(e);
-        throw e;
+    let Docs;
+    if (file) {
+      Docs = await storeDocumentsBulk(file, {
+        role: "PROOF",
+        ownerId: request.id.toString(),
+        ownerType: "COMMANDREQUEST",
       });
+    }
 
     return request;
   };

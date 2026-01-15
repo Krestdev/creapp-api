@@ -1,11 +1,12 @@
 import { Request } from "express";
+import { mkdirSync } from "fs";
 import multer from "multer";
 import path from "path";
 
 // Set up storage configuration
 const storage = multer.diskStorage({
   destination: function (req: Request, file: Express.Multer.File, cb) {
-    // const entity = req.path.split("/")[1];
+    const entity = req.baseUrl.split("/").pop();
 
     // const entityId = req.params;
     // console.log(req.files);
@@ -15,12 +16,11 @@ const storage = multer.diskStorage({
     //   { url: req.path },
     // ]);
 
-    // const folder = `${entity}`;
+    const folder = `uploads/${entity}`;
 
-    // mkdirSync(folder, { recursive: true });
-    console.log(file);
+    mkdirSync(folder, { recursive: true });
 
-    cb(null, "uploads/"); // Ensure this folder exists
+    cb(null, folder); // Ensure this folder exists
   },
   filename: function (req: Request, file: Express.Multer.File, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);

@@ -16,6 +16,7 @@ import { connectProjectRoutes } from "./modules/routes";
 import { connectRequestRoutes } from "./modules/routes";
 import * as swaggerUI from "swagger-ui-express";
 import * as swaggerJson from "../build/swagger.json";
+import { createClient } from "redis";
 
 class ApiServer {
   private app = express();

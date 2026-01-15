@@ -108,7 +108,7 @@ export class PaymentService {
       Docs = await storeDocumentsBulk(proof, {
         role: "PROOF",
         ownerId: payment.id.toString(),
-        ownerType: "COMMANDREQUEST",
+        ownerType: "PAYMENT",
       });
     }
 
@@ -116,7 +116,7 @@ export class PaymentService {
       Docs = await storeDocumentsBulk(justification, {
         role: "PROOF",
         ownerId: payment.id.toString(),
-        ownerType: "COMMANDREQUEST",
+        ownerType: "PAYMENT",
       });
     }
 

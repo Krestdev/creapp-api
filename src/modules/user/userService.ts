@@ -177,7 +177,6 @@ export class UserService {
   }
 
   async login(data: { email: string; password: string }) {
-    console.log("User login");
     const user = await prisma.user.findUnique({
       where: { email: data.email },
       include: { role: true, validators: true },
@@ -189,7 +188,6 @@ export class UserService {
     const token = jwt.sign({ userId: user.id }, GENERAL_CONFIG.jwt.SECRET, {
       expiresIn: "1d",
     });
-    console.log("User logged in", user.email);
     await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -225,7 +223,6 @@ export class UserService {
       include: { role: true },
       omit: { password: true },
     });
-    console.log(user);
     return user;
   }
 
@@ -253,7 +250,6 @@ export class UserService {
   }
 
   changeStatus(id: number, status: string) {
-    console.log(status);
     return prisma.user.update({
       where: { id },
       data: {

@@ -77,30 +77,38 @@ export default class RequestRoute {
     });
 
     // multiple files
-    this.routes.post("/special", upload.single("proof"), (req, res) => {
-      this.requestController
-        .specialRequest({ ...req.body, proof: req.file?.filename ?? null })
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
+    this.routes.post(
+      "/special",
+      upload.fields([{ name: "proof", maxCount: 5 }]),
+      (req, res) => {
+        this.requestController
+          .specialRequest({ ...req.body, ...req.files })
+          .then((request) =>
+            res
+              .status(201)
+              .json({ message: create.success.create, data: request })
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      }
+    );
 
-    this.routes.put("/special/:id", upload.single("proof"), (req, res) => {
-      this.requestController
-        .specialRequestUpdate(Number(req.params.id), {
-          ...req.body,
-          proof: req.file?.filename ?? null,
-        })
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
+    this.routes.put(
+      "/special/:id",
+      upload.fields([{ name: "proof", maxCount: 5 }]),
+      (req, res) => {
+        this.requestController
+          .specialRequestUpdate(Number(req.params.id), {
+            ...req.body,
+            ...req.files,
+          })
+          .then((request) =>
+            res
+              .status(201)
+              .json({ message: create.success.create, data: request })
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      }
+    );
 
     this.routes.put("/validateBulk", (req, res) => {
       this.requestController

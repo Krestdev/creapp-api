@@ -4,17 +4,6 @@ import { Reception } from "@prisma/client";
 
 const receptionService = new ReceptionService();
 
-export type MyFile = {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  destination: string;
-  filename: string;
-  path: string;
-  size: number;
-}[];
-
 @Route("request/reception")
 @Tags("Reception Routes")
 export default class ReceptionController {
@@ -30,7 +19,7 @@ export default class ReceptionController {
   update(
     @Path() id: string,
     @Body()
-    data: Omit<Reception, "Proof"> & { proof: MyFile | null } & {
+    data: Omit<Reception, "Proof"> & { proof: Express.Multer.File[] | null } & {
       Deliverables: { id: number; state: boolean }[];
     }
   ): Promise<Reception> {
@@ -46,7 +35,7 @@ export default class ReceptionController {
       newReception.Deliverables = JSON.parse(Deliverables as unknown as string);
     }
 
-    return receptionService.update(Number(id), newReception);
+    return receptionService.update(Number(id), newReception, proof);
   }
 
   @Delete("/{id}")

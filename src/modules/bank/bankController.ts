@@ -1,7 +1,6 @@
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { BankService } from "./bankService";
 import { Bank } from "@prisma/client";
-import { MyFile } from "../reception/receptionController";
 
 const bankService = new BankService();
 
@@ -22,7 +21,10 @@ export default class BankController {
     };
     const newJustification = justification.map((p) => p.filename).join(";");
 
-    return bankService.create({ ...newBank, justification: newJustification });
+    return bankService.create(
+      { ...newBank, justification: newJustification },
+      justification
+    );
   }
 
   /**
@@ -32,7 +34,9 @@ export default class BankController {
   update(
     @Path() id: string,
     @Body()
-    data: Omit<Bank, "justification"> & { justification: MyFile | null }
+    data: Omit<Bank, "justification"> & {
+      justification: Express.Multer.File[] | null;
+    }
   ): Promise<Bank> {
     const { justification, ...restData } = data;
 
@@ -45,7 +49,12 @@ export default class BankController {
       ? justification.map((p) => p.filename).join(";")
       : null;
 
-    return bankService.update(Number(id), newBank, newJustification);
+    return bankService.update(
+      Number(id),
+      newBank,
+      newJustification,
+      justification
+    );
   }
 
   @Delete("/{id}")

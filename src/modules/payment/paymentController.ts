@@ -1,7 +1,6 @@
+import { Payment } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { PaymentService } from "./paymentService";
-import { Payment } from "@prisma/client";
-import { MyFile } from "../reception/receptionController";
 
 const cmdRequestService = new PaymentService();
 

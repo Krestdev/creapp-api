@@ -1,21 +1,31 @@
 import { PrismaClient } from "@prisma/client";
+import { storeDocumentsBulk } from "../../utils/DocumentManager";
 
 const prisma = new PrismaClient();
 
 export class ProviderService {
   // Create
-  create = async (data: {
-    name: string;
-    phone: string | null;
-    email: string | null;
-    address: string | null;
-    status: boolean;
-    carte_contribuable: string | null;
-    acf: string | null;
-    plan_localisation: string | null;
-    commerce_registre: string | null;
-    banck_attestation: string | null;
-  }) => {
+  create = async (
+    data: {
+      name: string;
+      phone: string | null;
+      email: string | null;
+      address: string | null;
+      status: boolean;
+      carte_contribuable: string | null;
+      acf: string | null;
+      plan_localisation: string | null;
+      commerce_registre: string | null;
+      banck_attestation: string | null;
+    },
+    files: {
+      carte_contribuable: Express.Multer.File[] | null;
+      acf: Express.Multer.File[] | null;
+      plan_localisation: Express.Multer.File[] | null;
+      commerce_registre: Express.Multer.File[] | null;
+      banck_attestation: Express.Multer.File[] | null;
+    }
+  ) => {
     const exist = await prisma.provider.findFirst({
       where: {
         name: data.name,
@@ -24,9 +34,22 @@ export class ProviderService {
     if (exist?.id) {
       throw Error("Provider Exist");
     }
-    return prisma.provider.create({
+    const provider = await prisma.provider.create({
       data,
     });
+
+    if (files) {
+      let Docs = Object.values(files);
+      Docs.map(async (file) => {
+        await storeDocumentsBulk(file, {
+          role: "PROOF",
+          ownerId: provider.id.toString(),
+          ownerType: "COMMANDREQUEST",
+        });
+      });
+    }
+
+    return provider;
   };
 
   // Update

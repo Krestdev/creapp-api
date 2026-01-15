@@ -1,11 +1,13 @@
 import { Transaction, PrismaClient, Bank } from "@prisma/client";
+import { storeDocumentsBulk } from "../../utils/DocumentManager";
 
 const prisma = new PrismaClient();
 
 export class TransactionService {
   // Create
   create = async (
-    data: Transaction & { from: Bank; to?: Bank; paymentId?: number }
+    data: Transaction & { from: Bank; to?: Bank; paymentId?: number },
+    file: Express.Multer.File[] | null
   ) => {
     const { from, to, paymentId, ...transak } = data;
     let fromBank: Bank | null = null;
@@ -46,8 +48,6 @@ export class TransactionService {
       });
     }
 
-    console.log(transak);
-
     transak.toBankId
       ? await prisma.$transaction([
           prisma.bank.update({
@@ -84,8 +84,8 @@ export class TransactionService {
           }),
         ]);
 
-    return paymentId
-      ? prisma.transaction.create({
+    const transaction = paymentId
+      ? await prisma.transaction.create({
           data: {
             ...transak,
             fromBankId: transak.fromBankId ?? fromBank?.id,
@@ -107,7 +107,7 @@ export class TransactionService {
             to: true,
           },
         })
-      : prisma.transaction.create({
+      : await prisma.transaction.create({
           data: {
             ...transak,
             fromBankId: transak.fromBankId ?? fromBank?.id,
@@ -124,6 +124,17 @@ export class TransactionService {
             to: true,
           },
         });
+
+    let Docs;
+    if (file) {
+      Docs = await storeDocumentsBulk(file, {
+        role: "PROOF",
+        ownerId: transaction.id.toString(),
+        ownerType: "TRANSACTION",
+      });
+    }
+
+    return transaction;
   };
 
   // Update
@@ -131,7 +142,8 @@ export class TransactionService {
     id: number,
     data: Partial<Transaction>,
     proof: string | null,
-    paymentId: number | null
+    paymentId: number | null,
+    file: Express.Multer.File[] | null
   ) => {
     if (data.amount) {
       data.amount = Number(data.amount);
@@ -149,17 +161,32 @@ export class TransactionService {
         },
       });
     }
+    const transaction = await prisma.transaction
+      .update({
+        where: { id },
+        data: {
+          ...data,
+        },
+        include: {
+          from: true,
+          to: true,
+        },
+      })
+      .catch((e) => {
+        console.log(e);
+        throw e;
+      });
 
-    return prisma.transaction.update({
-      where: { id },
-      data: {
-        ...data,
-      },
-      include: {
-        from: true,
-        to: true,
-      },
-    });
+    let Docs;
+    if (file) {
+      Docs = await storeDocumentsBulk(file, {
+        role: "PROOF",
+        ownerId: transaction.id.toString(),
+        ownerType: "TRANSACTION",
+      });
+    }
+
+    return transaction;
   };
 
   // Update
