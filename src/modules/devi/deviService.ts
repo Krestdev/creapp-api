@@ -39,41 +39,36 @@ export class DeviService {
     // | "SELECTED"         // Ligne retenue par le DO pour passer en BC
     // | "NOT_SELECTED"     // Ligne explicitement non retenue
 
-    return prisma.devi
-      .update({
-        where: { id },
-        data: {
-          ...data,
+    return prisma.devi.update({
+      where: { id },
+      data: {
+        ...data,
 
-          element: {
-            deleteMany: {
-              deviId: id,
-              id: { notIn: existingIds },
-            },
-            updateMany: existing.map((e) => ({
-              where: { id: e.id },
-              data: {
-                requestModelId: e.requestModelId,
-                quantity: e.quantity,
-                unit: e.unit,
-                title: e.title,
-                priceProposed: e.priceProposed,
-              },
-            })),
-            create: toCreate.map((e) => ({
+        element: {
+          deleteMany: {
+            deviId: id,
+            id: { notIn: existingIds },
+          },
+          updateMany: existing.map((e) => ({
+            where: { id: e.id },
+            data: {
               requestModelId: e.requestModelId,
               quantity: e.quantity,
               unit: e.unit,
               title: e.title,
               priceProposed: e.priceProposed,
-            })),
-          },
+            },
+          })),
+          create: toCreate.map((e) => ({
+            requestModelId: e.requestModelId,
+            quantity: e.quantity,
+            unit: e.unit,
+            title: e.title,
+            priceProposed: e.priceProposed,
+          })),
         },
-      })
-      .catch((e) => {
-        console.log(e, existing, toCreate);
-        throw e;
-      });
+      },
+    });
   };
 
   validateDevi = async (

@@ -56,6 +56,18 @@ export default class PaymentRoute {
     );
 
     // update
+    this.routes.put("/validate/:id", (req, res) => {
+      this.paymentController
+        .validate(req.params.id!, req.body)
+        .then((request) =>
+          res
+            .status(201)
+            .json({ message: create.success.create, data: request })
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    // update
     this.routes.put(
       "/:id",
       upload.fields([
@@ -76,18 +88,6 @@ export default class PaymentRoute {
           .catch((error) => res.status(400).json({ error: error.message }));
       }
     );
-
-    // update
-    this.routes.put("/validate/:id", (req, res) => {
-      this.paymentController
-        .validate(req.params.id!, req.body)
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
 
     // delete
     this.routes.delete("/:id", (req, res) => {

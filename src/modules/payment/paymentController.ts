@@ -27,6 +27,10 @@ export default class CmdRequestController {
       justification: null,
     };
 
+    if (data.methodId) {
+      payment.methodId = Number(payment.methodId);
+    }
+
     if (proof) {
       payment.proof = proof.map((p) => p.filename).join(";");
     }
@@ -41,8 +45,9 @@ export default class CmdRequestController {
   @Post("/depense")
   createDepense(
     @Body()
-    data: Omit<Payment, "proof"> & { justification: MyFile | null } & {
-      proof: MyFile | null;
+    data: Omit<Payment, "proof"> & {
+      proof: Express.Multer.File[] | null;
+      justification: Express.Multer.File[] | null;
     } & { caisseId: number }
   ): Promise<Payment> {
     const { proof, justification, caisseId, ...paymentData } = data;
@@ -54,6 +59,7 @@ export default class CmdRequestController {
       commandId: Number(paymentData.commandId),
       benefId: Number(paymentData.benefId),
       vehiclesId: Number(paymentData.vehiclesId),
+      methodId: Number(paymentData.methodId),
       isPartial: false,
       proof: null,
       justification: null,
@@ -71,7 +77,7 @@ export default class CmdRequestController {
       payment.bankId = Number(caisseId);
     }
 
-    return cmdRequestService.createDepense(payment);
+    return cmdRequestService.createDepense(payment, { proof, justification });
   }
 
   /**
@@ -110,6 +116,10 @@ export default class CmdRequestController {
       payment.proof = proof.map((p) => p.filename).join(";");
     }
 
+    if (data.methodId) {
+      payment.methodId = Number(payment.methodId);
+    }
+
     if (justification) {
       payment.justification = justification.map((p) => p.filename).join(";");
     }
@@ -121,7 +131,10 @@ export default class CmdRequestController {
    * @summary Update Command request
    */
   @Put("validate/{id}")
-  validate(@Path() id: string, @Body() data: Payment): Promise<Payment> {
+  validate(
+    @Path() id: string,
+    @Body() data: { userId: number }
+  ): Promise<Payment> {
     return cmdRequestService.validate(Number(id), data);
   }
 

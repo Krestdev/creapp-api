@@ -38,6 +38,7 @@ model User {
   transactions          Transaction[]    @relation(name: "creator")
   validatedTransactions Transaction[]    @relation(name: "validator")
   signatairs            Signatair[]
+  signedPayments        Payment[]        @relation(name: "signedby")
 }
 
 model Role {
@@ -346,18 +347,23 @@ model Payment {
   account       String?
   justification String?
 
-  priority  String        @default("medium")
+  priority  String  @default("medium")
   price     Int
-  isPartial Boolean       @default(false)
-  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  isPartial Boolean @default(false)
+  user      User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId    Int?
+
+  signer    User?         @relation(name: "signedby", fields: [signerId], references: [id])
+  signerId  Int?
   command   Command?      @relation(fields: [commandId], references: [id], onDelete: Cascade)
   commandId Int?
   project   Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
   request   RequestModel? @relation(fields: [requestId], references: [id], onDelete: SetNull)
   requestId Int?
   projectId Int?
-  method    String?
+  // method    String?
+  method    PayType?      @relation(fields: [methodId], references: [id])
+  methodId  Int?
   deadline  DateTime?
   createdAt DateTime      @default(now())
   updatedAt DateTime      @default(now()) @updatedAt
@@ -365,6 +371,9 @@ model Payment {
 
   vehiclesId Int?
   bankId     Int?
+
+  transaction   Transaction? @relation(name: "paymentTransaction", fields: [transactionId], references: [id])
+  transactionId Int?         @unique
 }
 
 model Accounting {
@@ -390,9 +399,15 @@ model Spending {
   updatedAt     DateTime @updatedAt
 }
 
+enum Signmode {
+  BOTH
+  ONE
+}
+
 model Signatair {
   id        Int      @id @default(autoincrement())
   user      User[]
+  mode      Signmode @default(ONE)
   Bank      Bank     @relation(fields: [bankId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -404,8 +419,10 @@ model Signatair {
 model PayType {
   id          Int         @id @default(autoincrement())
   label       String?
+  type        String?
   signatairs  Signatair[]
   signatairId Int?
+  payments    Payment[]
 }
 
 model Reception {
@@ -484,6 +501,7 @@ model Transaction {
   userId      Int?
   validator   User?     @relation(name: "validator", fields: [validatorId], references: [id])
   validatorId Int?
+  payement    Payment?  @relation(name: "paymentTransaction")
 }
 
 model RequestType {

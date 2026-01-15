@@ -9,12 +9,22 @@ const deviService = new DeviService();
 export default class DeviController {
   @Post("/")
   create(
-    @Body() data: { devis: Devi & { userId: number }; elements: DeviElement[] }
+    @Body()
+    data: {
+      devis: Devi & { userId: number };
+      proof: Express.Multer.File[];
+      elements: DeviElement[];
+    }
   ): Promise<Devi> {
+    const { proof } = data;
     const devi: Devi & { proof: string } = {
       ...(JSON.parse(data.devis as unknown as string) as Devi),
-      proof: (data as unknown as { filename: string }).filename,
     };
+
+    if (proof) {
+      devi.proof = proof.map((p) => p.filename).join(";");
+    }
+
     const deviElem: DeviElement[] = JSON.parse(
       data.elements as unknown as string
     ) as DeviElement[];

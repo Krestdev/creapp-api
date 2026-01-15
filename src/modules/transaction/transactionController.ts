@@ -11,17 +11,19 @@ export default class TransactionController {
   @Post("/")
   create(
     @Body()
-    data: Omit<Transaction, "proof"> & { proof: MyFile } & {
-      from?: Bank;
+    data: Omit<Transaction, "proof"> & { proof?: MyFile } & {
+      from: Bank;
       to?: Bank;
+      paymentId: number;
     }
   ): Promise<Transaction> {
-    const { proof, ...restData } = data;
+    const { proof, paymentId, ...restData } = data;
 
     const newTransaction = {
       ...restData,
       amount: Number(data.amount),
       date: new Date(data.date ?? "now"),
+      proof: "",
     };
 
     if (data.from !== undefined) {
@@ -36,11 +38,13 @@ export default class TransactionController {
       newTransaction.userId = Number(data.userId);
     }
 
-    const newJustification = proof.map((p) => p.filename).join(";");
+    if (proof) {
+      newTransaction.proof = proof.map((p) => p.filename).join(";");
+    }
 
     return transactionService.create({
       ...newTransaction,
-      proof: newJustification,
+      paymentId: Number(paymentId),
     });
   }
 
@@ -51,21 +55,38 @@ export default class TransactionController {
   update(
     @Path() id: string,
     @Body()
-    data: Omit<Transaction, "proof"> & { proof: MyFile | null }
+    data: Omit<Transaction, "proof"> & {
+      proof: MyFile | null;
+      paymentId: number | null;
+    }
   ): Promise<Transaction> {
-    const { proof, ...restData } = data;
+    const { proof, paymentId, ...restData } = data;
 
     const newTransaction = {
       ...restData,
     };
 
+    if (data.date) {
+      newTransaction.date = new Date(data.date);
+    }
+
     if (data.amount) {
       newTransaction.amount = Number(data.amount);
     }
 
+    let payId: number | null = null;
+    if (paymentId) {
+      payId = Number(paymentId);
+    }
+
     const newProof = proof ? proof.map((p) => p.filename).join(";") : null;
 
-    return transactionService.update(Number(id), newTransaction, newProof);
+    return transactionService.update(
+      Number(id),
+      newTransaction,
+      newProof,
+      payId
+    );
   }
 
   @Put("/validate/{id}")

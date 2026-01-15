@@ -22,28 +22,36 @@ export default class BankRoute {
 
   private config() {
     // create
-    this.routes.post("/", upload.array("justification"), (req, res) => {
-      this.bankController
-        .create({ ...req.body, justification: req.files })
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
+    this.routes.post(
+      "/",
+      upload.fields([{ name: "justification", maxCount: 5 }]),
+      (req, res) => {
+        this.bankController
+          .create({ ...req.body, ...req.files })
+          .then((request) =>
+            res
+              .status(201)
+              .json({ message: create.success.create, data: request })
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      }
+    );
 
     // update
-    this.routes.put("/:id", upload.array("justification"), (req, res) => {
-      this.bankController
-        .update(req.params.id!, { ...req.body, justification: req.files })
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
+    this.routes.put(
+      "/:id",
+      upload.fields([{ name: "justification", maxCount: 5 }]),
+      (req, res) => {
+        this.bankController
+          .update(req.params.id!, { ...req.body, ...req.files })
+          .then((request) =>
+            res
+              .status(201)
+              .json({ message: create.success.create, data: request })
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      }
+    );
 
     // delete
     this.routes.delete("/:id", (req, res) => {

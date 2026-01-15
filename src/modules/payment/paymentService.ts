@@ -9,14 +9,6 @@ export class PaymentService {
     data: Omit<Payment, "id" | "reference" | "status">,
     file: Express.Multer.File[] | null
   ) => {
-    // verify is the payment is
-    // 0. command has been payed already
-    // 1. complete payment of the command
-    // 2. partial payment of the command
-    // 3. if the payement amount is valid (<= command amount due)
-
-    console.log(file, data);
-
     if (!data.commandId) {
       throw new Error("Command ID is required for payment");
     }
@@ -47,12 +39,6 @@ export class PaymentService {
     );
 
     const remainingAmount = (commandAmount ?? 0) - totalPaid;
-
-    // console.log("Total paid:", totalPaid);
-    // console.log("Remaining amount:", remainingAmount);
-    // console.log("Payment amount:", data.price);
-    // console.log("Command amount base:", command.amountBase);
-    // console.log("Command:", command);
 
     if (data.price > remainingAmount) {
       throw new Error("Payment amount exceeds the remaining command amount");
@@ -92,16 +78,18 @@ export class PaymentService {
       });
     }
 
-    console.log("document", Docs);
-
     return payment;
   };
 
   // Create
   createDepense = async (
-    data: Omit<Payment, "id" | "reference" | "status">
+    data: Omit<Payment, "id" | "reference" | "status">,
+    files: {
+      proof?: Express.Multer.File[] | null;
+      justification?: Express.Multer.File[] | null;
+    }
   ) => {
-    console.log(data);
+    const { proof, justification } = files;
     const payment = await prisma.payment.create({
       data: {
         ...data,
@@ -114,6 +102,23 @@ export class PaymentService {
         bank: true,
       },
     });
+
+    let Docs;
+    if (proof) {
+      Docs = await storeDocumentsBulk(proof, {
+        role: "PROOF",
+        ownerId: payment.id.toString(),
+        ownerType: "COMMANDREQUEST",
+      });
+    }
+
+    if (justification) {
+      Docs = await storeDocumentsBulk(justification, {
+        role: "PROOF",
+        ownerId: payment.id.toString(),
+        ownerType: "COMMANDREQUEST",
+      });
+    }
 
     return payment;
   };
@@ -131,10 +136,13 @@ export class PaymentService {
   };
 
   // Update
-  validate = async (id: number, data: Payment) => {
+  validate = async (id: number, data: { userId: number }) => {
     return prisma.payment.update({
       where: { id },
-      data,
+      data: {
+        status: "signed",
+        signerId: data.userId,
+      },
     });
   };
 

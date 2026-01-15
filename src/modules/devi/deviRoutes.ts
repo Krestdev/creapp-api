@@ -23,16 +23,20 @@ export default class DeviRoute {
   private config() {
     // create
     // multiple files
-    this.routes.post("/", upload.single("proof"), (req, res) => {
-      this.deviController
-        .create({ ...req.body, filename: req.file?.filename ?? null })
-        .then((request) =>
-          res
-            .status(201)
-            .json({ message: create.success.create, data: request })
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
+    this.routes.post(
+      "/",
+      upload.fields([{ name: "proof", maxCount: 5 }]),
+      (req, res) => {
+        this.deviController
+          .create({ ...req.body, ...req.files })
+          .then((request) =>
+            res
+              .status(201)
+              .json({ message: create.success.create, data: request })
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      }
+    );
 
     // update
     this.routes.put("/validerDevis", (req, res) => {

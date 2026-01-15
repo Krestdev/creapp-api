@@ -55,34 +55,29 @@ export class CommandService {
 
     if (data.deviId == null) throw Error("Devi is required");
 
-    return prisma.command
-      .create({
-        data: {
-          ...data,
-          reference: ref,
-          requests: {
-            connect: requestIds.map((id) => {
-              return { id };
-            }),
-          },
-          devi: {
-            connect: {
-              id: data.deviId,
-            },
-          },
-          instalments: {
-            create: data.instalments.map((inst) => {
-              return {
-                ...inst,
-              };
-            }),
+    return prisma.command.create({
+      data: {
+        ...data,
+        reference: ref,
+        requests: {
+          connect: requestIds.map((id) => {
+            return { id };
+          }),
+        },
+        devi: {
+          connect: {
+            id: data.deviId,
           },
         },
-      })
-      .catch((e) => {
-        console.log(e);
-        throw e;
-      });
+        instalments: {
+          create: data.instalments.map((inst) => {
+            return {
+              ...inst,
+            };
+          }),
+        },
+      },
+    });
   };
 
   // Update

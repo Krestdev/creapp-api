@@ -11,7 +11,7 @@ export default class BankController {
   @Post("/")
   create(
     @Body()
-    data: Omit<Bank, "justification"> & { justification: MyFile }
+    data: Omit<Bank, "justification"> & { justification: Express.Multer.File[] }
   ): Promise<Bank> {
     const { justification, ...restData } = data;
 
