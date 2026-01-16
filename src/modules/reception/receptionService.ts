@@ -1,5 +1,8 @@
 import { Reception, PrismaClient } from "@prisma/client";
-import { storeDocumentsBulk } from "../../utils/DocumentManager";
+import {
+  deleteDocumentsByOwner,
+  storeDocumentsBulk,
+} from "../../utils/DocumentManager";
 
 const prisma = new PrismaClient();
 
@@ -106,6 +109,7 @@ export class ReceptionService {
 
   // Delete
   delete = (id: number) => {
+    deleteDocumentsByOwner(id.toString(), "RECEPTION");
     return prisma.reception.delete({
       where: { id },
     });

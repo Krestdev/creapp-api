@@ -90,7 +90,7 @@ export default class CmdRequestController {
           : null,
     };
 
-    return cmdRequestService.update(Number(id), newProvider);
+    return cmdRequestService.update(Number(id), newProvider, { ...data });
   }
 
   @Delete("/{id}")

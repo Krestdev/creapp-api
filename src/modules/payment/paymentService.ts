@@ -1,5 +1,8 @@
 import { Payment, PrismaClient } from "@prisma/client";
-import { storeDocumentsBulk } from "../../utils/DocumentManager";
+import {
+  deleteDocumentsByOwner,
+  storeDocumentsBulk,
+} from "../../utils/DocumentManager";
 
 const prisma = new PrismaClient();
 
@@ -148,6 +151,7 @@ export class PaymentService {
 
   // Delete
   delete = (id: number) => {
+    deleteDocumentsByOwner(id.toString(), "PAYMENT");
     return prisma.payment.delete({
       where: { id },
     });

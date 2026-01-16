@@ -1,5 +1,8 @@
 import { PrismaClient, RequestModel } from "@prisma/client";
-import { storeDocumentsBulk } from "../../utils/DocumentManager";
+import {
+  deleteDocumentsByOwner,
+  storeDocumentsBulk,
+} from "../../utils/DocumentManager";
 
 const prisma = new PrismaClient();
 
@@ -106,6 +109,7 @@ export class RequestService {
   };
 
   delete = (id: number) => {
+    deleteDocumentsByOwner(id.toString(), "COMMANDREQUEST");
     return prisma.requestModel.delete({
       where: { id },
     });
