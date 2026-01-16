@@ -126,7 +126,10 @@ export class RequestService {
           requestId: id,
         },
         data: {
-          status: "pending",
+          status:
+            requestModel.type === "FACILITATION".toLowerCase()
+              ? "accepted"
+              : "pending",
         },
       });
     }
@@ -369,12 +372,19 @@ export class RequestService {
   ) => {
     // create request, command and payment
     const { proof, ...requestData } = data;
+
+    if ((requestData.amount, requestData.label, requestData.dueDate)) {
+      throw Error("Lack information Can not update");
+    }
     if (proof) {
       await prisma.payment.updateMany({
         where: {
           requestId: id,
         },
         data: {
+          price: requestData.amount!,
+          title: requestData.label!,
+          deadline: requestData.dueDate!,
           proof: proof,
         },
       });
