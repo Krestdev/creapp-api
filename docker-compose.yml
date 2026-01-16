@@ -30,6 +30,18 @@ services:
     networks:
       - caddy-net
 
+  redis:
+    container_name: creapp_redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - /root/backup/creapp/redis-data:/data
+    ports:
+      - "6379:6379" # optional, remove in prod if not needed
+    networks:
+      - caddy-net
+
 networks:
   caddy-net:
     driver: bridge
