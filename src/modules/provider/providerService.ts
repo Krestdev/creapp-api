@@ -42,7 +42,7 @@ export class ProviderService {
     });
 
     if (files) {
-      let Docs = Object.values(files);
+      const Docs = Object.values(files);
       Docs.map(async (file) => {
         await storeDocumentsBulk(file, {
           role: "PROOF",
@@ -101,7 +101,7 @@ export class ProviderService {
     });
 
     if (files) {
-      let Docs = Object.values(files);
+      const Docs = Object.values(files);
       Docs.map(async (file) => {
         await storeDocumentsBulk(file, {
           role: "PROOF",

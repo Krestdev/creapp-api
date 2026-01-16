@@ -95,9 +95,8 @@ export class ReceptionService {
       },
     });
 
-    let Docs;
     if (file) {
-      Docs = await storeDocumentsBulk(file, {
+      await storeDocumentsBulk(file, {
         role: "PROOF",
         ownerId: reception.id.toString(),
         ownerType: "RECEPTION",

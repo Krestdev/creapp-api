@@ -13,9 +13,8 @@ export class BankService {
       data,
     });
 
-    let Docs;
     if (justification) {
-      Docs = await storeDocumentsBulk(justification, {
+      await storeDocumentsBulk(justification, {
         role: "JUSTIFICATION",
         ownerId: bank.id.toString(),
         ownerType: "BANK",
@@ -46,9 +45,8 @@ export class BankService {
       },
     });
 
-    let Docs;
     if (justification) {
-      Docs = await storeDocumentsBulk(file, {
+      await storeDocumentsBulk(file, {
         role: "JUSTIFICATION",
         ownerId: bank.id.toString(),
         ownerType: "BANK",

@@ -51,41 +51,42 @@ export class TransactionService {
       });
     }
 
-    transak.toBankId
-      ? await prisma.$transaction([
-          prisma.bank.update({
-            where: {
-              id: transak.fromBankId,
+    if (transak.toBankId)
+      await prisma.$transaction([
+        prisma.bank.update({
+          where: {
+            id: transak.fromBankId,
+          },
+          data: {
+            balance: {
+              decrement: transak.amount,
             },
-            data: {
-              balance: {
-                decrement: transak.amount,
-              },
+          },
+        }),
+        prisma.bank.update({
+          where: {
+            id: transak.toBankId,
+          },
+          data: {
+            balance: {
+              increment: transak.amount,
             },
-          }),
-          prisma.bank.update({
-            where: {
-              id: transak.toBankId,
+          },
+        }),
+      ]);
+    else
+      await prisma.$transaction([
+        prisma.bank.update({
+          where: {
+            id: transak.fromBankId,
+          },
+          data: {
+            balance: {
+              decrement: transak.amount,
             },
-            data: {
-              balance: {
-                increment: transak.amount,
-              },
-            },
-          }),
-        ])
-      : await prisma.$transaction([
-          prisma.bank.update({
-            where: {
-              id: transak.fromBankId,
-            },
-            data: {
-              balance: {
-                decrement: transak.amount,
-              },
-            },
-          }),
-        ]);
+          },
+        }),
+      ]);
 
     const transaction = paymentId
       ? await prisma.transaction.create({
@@ -128,9 +129,8 @@ export class TransactionService {
           },
         });
 
-    let Docs;
     if (file) {
-      Docs = await storeDocumentsBulk(file, {
+      await storeDocumentsBulk(file, {
         role: "PROOF",
         ownerId: transaction.id.toString(),
         ownerType: "TRANSACTION",
@@ -180,9 +180,8 @@ export class TransactionService {
         throw e;
       });
 
-    let Docs;
     if (file) {
-      Docs = await storeDocumentsBulk(file, {
+      await storeDocumentsBulk(file, {
         role: "PROOF",
         ownerId: transaction.id.toString(),
         ownerType: "TRANSACTION",

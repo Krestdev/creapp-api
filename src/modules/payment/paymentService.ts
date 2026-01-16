@@ -72,9 +72,8 @@ export class PaymentService {
       });
     }
 
-    let Docs;
     if (file) {
-      Docs = await storeDocumentsBulk(file, {
+      await storeDocumentsBulk(file, {
         role: "PROOF",
         ownerId: payment.id.toString(),
         ownerType: "COMMANDREQUEST",
@@ -106,9 +105,8 @@ export class PaymentService {
       },
     });
 
-    let Docs;
     if (proof) {
-      Docs = await storeDocumentsBulk(proof, {
+      await storeDocumentsBulk(proof, {
         role: "PROOF",
         ownerId: payment.id.toString(),
         ownerType: "PAYMENT",
@@ -116,7 +114,7 @@ export class PaymentService {
     }
 
     if (justification) {
-      Docs = await storeDocumentsBulk(justification, {
+      await storeDocumentsBulk(justification, {
         role: "PROOF",
         ownerId: payment.id.toString(),
         ownerType: "PAYMENT",

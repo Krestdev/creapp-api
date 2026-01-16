@@ -350,9 +350,8 @@ export class RequestService {
       },
     });
 
-    let Docs;
     if (file) {
-      Docs = await storeDocumentsBulk(file, {
+      await storeDocumentsBulk(file, {
         role: "PROOF",
         ownerId: request.id.toString(),
         ownerType: "PAYMENT",
@@ -364,12 +363,12 @@ export class RequestService {
 
   specialRequestUpdate = async (
     id: number,
-    data: Partial<RequestModel> & { type: string; proof?: string | null },
+    data: Partial<RequestModel> & { proof?: string | null },
     file?: Express.Multer.File[] | null,
     benef?: number[]
   ) => {
     // create request, command and payment
-    const { type, proof, ...requestData } = data;
+    const { proof, ...requestData } = data;
     if (proof) {
       await prisma.payment.updateMany({
         where: {
@@ -406,9 +405,8 @@ export class RequestService {
       },
     });
 
-    let Docs;
     if (file) {
-      Docs = await storeDocumentsBulk(file, {
+      await storeDocumentsBulk(file, {
         role: "PROOF",
         ownerId: request.id.toString(),
         ownerType: "COMMANDREQUEST",

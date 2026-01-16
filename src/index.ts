@@ -1,22 +1,23 @@
-import express from "express";
-import cors from "cors";
-import helmet from "helmet";
 import bodyParser from "body-parser";
+import cors from "cors";
+import express from "express";
+import helmet from "helmet";
 import morgan from "morgan";
-import {
-  GENERAL_CONFIG,
-  REQUEST_MODULE_CONFIG,
-  BASE_MODULE_CONFIG,
-  MODULES_LIST,
-} from "./config";
-import { checkModules, findIpAddress } from "./utils/serverUtils";
-import { connectBaseRoutes } from "./modules/routes";
-import { PROJECT_MODULE_CONFIG } from "./config/ProjectModuleConfig";
-import { connectProjectRoutes } from "./modules/routes";
-import { connectRequestRoutes } from "./modules/routes";
 import * as swaggerUI from "swagger-ui-express";
 import * as swaggerJson from "../build/swagger.json";
-import { createClient } from "redis";
+import {
+  BASE_MODULE_CONFIG,
+  GENERAL_CONFIG,
+  MODULES_LIST,
+  REQUEST_MODULE_CONFIG,
+} from "./config";
+import { PROJECT_MODULE_CONFIG } from "./config/ProjectModuleConfig";
+import {
+  connectBaseRoutes,
+  connectProjectRoutes,
+  connectRequestRoutes,
+} from "./modules/routes";
+import { checkModules, findIpAddress } from "./utils/serverUtils";
 
 class ApiServer {
   private app = express();
