@@ -1,6 +1,7 @@
 import { Category } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { CategoryService } from "./categoryService";
+import { getIO } from "../../socket";
 
 const categoryService = new CategoryService();
 
@@ -23,6 +24,7 @@ export default class CategoryController {
     @Body() data: Category & { validators: { userId: number; rank: number }[] }
   ): Promise<Category> {
     const { validators, ...ndata } = data;
+    getIO().emit("category:update");
     return categoryService.updateCategory(Number(id), ndata, validators);
   }
 
@@ -31,11 +33,13 @@ export default class CategoryController {
     @Body() data: Category & { validators: { userId: number; rank: number }[] }
   ): Promise<Category> {
     const { validators, ...ndata } = data;
+    getIO().emit("category:new");
     return categoryService.createCategory(ndata, validators);
   }
 
   @Delete("/category/{id}")
   deleteCategory(@Path() id: string): Promise<Category> {
+    getIO().emit("category:delete");
     return categoryService.deleteCategory(Number(id));
   }
 }

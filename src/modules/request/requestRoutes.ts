@@ -26,7 +26,7 @@ export default class RequestRoute {
         .getAll()
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -37,7 +37,7 @@ export default class RequestRoute {
         .specialGet()
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -48,7 +48,7 @@ export default class RequestRoute {
         .getOne(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -59,7 +59,7 @@ export default class RequestRoute {
         .getMine(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -70,7 +70,7 @@ export default class RequestRoute {
         .create(req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -85,7 +85,7 @@ export default class RequestRoute {
           .specialRequest({ ...req.body, ...req.files })
           .then((request) =>
             res
-              .status(201)
+              .status(200)
               .json({ message: create.success.create, data: request })
           )
           .catch((error) => res.status(400).json({ error: error.message }));
@@ -103,7 +103,7 @@ export default class RequestRoute {
           })
           .then((request) =>
             res
-              .status(201)
+              .status(200)
               .json({ message: create.success.create, data: request })
           )
           .catch((error) => res.status(400).json({ error: error.message }));
@@ -115,7 +115,7 @@ export default class RequestRoute {
         .validateBulk(req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -126,7 +126,7 @@ export default class RequestRoute {
         .reviewedBulk(req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -137,7 +137,7 @@ export default class RequestRoute {
         .update(req.params.id, req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -148,7 +148,7 @@ export default class RequestRoute {
         .delete(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -159,7 +159,7 @@ export default class RequestRoute {
         .validate(req.params.id, req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -170,7 +170,7 @@ export default class RequestRoute {
         .reviewed(req.params.id, req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -181,7 +181,7 @@ export default class RequestRoute {
         .reject(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -192,7 +192,7 @@ export default class RequestRoute {
         .priority(req.params.id, req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -203,7 +203,7 @@ export default class RequestRoute {
         .submit(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));

@@ -1,6 +1,7 @@
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { ProviderService } from "./providerService";
 import { Provider } from "@prisma/client";
+import { getIO } from "../../socket";
 
 const cmdRequestService = new ProviderService();
 
@@ -45,6 +46,7 @@ export default class CmdRequestController {
           : null,
     };
 
+    getIO().emit("provider:new");
     return cmdRequestService.create(newProvider, { ...data });
   }
 
@@ -90,11 +92,13 @@ export default class CmdRequestController {
           : null,
     };
 
+    getIO().emit("provider:update");
     return cmdRequestService.update(Number(id), newProvider, { ...data });
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Provider> {
+    getIO().emit("provider:delete");
     return cmdRequestService.delete(Number(id));
   }
 

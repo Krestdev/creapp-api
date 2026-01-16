@@ -30,7 +30,7 @@ export default class BankRoute {
           .create({ ...req.body, ...req.files })
           .then((request) =>
             res
-              .status(201)
+              .status(200)
               .json({ message: create.success.create, data: request })
           )
           .catch((error) => res.status(400).json({ error: error.message }));
@@ -46,7 +46,7 @@ export default class BankRoute {
           .update(req.params.id!, { ...req.body, ...req.files })
           .then((request) =>
             res
-              .status(201)
+              .status(200)
               .json({ message: create.success.create, data: request })
           )
           .catch((error) => res.status(400).json({ error: error.message }));
@@ -59,7 +59,7 @@ export default class BankRoute {
         .delete(req.params.id!)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -71,7 +71,7 @@ export default class BankRoute {
         .getAll()
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -83,7 +83,7 @@ export default class BankRoute {
         .getOne(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));

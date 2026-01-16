@@ -1,6 +1,7 @@
 import { Project } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { ProjectService } from "./projectServices";
+import { getIO } from "../../socket";
 
 const projectService = new ProjectService();
 
@@ -9,16 +10,19 @@ const projectService = new ProjectService();
 export default class ProjectController {
   @Post("/")
   create(@Body() data: Project) {
+    getIO().emit("project:new");
     return projectService.create(data);
   }
 
   @Put("/{id}")
   update(@Path() id: string, @Body() data: Project) {
+    getIO().emit("project:update");
     return projectService.update(Number(id), data);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string) {
+    getIO().emit("project:delete");
     return projectService.delete(Number(id));
   }
 

@@ -1,6 +1,7 @@
 import { Payment, RequestValidation } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { RequestService } from "./requestService";
+import { getIO } from "../../socket";
 
 const requestService = new RequestService();
 
@@ -42,6 +43,7 @@ export default class RequestController {
     }
   ): Promise<unknown> {
     const { benef, ...ndata } = data;
+    getIO().emit("request:new");
     return requestService.create(ndata, benef);
   }
 
@@ -51,6 +53,7 @@ export default class RequestController {
     @Body() data: RequestModelDto & { benef?: number[] }
   ): Promise<unknown> {
     const { benef, ...ndata } = data;
+    getIO().emit("request:update");
     return requestService.update(Number(id), ndata, benef);
   }
 
@@ -72,6 +75,7 @@ export default class RequestController {
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<unknown | null> {
+    getIO().emit("request:delete");
     return requestService.delete(Number(id));
   }
 
@@ -80,6 +84,7 @@ export default class RequestController {
     @Path() id: string,
     @Body() data: { validatorId: number }
   ): Promise<unknown> {
+    getIO().emit("request:update");
     return requestService.validate(Number(id), data.validatorId);
   }
 
@@ -88,6 +93,7 @@ export default class RequestController {
     @Path() id: string,
     @Body() data: { userId: number; validated: boolean; decision?: string }
   ): Promise<RequestValidation> {
+    getIO().emit("request:update");
     return requestService.review(Number(id), data);
   }
 
@@ -96,6 +102,7 @@ export default class RequestController {
     @Body() data: { validatorId: number } & { ids: number[] }
   ): Promise<unknown[]> {
     const { ids, ...valData } = data;
+    getIO().emit("request:update");
     return requestService.validateBulk(ids, valData.validatorId);
   }
 
@@ -107,11 +114,13 @@ export default class RequestController {
     }
   ): Promise<RequestValidation[]> {
     const { ids, ...revData } = data;
+    getIO().emit("request:update");
     return requestService.reviewBulk(ids, revData);
   }
 
   @Put("/reject/{id}")
   reject(@Path() id: string): Promise<unknown> {
+    getIO().emit("request:update");
     return requestService.reject(Number(id));
   }
 
@@ -120,6 +129,7 @@ export default class RequestController {
     @Path() id: string,
     @Body() data: { priority: string }
   ): Promise<unknown> {
+    getIO().emit("request:update");
     return requestService.priority(Number(id), data.priority);
   }
 
@@ -162,6 +172,7 @@ export default class RequestController {
       request.proof = proof.map((p) => p.filename).join(";");
     }
 
+    getIO().emit("request:new");
     return requestService.specialRequest(
       request,
       proof,
@@ -202,6 +213,7 @@ export default class RequestController {
       request.proof = proof.map((p) => p.filename).join(";");
     }
 
+    getIO().emit("request:update");
     return requestService.specialRequestUpdate(
       id,
       request,

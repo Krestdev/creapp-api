@@ -1,6 +1,7 @@
 import { Bank, Transaction } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { TransactionService } from "./transactionService";
+import { getIO } from "../../socket";
 
 const transactionService = new TransactionService();
 
@@ -16,9 +17,10 @@ export default class TransactionController {
       from: Bank;
       to?: Bank;
       paymentId: number;
+      methodId: number | null;
     }
   ): Promise<Transaction> {
-    const { proof, paymentId, ...restData } = data;
+    const { proof, paymentId, methodId, ...restData } = data;
 
     const newTransaction = {
       ...restData,
@@ -43,10 +45,12 @@ export default class TransactionController {
       newTransaction.proof = proof.map((p) => p.filename).join(";");
     }
 
+    getIO().emit("transaction:new");
     return transactionService.create(
       {
         ...newTransaction,
         paymentId: Number(paymentId),
+        methodId: methodId ? Number(methodId) : null,
       },
       proof
     );
@@ -85,6 +89,7 @@ export default class TransactionController {
 
     const newProof = proof ? proof.map((p) => p.filename).join(";") : null;
 
+    getIO().emit("transaction:update");
     return transactionService.update(
       Number(id),
       newTransaction,
@@ -100,11 +105,13 @@ export default class TransactionController {
     @Body()
     data: { validatorId: number; status: string; reason: string }
   ): Promise<Transaction> {
+    getIO().emit("transaction:update");
     return transactionService.validate(Number(id), data);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Transaction> {
+    getIO().emit("transaction:delete");
     return transactionService.delete(Number(id));
   }
 

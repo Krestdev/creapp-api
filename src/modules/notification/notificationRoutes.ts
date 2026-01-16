@@ -26,7 +26,7 @@ export default class NotificationRoute {
         .create(req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -38,7 +38,7 @@ export default class NotificationRoute {
         .update(req.params.id!, req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -50,7 +50,7 @@ export default class NotificationRoute {
         .delete(req.params.id!)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -62,7 +62,7 @@ export default class NotificationRoute {
         .getAll()
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -74,7 +74,7 @@ export default class NotificationRoute {
         .getMyNotifications(Number(req.params.id))
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -86,7 +86,7 @@ export default class NotificationRoute {
         .getOne(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));

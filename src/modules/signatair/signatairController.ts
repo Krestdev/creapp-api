@@ -1,6 +1,7 @@
 import { Signatair } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { SignatairService } from "./signatairService";
+import { getIO } from "../../socket";
 
 const signatairService = new SignatairService();
 
@@ -9,6 +10,7 @@ const signatairService = new SignatairService();
 export default class SignatairController {
   @Post("/")
   create(@Body() data: Signatair & { userIds: number[] }): Promise<Signatair> {
+    getIO().emit("signatair:new");
     return signatairService.create(data);
   }
 
@@ -20,11 +22,13 @@ export default class SignatairController {
     @Path() id: string,
     @Body() data: Signatair & { userIds: number[] }
   ): Promise<Signatair> {
+    getIO().emit("signatair:update");
     return signatairService.update(Number(id), data);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Signatair> {
+    getIO().emit("signatair:delete");
     return signatairService.delete(Number(id));
   }
 

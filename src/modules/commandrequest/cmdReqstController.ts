@@ -1,6 +1,7 @@
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { CommandRequestService } from "./cmdReqstService";
 import { CommandRequest } from "@prisma/client";
+import { getIO } from "../../socket";
 
 const cmdRequestService = new CommandRequestService();
 
@@ -12,6 +13,7 @@ export default class CmdRequestController {
     @Body() data: CommandRequest & { requests: number[] }
   ): Promise<CommandRequest> {
     const { requests, ...ndata } = data;
+    getIO().emit("command:new");
     return cmdRequestService.create(ndata, requests);
   }
 
@@ -24,11 +26,13 @@ export default class CmdRequestController {
     @Body() data: CommandRequest & { requests: number[] }
   ): Promise<CommandRequest> {
     const { requests, ...ndata } = data;
+    getIO().emit("command:update");
     return cmdRequestService.update(Number(id), ndata, requests);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<CommandRequest> {
+    getIO().emit("command:delete");
     return cmdRequestService.delete(Number(id));
   }
 
@@ -40,13 +44,5 @@ export default class CmdRequestController {
   @Get("/")
   getAll(): Promise<CommandRequest[]> {
     return cmdRequestService.getAll();
-  }
-
-  @Put("/linkProvider/{id}/{providerId}")
-  linkProvider(
-    @Path() id: string,
-    @Path() providerId: string
-  ): Promise<CommandRequest> {
-    return cmdRequestService.linkProvider(Number(id), Number(providerId));
   }
 }

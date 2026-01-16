@@ -3,16 +3,23 @@ import {
   deleteDocumentsByOwner,
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
+import { CacheService } from "../../utils/redis";
 
 const prisma = new PrismaClient();
 
 export class TransactionService {
+  CACHE_KEY = "transaction";
   // Create
   create = async (
-    data: Transaction & { from: Bank; to?: Bank; paymentId?: number },
+    data: Transaction & {
+      from: Bank;
+      to?: Bank;
+      paymentId?: number;
+      methodId?: number | null;
+    },
     file: Express.Multer.File[] | null
   ) => {
-    const { from, to, paymentId, ...transak } = data;
+    const { from, to, paymentId, methodId, ...transak } = data;
     let fromBank: Bank | null = null;
     let toBank: Bank | null = null;
     if (from) {
@@ -42,6 +49,13 @@ export class TransactionService {
         },
         data: {
           status: "unsigned",
+          method: methodId
+            ? {
+                connect: {
+                  id: Number(methodId),
+                },
+              }
+            : {},
           bank: {
             connect: {
               id: Number(data.fromBankId),
@@ -137,6 +151,7 @@ export class TransactionService {
       });
     }
 
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return transaction;
   };
 
@@ -188,6 +203,7 @@ export class TransactionService {
       });
     }
 
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return transaction;
   };
 
@@ -196,6 +212,7 @@ export class TransactionService {
     id: number,
     data: { validatorId: number; status: string; reason: string }
   ) => {
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return prisma.transaction.update({
       where: { id },
       data: {
@@ -211,21 +228,31 @@ export class TransactionService {
   };
 
   // Delete
-  delete = (id: number) => {
+  delete = async (id: number) => {
     deleteDocumentsByOwner(id.toString(), "TRANSACTION");
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return prisma.transaction.delete({
       where: { id },
     });
   };
 
   // Get all
-  getAll = () => {
-    return prisma.transaction.findMany({
+  getAll = async () => {
+    const cached = await CacheService.get<Transaction[]>(
+      `${this.CACHE_KEY}:all`
+    );
+    if (cached) return cached;
+
+    const transaction = await prisma.transaction.findMany({
       include: {
         from: true,
         to: true,
       },
     });
+
+    await CacheService.set(`${this.CACHE_KEY}:all`, transaction, 90);
+    return transaction;
   };
 
   // Get one

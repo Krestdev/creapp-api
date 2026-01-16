@@ -25,7 +25,7 @@ export default class CategoryRoute {
         .deleteCategory(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -36,7 +36,7 @@ export default class CategoryRoute {
         .getGategory()
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -47,7 +47,7 @@ export default class CategoryRoute {
         .getOneCategory(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -58,7 +58,7 @@ export default class CategoryRoute {
         .updateOneCategory(req.params.id, req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -69,7 +69,7 @@ export default class CategoryRoute {
         .createCategory(req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));

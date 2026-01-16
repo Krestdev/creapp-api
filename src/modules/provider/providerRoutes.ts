@@ -36,7 +36,7 @@ export default class ProviderRoute {
           .create({ ...req.body, ...req.files })
           .then((request) =>
             res
-              .status(201)
+              .status(200)
               .json({ message: create.success.create, data: request })
           )
           .catch((error) => res.status(400).json({ error: error.message }));
@@ -58,7 +58,7 @@ export default class ProviderRoute {
           .update(req.params.id!, { ...req.body, ...req.files })
           .then((request) =>
             res
-              .status(201)
+              .status(200)
               .json({ message: create.success.create, data: request })
           )
           .catch((error) => res.status(400).json({ error: error.message }));
@@ -71,7 +71,7 @@ export default class ProviderRoute {
         .delete(req.params.id!)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -83,7 +83,7 @@ export default class ProviderRoute {
         .getAll()
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -95,7 +95,7 @@ export default class ProviderRoute {
         .getOne(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));

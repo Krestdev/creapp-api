@@ -25,7 +25,7 @@ export default class ValidatorRoute {
         .deleteValidator(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -36,7 +36,7 @@ export default class ValidatorRoute {
         .getValidatorByCategory(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -47,7 +47,7 @@ export default class ValidatorRoute {
         .updateOneValidator(req.params.id, req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));

@@ -1,8 +1,10 @@
 import { Command, PrismaClient } from "@prisma/client";
+import { CacheService } from "../../utils/redis";
 
 const prisma = new PrismaClient();
 
 export class CommandService {
+  CACHE_KEY = "command";
   // Create
   create = async (
     data: Command & {
@@ -55,6 +57,7 @@ export class CommandService {
 
     if (data.deviId == null) throw Error("Devi is required");
 
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return prisma.command.create({
       data: {
         ...data,
@@ -114,19 +117,24 @@ export class CommandService {
       });
     }
 
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return command;
   };
 
   // Delete
-  delete = (id: number) => {
+  delete = async (id: number) => {
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return prisma.command.delete({
       where: { id },
     });
   };
 
   // Get all
-  getAll = () => {
-    return prisma.command.findMany({
+  getAll = async () => {
+    const cached = await CacheService.get<Command[]>(`${this.CACHE_KEY}:all`);
+    if (cached) return cached;
+
+    const command = await prisma.command.findMany({
       include: {
         devi: {
           include: {
@@ -145,6 +153,9 @@ export class CommandService {
         provider: true,
       },
     });
+
+    await CacheService.set(`${this.CACHE_KEY}:all`, command, 90);
+    return command;
   };
 
   // Get one

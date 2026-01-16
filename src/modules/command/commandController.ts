@@ -1,6 +1,7 @@
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { CommandService } from "./commandService";
 import { Command } from "@prisma/client";
+import { getIO } from "../../socket";
 
 const commandService = new CommandService();
 
@@ -21,6 +22,7 @@ export default class CommandController {
       ids: number[];
     }
   ): Promise<Command> {
+    getIO().emit("purchaseOrder:new");
     return commandService.create(data.command, data.ids);
   }
 
@@ -29,11 +31,13 @@ export default class CommandController {
    */
   @Put("/{id}")
   update(@Path() id: string, @Body() data: Command): Promise<Command> {
+    getIO().emit("purchaseOrder:update");
     return commandService.update(Number(id), data);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Command> {
+    getIO().emit("purchaseOrder:delete");
     return commandService.delete(Number(id));
   }
 

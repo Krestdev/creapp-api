@@ -31,7 +31,7 @@ export default class DeviRoute {
           .create({ ...req.body, ...req.files })
           .then((request) =>
             res
-              .status(201)
+              .status(200)
               .json({ message: create.success.create, data: request })
           )
           .catch((error) => res.status(400).json({ error: error.message }));
@@ -44,7 +44,7 @@ export default class DeviRoute {
         .validerDevis(req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -56,7 +56,7 @@ export default class DeviRoute {
         .update(req.params.id!, req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -68,7 +68,7 @@ export default class DeviRoute {
         .delete(req.params.id!)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -80,7 +80,7 @@ export default class DeviRoute {
         .deleteElement(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -92,7 +92,7 @@ export default class DeviRoute {
         .getAllElement()
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -104,7 +104,7 @@ export default class DeviRoute {
         .getAll()
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -116,7 +116,7 @@ export default class DeviRoute {
         .getAllElement()
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -128,7 +128,7 @@ export default class DeviRoute {
         .getOne(req.params.id)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -140,7 +140,7 @@ export default class DeviRoute {
         .updateDeviElement(req.params.id, req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -152,7 +152,7 @@ export default class DeviRoute {
         .addDeviElement(req.params.id, req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -164,7 +164,7 @@ export default class DeviRoute {
         .removeElement(req.params.id, req.body)
         .then((request) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: request })
         )
         .catch((error) => res.status(400).json({ error: error.message }));

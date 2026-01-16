@@ -1,9 +1,13 @@
 import { PrismaClient, Project } from "@prisma/client";
+import { CacheService } from "../../utils/redis";
 const prisma = new PrismaClient();
 
 export class ProjectService {
+  CACHE_KEY = "project";
   async create(data: Omit<Project, "createdAt" | "updatedAt">) {
     const ref = "PRJ-" + new Date().getTime();
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return prisma.project.create({
       data: {
         reference: ref,
@@ -38,6 +42,8 @@ export class ProjectService {
     if (data.label !== undefined) updateData.label = data.label;
     if (data.description !== undefined)
       updateData.description = data.description;
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return prisma.project.update({
       where: { id },
       data: { ...updateData, ...data },
@@ -45,13 +51,17 @@ export class ProjectService {
   }
 
   async delete(id: number) {
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return prisma.project.delete({
       where: { id },
     });
   }
 
   async getAll() {
-    return prisma.project.findMany({
+    const cached = await CacheService.get<Project[]>(`${this.CACHE_KEY}:all`);
+    if (cached) return cached;
+
+    const project = await prisma.project.findMany({
       include: {
         chief: {
           omit: {
@@ -68,6 +78,9 @@ export class ProjectService {
         },
       },
     });
+
+    await CacheService.set(`${this.CACHE_KEY}:all`, project, 90);
+    return project;
   }
 
   async getOne(id: number) {

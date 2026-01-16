@@ -3,15 +3,21 @@ import {
   deleteDocumentsByOwner,
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
+import { CacheService } from "../../utils/redis";
 
 const prisma = new PrismaClient();
 
 export class RequestService {
-  create = (
+  CACHE_KEY = "request";
+
+  create = async (
     data: Omit<RequestModel, "createdAt" | "updatedAt">,
     benList?: number[]
   ) => {
     const ref = "ref-" + new Date().getTime();
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    await CacheService.del(`${this.CACHE_KEY}:mine`);
     return prisma.requestModel.create({
       data: {
         ...data,
@@ -34,7 +40,7 @@ export class RequestService {
     });
   };
 
-  update = (
+  update = async (
     id: number,
     data: Partial<Omit<RequestModel, "createdAt" | "updatedAt">>,
     benList?: number[]
@@ -44,6 +50,8 @@ export class RequestService {
     if (data.label !== undefined) updateData.label = label;
     if (data.description !== undefined) updateData.description = description;
 
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    await CacheService.del(`${this.CACHE_KEY}:mine`);
     return prisma.requestModel.update({
       where: { id },
       data: {
@@ -60,8 +68,13 @@ export class RequestService {
     });
   };
 
-  getAll = () => {
-    return prisma.requestModel.findMany({
+  getAll = async () => {
+    const cached = await CacheService.get<RequestModel[]>(
+      `${this.CACHE_KEY}:all`
+    );
+    if (cached) return cached;
+
+    const requests = await prisma.requestModel.findMany({
       include: {
         beficiaryList: {
           omit: {
@@ -76,6 +89,10 @@ export class RequestService {
         revieweeList: true,
       },
     });
+
+    await CacheService.set(`${this.CACHE_KEY}:all`, requests, 90);
+
+    return requests;
   };
 
   getOne = (id: number) => {
@@ -87,8 +104,13 @@ export class RequestService {
     });
   };
 
-  getMine = (id: number) => {
-    return prisma.requestModel.findMany({
+  getMine = async (id: number) => {
+    const cached = await CacheService.get<RequestModel[]>(
+      `${this.CACHE_KEY}:mine`
+    );
+    if (cached) return cached;
+
+    const requests = await prisma.requestModel.findMany({
       where: {
         userId: id,
       },
@@ -106,10 +128,16 @@ export class RequestService {
         },
       },
     });
+
+    await CacheService.set(`${this.CACHE_KEY}:mine`, requests, 90);
+
+    return requests;
   };
 
-  delete = (id: number) => {
+  delete = async (id: number) => {
     deleteDocumentsByOwner(id.toString(), "COMMANDREQUEST");
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    await CacheService.del(`${this.CACHE_KEY}:mine`);
     return prisma.requestModel.delete({
       where: { id },
     });
@@ -160,6 +188,8 @@ export class RequestService {
       console.error(`Could not create notification ${e}`);
     }
 
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    await CacheService.del(`${this.CACHE_KEY}:mine`);
     return request;
   };
 
@@ -185,6 +215,8 @@ export class RequestService {
         },
       });
     }
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    await CacheService.del(`${this.CACHE_KEY}:mine`);
 
     return Promise.all(
       ids.map(async (id) => {
@@ -232,6 +264,9 @@ export class RequestService {
         console.error(`Could not create notification ${e}`);
       }
     }
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    await CacheService.del(`${this.CACHE_KEY}:mine`);
     return review;
   };
 
@@ -261,6 +296,8 @@ export class RequestService {
           this.createNotification(request);
         }
 
+        await CacheService.del(`${this.CACHE_KEY}:all`);
+        await CacheService.del(`${this.CACHE_KEY}:mine`);
         return review;
       })
     );
@@ -275,11 +312,14 @@ export class RequestService {
     });
 
     this.createNotification(request);
-
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    await CacheService.del(`${this.CACHE_KEY}:mine`);
     return request;
   };
 
-  priority = (id: number, priority: string) => {
+  priority = async (id: number, priority: string) => {
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    await CacheService.del(`${this.CACHE_KEY}:mine`);
     return prisma.requestModel.update({
       where: { id },
       data: {
@@ -345,6 +385,8 @@ export class RequestService {
             ? "validated"
             : data.type == "FACILITATION".toLowerCase()
             ? "ghost"
+            : data.type == "ressource_humaine"
+            ? "accepted"
             : "pending",
         type: type,
         priority: "medium",
@@ -361,6 +403,9 @@ export class RequestService {
       });
     }
 
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    await CacheService.del(`${this.CACHE_KEY}:mine`);
+
     return { request: request, payment: payment };
   };
 
@@ -373,9 +418,19 @@ export class RequestService {
     // create request, command and payment
     const { proof, ...requestData } = data;
 
-    if ((requestData.amount, requestData.label, requestData.dueDate)) {
-      throw Error("Lack information Can not update");
-    }
+    if (requestData.amount || requestData.label || requestData.dueDate) {
+      await prisma.payment.updateMany({
+        where: {
+          requestId: id,
+        },
+        data: {
+          price: requestData.amount!,
+          title: requestData.label!,
+          deadline: requestData.dueDate!,
+        },
+      });
+    } else throw Error("Lack information Can not update");
+
     if (proof) {
       await prisma.payment.updateMany({
         where: {
@@ -423,6 +478,8 @@ export class RequestService {
       });
     }
 
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    await CacheService.del(`${this.CACHE_KEY}:mine`);
     return request;
   };
 

@@ -3,10 +3,12 @@ import {
   deleteDocumentsByOwner,
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
+import { CacheService } from "../../utils/redis";
 
 const prisma = new PrismaClient();
 
 export class PaymentService {
+  CACHE_KEY = "payment";
   // Create
   create = async (
     data: Omit<Payment, "id" | "reference" | "status">,
@@ -80,6 +82,7 @@ export class PaymentService {
       });
     }
 
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return payment;
   };
 
@@ -121,11 +124,13 @@ export class PaymentService {
       });
     }
 
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return payment;
   };
 
   // Update
   update = async (id: number, data: Partial<Omit<Payment, "proof">>) => {
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return prisma.payment.update({
       where: { id },
       data: {
@@ -138,6 +143,7 @@ export class PaymentService {
 
   // Update
   validate = async (id: number, data: { userId: number }) => {
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return prisma.payment.update({
       where: { id },
       data: {
@@ -148,16 +154,24 @@ export class PaymentService {
   };
 
   // Delete
-  delete = (id: number) => {
+  delete = async (id: number) => {
     deleteDocumentsByOwner(id.toString(), "PAYMENT");
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return prisma.payment.delete({
       where: { id },
     });
   };
 
   // Get all
-  getAll = () => {
-    return prisma.payment.findMany();
+  getAll = async () => {
+    const cached = await CacheService.get<Payment[]>(`${this.CACHE_KEY}:all`);
+    if (cached) return cached;
+
+    const payment = await prisma.payment.findMany();
+
+    await CacheService.set(`${this.CACHE_KEY}:all`, payment, 90);
+
+    return payment;
   };
 
   // Get one

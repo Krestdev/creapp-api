@@ -42,7 +42,7 @@ export default class ProjectRouter {
         .create(req.body)
         .then((project) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: project })
         )
         .catch((error) => res.status(400).json({ error: error.message }));

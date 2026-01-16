@@ -1,6 +1,7 @@
 import { Payment } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { PaymentService } from "./paymentService";
+import { getIO } from "../../socket";
 
 const cmdRequestService = new PaymentService();
 
@@ -38,6 +39,7 @@ export default class CmdRequestController {
       payment.justification = justification.map((p) => p.filename).join(";");
     }
 
+    getIO().emit("payment:new");
     return cmdRequestService.create(payment, proof);
   }
 
@@ -76,6 +78,7 @@ export default class CmdRequestController {
       payment.bankId = Number(caisseId);
     }
 
+    getIO().emit("payment:new");
     return cmdRequestService.createDepense(payment, { proof, justification });
   }
 
@@ -123,6 +126,7 @@ export default class CmdRequestController {
       payment.justification = justification.map((p) => p.filename).join(";");
     }
 
+    getIO().emit("payment:update");
     return cmdRequestService.update(Number(id), payment);
   }
 
@@ -134,11 +138,13 @@ export default class CmdRequestController {
     @Path() id: string,
     @Body() data: { userId: number }
   ): Promise<Payment> {
+    getIO().emit("payment:update");
     return cmdRequestService.validate(Number(id), data);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Payment> {
+    getIO().emit("payment:delete");
     return cmdRequestService.delete(Number(id));
   }
 

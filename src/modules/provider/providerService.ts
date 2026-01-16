@@ -1,12 +1,14 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Provider } from "@prisma/client";
 import {
   deleteDocumentsByOwner,
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
+import { CacheService } from "../../utils/redis";
 
 const prisma = new PrismaClient();
 
 export class ProviderService {
+  CACHE_KEY = "provider";
   // Create
   create = async (
     data: {
@@ -52,6 +54,7 @@ export class ProviderService {
       });
     }
 
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return provider;
   };
 
@@ -111,20 +114,29 @@ export class ProviderService {
       });
     }
 
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return provider;
   };
 
   // Delete
-  delete = (id: number) => {
+  delete = async (id: number) => {
     deleteDocumentsByOwner(id.toString(), "PROVIDER");
+    await CacheService.del(`${this.CACHE_KEY}:all`);
     return prisma.provider.delete({
       where: { id },
     });
   };
 
   // Get all
-  getAll = () => {
-    return prisma.provider.findMany();
+  getAll = async () => {
+    const cached = await CacheService.get<Provider[]>(`${this.CACHE_KEY}:all`);
+    if (cached) return cached;
+
+    const provider = await prisma.provider.findMany();
+
+    await CacheService.set(`${this.CACHE_KEY}:all`, provider, 90);
+
+    return provider;
   };
 
   // Get one

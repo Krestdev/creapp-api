@@ -61,7 +61,7 @@ export default class DepartmentRouter {
         .create(req.body)
         .then((department) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: create.success.create, data: department })
         )
         .catch((error) => res.status(400).json({ error: error.message }));

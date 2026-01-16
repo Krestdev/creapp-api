@@ -1,6 +1,7 @@
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { ReceptionService } from "./receptionService";
 import { Reception } from "@prisma/client";
+import { getIO } from "../../socket";
 
 const receptionService = new ReceptionService();
 
@@ -9,6 +10,7 @@ const receptionService = new ReceptionService();
 export default class ReceptionController {
   @Post("/")
   create(@Body() data: Reception): Promise<Reception> {
+    getIO().emit("reception:new");
     return receptionService.create(data);
   }
 
@@ -35,11 +37,13 @@ export default class ReceptionController {
       newReception.Deliverables = JSON.parse(Deliverables as unknown as string);
     }
 
+    getIO().emit("reception:update");
     return receptionService.update(Number(id), newReception, proof);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Reception> {
+    getIO().emit("reception:delete");
     return receptionService.delete(Number(id));
   }
 

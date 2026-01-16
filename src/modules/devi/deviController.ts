@@ -1,6 +1,7 @@
 import { Devi, DeviElement, Prisma } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { DeviService } from "../devi/deviService";
+import { getIO } from "../../socket";
 
 const deviService = new DeviService();
 
@@ -28,6 +29,8 @@ export default class DeviController {
     const deviElem: DeviElement[] = JSON.parse(
       data.elements as unknown as string
     ) as DeviElement[];
+
+    getIO().emit("quotation:new");
     return deviService.create(devi, deviElem);
   }
 
@@ -46,6 +49,8 @@ export default class DeviController {
     const deviElem: DeviElement[] = JSON.parse(
       data.elements as unknown as string
     ) as DeviElement[];
+
+    getIO().emit("quotation:update");
     return deviService.update(Number(id), devi, deviElem);
   }
 
@@ -62,6 +67,7 @@ export default class DeviController {
       }[];
     }[]
   ): Promise<Prisma.BatchPayload> {
+    getIO().emit("quotation:update");
     return deviService.validateDevi(date);
   }
 
@@ -70,6 +76,7 @@ export default class DeviController {
     @Path() id: string,
     @Body() data: DeviElement
   ): Promise<DeviElement> {
+    getIO().emit("quotation:update");
     return deviService.updateDeviElement(Number(id), data);
   }
 
@@ -78,6 +85,7 @@ export default class DeviController {
     @Path() id: string,
     @Body() elementIds: number[]
   ): Promise<Devi> {
+    getIO().emit("quotation:update");
     return deviService.removeElement(Number(id), elementIds);
   }
 
@@ -86,16 +94,19 @@ export default class DeviController {
     @Path() id: string,
     @Body() data: { ndata: DeviElement[]; ids?: number[] }
   ): Promise<Devi | undefined> {
+    getIO().emit("quotation:update");
     return await deviService.addElement(Number(id), data.ndata, data.ids);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Devi> {
+    getIO().emit("quotation:delete");
     return deviService.delete(Number(id));
   }
 
   @Delete("/element/{id}")
   deleteElement(@Path() id: string): Promise<DeviElement> {
+    getIO().emit("quotation:delete");
     return deviService.deleteElement(Number(id));
   }
 

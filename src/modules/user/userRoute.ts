@@ -27,7 +27,7 @@ export default class UserRouter {
         .register(req.body)
         .then((user) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: register.success.register, data: user })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -38,7 +38,7 @@ export default class UserRouter {
         .create(req.body)
         .then((user) =>
           res
-            .status(201)
+            .status(200)
             .json({ message: register.success.register, data: user })
         )
         .catch((error) => res.status(400).json({ error: error.message }));
@@ -201,7 +201,7 @@ export default class UserRouter {
         this.userController
           .createRolePages(req.body)
           .then(() =>
-            res.status(201).json({ message: "Role pages created successfully" })
+            res.status(200).json({ message: "Role pages created successfully" })
           )
           .catch((error) => res.status(400).json({ error: error.message }));
       }

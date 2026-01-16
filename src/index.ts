@@ -18,9 +18,14 @@ import {
   connectRequestRoutes,
 } from "./modules/routes";
 import { checkModules, findIpAddress } from "./utils/serverUtils";
+import { connectRedis } from "./utils/redis";
+
+import http from "http";
+import { initSocket } from "./socket";
 
 class ApiServer {
   private app = express();
+  private server = http.createServer(this.app);
 
   // app urls
   private appUrl = [
@@ -147,19 +152,29 @@ class ApiServer {
       },
       express.static("uploads")
     );
-    this.app.listen(GENERAL_CONFIG.app.port, async () => {
+    this.server.listen(GENERAL_CONFIG.app.port, async () => {
       // Server end point
-      console.log(`Server is running on port ${GENERAL_CONFIG.app.port}`);
+      try {
+        await connectRedis();
 
-      // server base urls
-      console.table([
-        ...this.appUrl,
-        { url: "docs", value: "http://localhost:5000/docs" },
-      ]);
+        // 🔥 INIT SOCKET HERE
+        initSocket(this.server);
 
-      const ModulesState = await checkModules(MODULES_LIST);
-      // server modules
-      console.table(ModulesState);
+        console.log(`Server is running on port ${GENERAL_CONFIG.app.port}`);
+
+        // server base urls
+        console.table([
+          ...this.appUrl,
+          { url: "docs", value: "http://localhost:5000/docs" },
+        ]);
+
+        const ModulesState = await checkModules(MODULES_LIST);
+        // server modules
+        console.table(ModulesState);
+      } catch (error) {
+        console.error("❌ Server startup failed:", error);
+        process.exit(1);
+      }
     });
   }
 }
