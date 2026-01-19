@@ -1,0 +1,40 @@
+{
+  "create": {
+    "success": {
+      "create": "Commande créée avec succès"
+    },
+    "error": {
+      "client_not_found": "Client non trouvé"
+    }
+  },
+  "update": {
+    "success": {
+      "update": "Commande mise à jour avec succès"
+    },
+    "error": {
+      "not_found": "Commande non trouvée"
+    }
+  },
+  "get_all": {
+    "success": {
+      "get_all": "Liste des commandes récupérée"
+    }
+  },
+  "get_by_id": {
+    "success": {
+      "get_by_id": "Commande récupérée"
+    },
+    "error": {
+      "not_found": "Commande non trouvée"
+    }
+  },
+  "add_payment": {
+    "success": {
+      "add_payment": "Paiement ajouté avec succès"
+    },
+    "error": {
+      "not_found": "Commande non trouvée"
+    }
+  }
+}
+

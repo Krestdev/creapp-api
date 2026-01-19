@@ -274,6 +274,7 @@ enum DocumentOwnerType {
   BANK
   DEVI
   COMMANDREQUEST
+  DRIVER
 }
 
 model Document {
@@ -337,6 +338,9 @@ model Payment {
   description String @default("none")
   beneficiary User?  @relation(name: "paymentBenef", fields: [benefId], references: [id], onDelete: SetNull)
   benefId     Int?
+
+  driver   Driver? @relation(fields: [driverId], references: [id])
+  driverId Int?
 
   model  Vehicle? @relation(fields: [vehiclesId], references: [id])
   km     String?
@@ -516,7 +520,17 @@ model Vehicle {
   label     String
   mark      String
   matricule String    @unique
+  picture   String?
   payments  Payment[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model Driver {
+  id        Int       @id @default(autoincrement())
+  firstName String
+  lastName  String?
+  licence   String?
+  idCard    String?
+  payments  Payment[]
 }

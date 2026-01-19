@@ -1,0 +1,85 @@
+import { Router } from "express";
+import { request } from "../../../assets/messages/requestMessages.json";
+import SpendingController from "./spending.Controller";
+import { requireRole } from "../../middlewares/rbac.middleware";
+import { authenticate } from "../../middlewares/auth.middleware";
+
+const {
+  create,
+  // update,
+  // delete_request,
+  // get_all,
+  // get_my_requests,
+  // get_by_id
+} = request;
+
+export default class SpendingRoute {
+  routes: Router = Router();
+  spendingController = new SpendingController();
+
+  constructor() {
+    this.config();
+  }
+
+  private config() {
+    this.routes.use(authenticate); // create
+    this.routes.post("/", requireRole("USER"), (req, res) => {
+      this.spendingController
+        .create(req.body)
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    // update
+    this.routes.put("/:id", requireRole("USER"), (req, res) => {
+      this.spendingController
+        .update(req.params.id!, req.body)
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    // delete
+    this.routes.delete("/:id", requireRole("USER"), (req, res) => {
+      this.spendingController
+        .delete(req.params.id!)
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    // getAll
+    this.routes.get("/", requireRole("USER"), (req, res) => {
+      this.spendingController
+        .getAll()
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    // getOne
+    this.routes.get("/:id", requireRole("USER"), (req, res) => {
+      this.spendingController
+        .getOne(req.params.id ?? "-1")
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+  }
+}

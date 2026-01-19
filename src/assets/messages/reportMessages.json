@@ -1,0 +1,18 @@
+{
+  "get_daily": {
+    "success": {
+      "get_daily": "Rapport quotidien récupéré"
+    }
+  },
+  "get_weekly": {
+    "success": {
+      "get_weekly": "Rapport hebdomadaire récupéré"
+    }
+  },
+  "get_monthly": {
+    "success": {
+      "get_monthly": "Rapport mensuel récupéré"
+    }
+  }
+}
+

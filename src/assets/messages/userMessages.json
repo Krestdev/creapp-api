@@ -1,0 +1,41 @@
+{
+  "create": {
+    "success": {
+      "create": "Utilisateur créé avec succès"
+    },
+    "error": {
+      "exists": "L'utilisateur existe déjà",
+      "validation": "Données invalides"
+    }
+  },
+  "update": {
+    "success": {
+      "update": "Utilisateur mis à jour avec succès"
+    },
+    "error": {
+      "not_found": "Utilisateur non trouvé"
+    }
+  },
+  "delete": {
+    "success": {
+      "delete": "Utilisateur supprimé avec succès"
+    },
+    "error": {
+      "not_found": "Utilisateur non trouvé"
+    }
+  },
+  "get_all": {
+    "success": {
+      "get_all": "Liste des utilisateurs récupérée"
+    }
+  },
+  "get_by_id": {
+    "success": {
+      "get_by_id": "Utilisateur récupéré"
+    },
+    "error": {
+      "not_found": "Utilisateur non trouvé"
+    }
+  }
+}
+

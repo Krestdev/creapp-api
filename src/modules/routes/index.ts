@@ -1,33 +1,38 @@
 import { Router } from "express";
-import UserRouter from "../user/userRoute";
-import DepartmentRouter from "../department/departmentRoute";
-import projectRouter from "../project/projectRoutes";
-import CmdRequestRoute from "../commandrequest/cmdReqstRoutes";
-import ProviderRoute from "../provider/providerRoutes";
-import PaymentRoute from "../payment/paymentRoutes";
-import AccountingRoute from "../accounting/accountingRoutes";
-import SpendingRoute from "../spending/spendingRoutes";
-import DeviRoute from "../devi/deviRoutes";
-import CommandRoute from "../command/commandRoutes";
-import RequestRoute from "../request/requestRoutes";
-import CategoryRoute from "../category/categoryRoutes";
-import ValidatorRoute from "../validator/validatorRoutes";
-import ReceptionRoute from "../reception/receptionRoutes";
-import BankRoute from "../bank/bankRoutes";
-import NotificationRoute from "../notification/notificationRoutes";
-import TransactionRoute from "../transaction/transactionRoutes";
-import VehicleRoute from "../vehicle/vehicleRoutes";
-import RequestTypeRoute from "../requesttype/requestTypeRoutes";
-import PayTypeRoute from "../payType/payTypeRoutes";
-import SignatairRoute from "../signatair/signatairRoutes";
+import UserRouter from "../user/user.Route";
+import DepartmentRouter from "../department/department.Route";
+import projectRouter from "../project/project.Routes";
+import CmdRequestRoute from "../commandrequest/cmdReqst.Routes";
+import ProviderRoute from "../provider/provider.Routes";
+import PaymentRoute from "../payment/payment.Routes";
+import AccountingRoute from "../accounting/accounting.Routes";
+import SpendingRoute from "../spending/spending.Routes";
+import DeviRoute from "../devi/devi.Routes";
+import CommandRoute from "../command/command.Routes";
+import RequestRoute from "../request/request.Routes";
+import CategoryRoute from "../category/category.Routes";
+import ValidatorRoute from "../validator/validator.Routes";
+import ReceptionRoute from "../reception/reception.Routes";
+import BankRoute from "../bank/bank.Routes";
+import NotificationRoute from "../notification/notification.Routes";
+import TransactionRoute from "../transaction/transaction.Routes";
+import VehicleRoute from "../vehicle/vehicle.Routes";
+import RequestTypeRoute from "../requesttype/requestType.Routes";
+import PayTypeRoute from "../payType/payType.Routes";
+import SignatairRoute from "../signatair/signatair.Routes";
+import AuthRoute from "../auth/auth.routes";
+import DriverRoute from "../driver/driver.Routes";
 
 export function connectBaseRoutes() {
   const router = Router();
   const userRouter = new UserRouter();
   const departmentRouter = new DepartmentRouter();
+  const authRoute = new AuthRoute();
 
   // user routes connection
   router.use("/user", userRouter.routes);
+
+  router.use("/auth", authRoute.routes);
 
   // department routes connection (uncomment when needed)
   router.use("/department", departmentRouter.routes);
@@ -75,6 +80,7 @@ export function connectRequestRoutes() {
   const requestType = new RequestTypeRoute();
   const payTypeRoute = new PayTypeRoute();
   const signatairRoute = new SignatairRoute();
+  const driverRoute = new DriverRoute();
 
   // request routes connection
   router.use("/object", request.routes);
@@ -129,6 +135,9 @@ export function connectRequestRoutes() {
 
   // PayType request connection
   router.use("/payType", payTypeRoute.routes);
+
+  // Chauffeur request connection
+  router.use("/driver", driverRoute.routes);
 
   // base module connection
   router.use("/", (req, res) => {

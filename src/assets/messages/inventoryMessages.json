@@ -1,0 +1,35 @@
+{
+  "create_product": {
+    "success": {
+      "create_product": "Produit créé avec succès"
+    }
+  },
+  "create_movement": {
+    "success": {
+      "create_movement": "Mouvement de stock créé avec succès"
+    },
+    "error": {
+      "insufficient_stock": "Stock insuffisant",
+      "product_not_found": "Produit non trouvé"
+    }
+  },
+  "update_stock": {
+    "success": {
+      "update_stock": "Stock mis à jour avec succès"
+    }
+  },
+  "get_all": {
+    "success": {
+      "get_all": "Liste des produits récupérée"
+    }
+  },
+  "get_by_id": {
+    "success": {
+      "get_by_id": "Produit récupéré"
+    },
+    "error": {
+      "not_found": "Produit non trouvé"
+    }
+  }
+}
+

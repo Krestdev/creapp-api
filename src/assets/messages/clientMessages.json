@@ -1,0 +1,34 @@
+{
+  "create": {
+    "success": {
+      "create": "Client créé avec succès"
+    }
+  },
+  "update": {
+    "success": {
+      "update": "Client mis à jour avec succès"
+    },
+    "error": {
+      "not_found": "Client non trouvé"
+    }
+  },
+  "get_all": {
+    "success": {
+      "get_all": "Liste des clients récupérée"
+    }
+  },
+  "get_by_id": {
+    "success": {
+      "get_by_id": "Client récupéré"
+    },
+    "error": {
+      "not_found": "Client non trouvé"
+    }
+  },
+  "search": {
+    "success": {
+      "search": "Recherche effectuée"
+    }
+  }
+}
+

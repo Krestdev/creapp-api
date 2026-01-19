@@ -1,0 +1,25 @@
+{
+  "create": {
+    "success": {
+      "create": "Vente créée avec succès"
+    },
+    "error": {
+      "insufficient_stock": "Stock insuffisant",
+      "invalid_total": "Le total ne correspond pas aux paiements"
+    }
+  },
+  "get_all": {
+    "success": {
+      "get_all": "Liste des ventes récupérée"
+    }
+  },
+  "get_by_id": {
+    "success": {
+      "get_by_id": "Vente récupérée"
+    },
+    "error": {
+      "not_found": "Vente non trouvée"
+    }
+  }
+}
+

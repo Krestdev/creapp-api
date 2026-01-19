@@ -1,3 +1,4 @@
+import "./types/express-global"; // Load Express type extensions
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
@@ -22,6 +23,7 @@ import { connectRedis } from "./utils/redis";
 
 import http from "http";
 import { initSocket } from "./socket";
+import rateLimiter from "express-rate-limiter";
 
 class ApiServer {
   private app = express();
@@ -62,25 +64,37 @@ class ApiServer {
 
     this.app.use(
       morgan(
-        `:time :ip :method :url :status :response-time ms - :res[content-length]`
-      )
+        `:time :ip :method :url :status :response-time ms - :res[content-length]`,
+      ),
     );
     this.app.use(helmet());
     this.app.use(
       cors({
         origin: "*",
-      })
+      }),
     );
     this.app.use(express.json());
     this.app.use(express.urlencoded());
     this.app.use(bodyParser.json());
   }
 
+  //rate limiter
+  rateLimiter() {
+    // Set up rate limiter: maximum of 100 requests per 15 minutes per IP
+    const limiter = rateLimiter({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 1500, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+      message:
+        "Too many requests from this IP, please try again after 15 minutes",
+    });
+    this.app.use(limiter);
+  }
+
   // connect base module
   baseModule() {
     this.app.use(
       `/api/v${BASE_MODULE_CONFIG.version}/${BASE_MODULE_CONFIG.endpoint}`,
-      connectBaseRoutes()
+      connectBaseRoutes(),
     );
   }
 
@@ -88,7 +102,7 @@ class ApiServer {
   requestModule() {
     this.app.use(
       `/api/v${REQUEST_MODULE_CONFIG.version}/${REQUEST_MODULE_CONFIG.endpoint}`,
-      connectRequestRoutes()
+      connectRequestRoutes(),
     );
   }
 
@@ -96,7 +110,7 @@ class ApiServer {
   projectModule() {
     this.app.use(
       `/api/v${PROJECT_MODULE_CONFIG.version}/${PROJECT_MODULE_CONFIG.endpoint}`,
-      connectProjectRoutes()
+      connectProjectRoutes(),
     );
   }
 
@@ -141,7 +155,7 @@ class ApiServer {
         next();
       },
       swaggerUI.serve,
-      swaggerUI.setup(swaggerJson)
+      swaggerUI.setup(swaggerJson),
     );
     this.app.use(
       `/api/v${PROJECT_MODULE_CONFIG.version}/uploads`,
@@ -150,7 +164,7 @@ class ApiServer {
         res.setHeader("Access-Control-Allow-Origin", "*");
         next();
       },
-      express.static("uploads")
+      express.static("uploads"),
     );
     this.server.listen(GENERAL_CONFIG.app.port, async () => {
       // Server end point

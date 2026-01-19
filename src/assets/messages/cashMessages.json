@@ -1,0 +1,34 @@
+{
+  "open_session": {
+    "success": {
+      "open_session": "Session de caisse ouverte avec succès"
+    },
+    "error": {
+      "already_open": "Une session est déjà ouverte pour aujourd'hui"
+    }
+  },
+  "close_session": {
+    "success": {
+      "close_session": "Session de caisse fermée avec succès"
+    },
+    "error": {
+      "not_found": "Session non trouvée",
+      "already_closed": "Session déjà fermée",
+      "unauthorized": "Seul l'utilisateur qui a ouvert la session peut la fermer"
+    }
+  },
+  "get_all": {
+    "success": {
+      "get_all": "Liste des sessions récupérée"
+    }
+  },
+  "get_by_id": {
+    "success": {
+      "get_by_id": "Session récupérée"
+    },
+    "error": {
+      "not_found": "Session non trouvée"
+    }
+  }
+}
+

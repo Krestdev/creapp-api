@@ -1,0 +1,25 @@
+{
+  "login": {
+    "success": {
+      "login": "Connexion réussie"
+    },
+    "error": {
+      "invalid_credentials": "Identifiants invalides",
+      "user_inactive": "Compte désactivé"
+    }
+  },
+  "refresh": {
+    "success": {
+      "refresh": "Token rafraîchi avec succès"
+    },
+    "error": {
+      "invalid_token": "Token invalide"
+    }
+  },
+  "logout": {
+    "success": {
+      "logout": "Déconnexion réussie"
+    }
+  }
+}
+

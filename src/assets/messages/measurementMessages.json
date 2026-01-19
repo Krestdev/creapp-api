@@ -1,0 +1,21 @@
+{
+  "create": {
+    "success": {
+      "create": "Mesure créée avec succès"
+    },
+    "error": {
+      "client_not_found": "Client non trouvé"
+    }
+  },
+  "get_all": {
+    "success": {
+      "get_all": "Liste des mesures récupérée"
+    }
+  },
+  "get_latest": {
+    "success": {
+      "get_latest": "Dernière mesure récupérée"
+    }
+  }
+}
+
