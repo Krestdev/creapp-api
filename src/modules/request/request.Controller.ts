@@ -169,7 +169,7 @@ export default class RequestController {
     };
 
     if (proof) {
-      request.proof = proof.map((p) => p.filename).join(";");
+      request.proof = proof.map((p) => p.path).join(";");
     }
 
     getIO().emit("request:new");
@@ -210,7 +210,7 @@ export default class RequestController {
 
     if (proof && typeof proof !== "string") {
       file = proof;
-      request.proof = proof.map((p) => p.filename).join(";");
+      request.proof = proof.map((p) => p.path).join(";");
     }
 
     getIO().emit("request:update");

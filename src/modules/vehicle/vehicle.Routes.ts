@@ -3,6 +3,7 @@ import { request } from "../../../assets/messages/requestMessages.json";
 import VehicleController from "./vehicle.Controller";
 import { requireRole } from "../../middlewares/rbac.middleware";
 import { authenticate } from "../../middlewares/auth.middleware";
+import upload from "../../utils/upload";
 
 const {
   create,
@@ -23,28 +24,38 @@ export default class VehicleRoute {
 
   private config() {
     this.routes.use(authenticate); // create
-    this.routes.post("/", requireRole("USER"), (req, res) => {
-      this.vehicleController
-        .create(req.body)
-        .then((request) =>
-          res
-            .status(200)
-            .json({ message: create.success.create, data: request }),
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
+    this.routes.post(
+      "/",
+      upload.fields([{ name: "proof", maxCount: 5 }]),
+      requireRole("USER"),
+      (req, res) => {
+        this.vehicleController
+          .create({ ...req.body, ...req.files })
+          .then((request) =>
+            res
+              .status(200)
+              .json({ message: create.success.create, data: request }),
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      },
+    );
 
     // update
-    this.routes.put("/:id", requireRole("USER"), (req, res) => {
-      this.vehicleController
-        .update(req.params.id!, req.body)
-        .then((request) =>
-          res
-            .status(200)
-            .json({ message: create.success.create, data: request }),
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
+    this.routes.put(
+      "/:id",
+      upload.fields([{ name: "proof", maxCount: 5 }]),
+      requireRole("USER"),
+      (req, res) => {
+        this.vehicleController
+          .update(req.params.id!, { ...req.body, ...req.files })
+          .then((request) =>
+            res
+              .status(200)
+              .json({ message: create.success.create, data: request }),
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      },
+    );
 
     // delete
     this.routes.delete("/:id", requireRole("USER"), (req, res) => {

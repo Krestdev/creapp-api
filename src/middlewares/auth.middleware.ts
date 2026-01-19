@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyAccessToken, TokenPayload } from "../utils/jwt";
+import { verifyAccessToken, TokenPayload, isUserActive } from "../utils/jwt";
 import { sendError } from "../utils/response";
 
-export const authenticate = (
+export const authenticate = async (
   req: Request,
   res: Response,
-  next: NextFunction
-): void => {
+  next: NextFunction,
+): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -17,6 +17,11 @@ export const authenticate = (
 
     const token = authHeader.substring(7);
     const payload = verifyAccessToken(token);
+    const isActive = await isUserActive(payload.userId);
+
+    if (!isActive) {
+      throw new Error("User Not Active");
+    }
 
     req.user = payload;
     next();

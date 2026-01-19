@@ -24,11 +24,11 @@ export default class DriverController {
     };
 
     if (licence) {
-      newDriver.licence = licence.map((p) => p.filename).join(";");
+      newDriver.licence = licence.map((p) => p.path).join(";");
     }
 
     if (idCard) {
-      newDriver.idCard = idCard.map((p) => p.filename).join(";");
+      newDriver.idCard = idCard.map((p) => p.path).join(";");
     }
 
     getIO().emit("driver:new");

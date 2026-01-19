@@ -32,11 +32,11 @@ export default class CmdRequestController {
     }
 
     if (proof) {
-      payment.proof = proof.map((p) => p.filename).join(";");
+      payment.proof = proof.map((p) => p.path).join(";");
     }
 
     if (justification) {
-      payment.justification = justification.map((p) => p.filename).join(";");
+      payment.justification = justification.map((p) => p.path).join(";");
     }
 
     getIO().emit("payment:new");
@@ -74,11 +74,11 @@ export default class CmdRequestController {
     }
 
     if (proof) {
-      payment.proof = proof.map((p) => p.filename).join(";");
+      payment.proof = proof.map((p) => p.path).join(";");
     }
 
     if (justification) {
-      payment.justification = justification.map((p) => p.filename).join(";");
+      payment.justification = justification.map((p) => p.path).join(";");
     }
 
     if (caisseId) {
@@ -122,7 +122,7 @@ export default class CmdRequestController {
     }
 
     if (proof) {
-      payment.proof = proof.map((p) => p.filename).join(";");
+      payment.proof = proof.map((p) => p.path).join(";");
     }
 
     if (data.methodId) {
@@ -130,7 +130,7 @@ export default class CmdRequestController {
     }
 
     if (justification) {
-      payment.justification = justification.map((p) => p.filename).join(";");
+      payment.justification = justification.map((p) => p.path).join(";");
     }
 
     getIO().emit("payment:update");

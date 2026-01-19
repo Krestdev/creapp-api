@@ -4,14 +4,14 @@ const prisma = new PrismaClient();
 
 export class VehicleService {
   // Create
-  create = (data: Vehicle) => {
+  create = (data: Omit<Vehicle, "createdAt" | "updatedAt" | "id">) => {
     return prisma.vehicle.create({
       data,
     });
   };
 
   // Update
-  update = (id: number, data: Vehicle) => {
+  update = (id: number, data: Partial<Vehicle>) => {
     return prisma.vehicle.update({
       where: { id },
       data,

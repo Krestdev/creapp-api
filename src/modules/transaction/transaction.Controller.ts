@@ -42,7 +42,7 @@ export default class TransactionController {
     }
 
     if (proof) {
-      newTransaction.proof = proof.map((p) => p.filename).join(";");
+      newTransaction.proof = proof.map((p) => p.path).join(";");
     }
 
     getIO().emit("transaction:new");
@@ -87,7 +87,7 @@ export default class TransactionController {
       payId = Number(paymentId);
     }
 
-    const newProof = proof ? proof.map((p) => p.filename).join(";") : null;
+    const newProof = proof ? proof.map((p) => p.path).join(";") : null;
 
     getIO().emit("transaction:update");
     return transactionService.update(

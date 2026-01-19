@@ -12,6 +12,7 @@ import {
   Tags,
 } from "tsoa";
 import { UserService } from "./user.Service";
+import { getIO } from "../../socket";
 
 const userService = new UserService();
 
@@ -20,6 +21,7 @@ const userService = new UserService();
 export default class UserController {
   @Post("/register")
   register(@Body() data: User & { roleId: number }) {
+    getIO().emit("user:new");
     return userService.register(data);
   }
 
@@ -30,26 +32,33 @@ export default class UserController {
       role: number[];
     },
   ) {
+    getIO().emit("user:new");
     return userService.create(data);
   }
 
   @Post("/login")
   login(@Body() data: { email: string; password: string }) {
+    getIO().emit("user:update");
     return userService.login(data);
   }
 
   @Get("/verify/{otp}")
   verify(@Path() otp: string, @Query() email: string) {
+    getIO().emit("user:update");
     return userService.verifyAccount(email as string, otp);
   }
 
   @Put("/{id}")
   update(@Path() id: number, @Body() data: Partial<User> & { role: number[] }) {
+    getIO().emit("user:update");
+    getIO().emit("user:new", { message: "testing" });
+    console.log("testing");
     return userService.update(Number(id), data);
   }
 
   @Put("/changePassWord/{id}")
   changePass(@Path() id: number, @Body() data: { password: string }) {
+    getIO().emit("user:update");
     return userService.changePass(Number(id), data);
   }
 
@@ -64,11 +73,16 @@ export default class UserController {
     post: string;
     status: string;
   }> {
+    if (data.status !== "active") {
+      getIO().emit("user:update", { userId: id });
+    }
+    getIO().emit("user:update");
     return userService.changeStatus(Number(id), data.status);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<User> {
+    getIO().emit("user:delete", { userId: id });
     return userService.delete(Number(id));
   }
 

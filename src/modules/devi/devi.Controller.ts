@@ -23,7 +23,7 @@ export default class DeviController {
     };
 
     if (proof) {
-      devi.proof = proof.map((p) => p.filename).join(";");
+      devi.proof = proof.map((p) => p.path).join(";");
     }
 
     const deviElem: DeviElement[] = JSON.parse(

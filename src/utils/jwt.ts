@@ -1,5 +1,8 @@
 import jwt from "jsonwebtoken";
 import { GENERAL_CONFIG } from "../config";
+import { Prisma, PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export interface TokenPayload {
   userId: number;
@@ -24,6 +27,16 @@ export const generateRefreshToken = (payload: TokenPayload): string => {
 export const verifyAccessToken = (token: string): TokenPayload => {
   const secret: string = GENERAL_CONFIG.jwt.accessSecret;
   return jwt.verify(token, secret) as TokenPayload;
+};
+
+export const isUserActive = async (userId: number) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  return user ? user.status == "active" : false;
 };
 
 export const verifyRefreshToken = (token: string): TokenPayload => {
