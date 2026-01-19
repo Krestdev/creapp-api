@@ -50,7 +50,7 @@ export default class UserController {
 
   @Put("/{id}")
   update(@Path() id: number, @Body() data: Partial<User> & { role: number[] }) {
-    getIO().emit("user:update");
+    getIO().emit("user:update", { userId: id });
     return userService.update(Number(id), data);
   }
 
