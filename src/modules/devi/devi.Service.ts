@@ -80,7 +80,7 @@ export class DeviService {
         name: string;
         elementIds: number[];
       }[];
-    }[]
+    }[],
   ) => {
     const elements = data.map((el) => el.elements).flat();
     const elementIds = elements.map((el) => el.elementIds[0]!);
@@ -121,8 +121,6 @@ export class DeviService {
         status: "REJECTED",
       },
     });
-
-    // console.log(data.map((d) => d.deviId));
 
     await prisma.devi.updateMany({
       where: {

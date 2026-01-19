@@ -32,7 +32,6 @@ export default class CommandController {
   @Put("/{id}")
   update(@Path() id: string, @Body() data: Command): Promise<Command> {
     getIO().emit("purchaseOrder:update");
-    console.log("updated");
     return commandService.update(Number(id), data);
   }
 

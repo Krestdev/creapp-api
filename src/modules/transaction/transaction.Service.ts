@@ -17,7 +17,7 @@ export class TransactionService {
       paymentId?: number;
       methodId?: number | null;
     },
-    file: Express.Multer.File[] | null
+    file: Express.Multer.File[] | null,
   ) => {
     const { from, to, paymentId, methodId, ...transak } = data;
     let fromBank: Bank | null = null;
@@ -112,8 +112,8 @@ export class TransactionService {
               data.Type == "TRANSFER" && transak.status
                 ? transak.status
                 : data.Type == "TRANSFER"
-                ? "PENDING"
-                : "APPROVED",
+                  ? "PENDING"
+                  : "APPROVED",
             payement: {
               connect: {
                 id: paymentId,
@@ -134,8 +134,8 @@ export class TransactionService {
               data.Type == "TRANSFER" && transak.status
                 ? transak.status
                 : data.Type == "TRANSFER"
-                ? "PENDING"
-                : "APPROVED",
+                  ? "PENDING"
+                  : "APPROVED",
           },
           include: {
             from: true,
@@ -161,7 +161,7 @@ export class TransactionService {
     data: Partial<Transaction>,
     proof: string | null,
     paymentId: number | null,
-    file: Express.Multer.File[] | null
+    file: Express.Multer.File[] | null,
   ) => {
     if (data.amount) {
       data.amount = Number(data.amount);
@@ -179,21 +179,16 @@ export class TransactionService {
         },
       });
     }
-    const transaction = await prisma.transaction
-      .update({
-        where: { id },
-        data: {
-          ...data,
-        },
-        include: {
-          from: true,
-          to: true,
-        },
-      })
-      .catch((e) => {
-        console.log(e);
-        throw e;
-      });
+    const transaction = await prisma.transaction.update({
+      where: { id },
+      data: {
+        ...data,
+      },
+      include: {
+        from: true,
+        to: true,
+      },
+    });
 
     if (file) {
       await storeDocumentsBulk(file, {
@@ -210,7 +205,7 @@ export class TransactionService {
   // Update
   validate = async (
     id: number,
-    data: { validatorId: number; status: string; reason: string }
+    data: { validatorId: number; status: string; reason: string },
   ) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
     return prisma.transaction.update({
@@ -240,7 +235,7 @@ export class TransactionService {
   // Get all
   getAll = async () => {
     const cached = await CacheService.get<Transaction[]>(
-      `${this.CACHE_KEY}:all`
+      `${this.CACHE_KEY}:all`,
     );
     if (cached) return cached;
 

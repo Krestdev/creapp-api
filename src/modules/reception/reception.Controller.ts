@@ -30,7 +30,9 @@ export default class ReceptionController {
     const newReception = {
       ...restData,
       Deliverables: [],
-      Proof: proof ? proof.map((p) => p.path).join(";") : null,
+      Proof: proof
+        ? proof.map((p) => p.path.replace(/\\/g, "/")).join(";")
+        : null,
     };
 
     if (Deliverables) {

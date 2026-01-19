@@ -8,14 +8,6 @@ const storage = multer.diskStorage({
   destination: function (req: Request, file: Express.Multer.File, cb) {
     const entity = req.baseUrl.split("/").pop();
 
-    // const entityId = req.params;
-    // console.log(req.files);
-    // console.table([
-    //   { entity: entity },
-    //   { entityId: entityId },
-    //   { url: req.path },
-    // ]);
-
     const folder = `uploads/${entity}`;
 
     mkdirSync(folder, { recursive: true });

@@ -20,7 +20,9 @@ export default class VehicleController {
       label: data.label,
       mark: data.mark,
       matricule: data.matricule,
-      picture: proof ? proof.map((p) => p.path).join(";") : null,
+      picture: proof
+        ? proof.map((p) => p.path.replace(/\\/g, "/")).join(";")
+        : null,
     };
     getIO().emit("vehicle:new");
     return vehicleService.create(newVehicle);
@@ -50,7 +52,9 @@ export default class VehicleController {
       newVehicle.matricule = matricule;
     }
     if (proof) {
-      newVehicle.picture = proof.map((p) => p.path).join(";");
+      newVehicle.picture = proof
+        .map((p) => p.path.replace(/\\/g, "/"))
+        .join(";");
     }
 
     getIO().emit("vehicle:update");

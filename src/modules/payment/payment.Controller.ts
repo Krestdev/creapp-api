@@ -32,11 +32,13 @@ export default class CmdRequestController {
     }
 
     if (proof) {
-      payment.proof = proof.map((p) => p.path).join(";");
+      payment.proof = proof.map((p) => p.path.replace(/\\/g, "/")).join(";");
     }
 
     if (justification) {
-      payment.justification = justification.map((p) => p.path).join(";");
+      payment.justification = justification
+        .map((p) => p.path.replace(/\\/g, "/"))
+        .join(";");
     }
 
     getIO().emit("payment:new");
@@ -74,11 +76,13 @@ export default class CmdRequestController {
     }
 
     if (proof) {
-      payment.proof = proof.map((p) => p.path).join(";");
+      payment.proof = proof.map((p) => p.path.replace(/\\/g, "/")).join(";");
     }
 
     if (justification) {
-      payment.justification = justification.map((p) => p.path).join(";");
+      payment.justification = justification
+        .map((p) => p.path.replace(/\\/g, "/"))
+        .join(";");
     }
 
     if (caisseId) {
@@ -122,7 +126,7 @@ export default class CmdRequestController {
     }
 
     if (proof) {
-      payment.proof = proof.map((p) => p.path).join(";");
+      payment.proof = proof.map((p) => p.path.replace(/\\/g, "/")).join(";");
     }
 
     if (data.methodId) {
@@ -130,7 +134,9 @@ export default class CmdRequestController {
     }
 
     if (justification) {
-      payment.justification = justification.map((p) => p.path).join(";");
+      payment.justification = justification
+        .map((p) => p.path.replace(/\\/g, "/"))
+        .join(";");
     }
 
     getIO().emit("payment:update");

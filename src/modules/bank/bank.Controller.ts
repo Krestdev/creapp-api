@@ -22,7 +22,9 @@ export default class BankController {
       balance: Number(data.balance),
       Status: (data.Status as unknown as string) == "true" ? true : false,
     };
-    const newJustification = justification.map((p) => p.path).join(";");
+    const newJustification = justification
+      .map((p) => p.path.replace(/\\/g, "/"))
+      .join(";");
 
     getIO().emit("bank:new");
     return bankService.create(
@@ -50,7 +52,7 @@ export default class BankController {
       Status: (data.Status as unknown as string) == "true" ? true : false,
     };
     const newJustification = justification
-      ? justification.map((p) => p.path).join(";")
+      ? justification.map((p) => p.path.replace(/\\/g, "/")).join(";")
       : null;
 
     getIO().emit("bank:update");

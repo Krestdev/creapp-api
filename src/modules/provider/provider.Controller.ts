@@ -29,20 +29,21 @@ export default class CmdRequestController {
       ...data,
       carte_contribuable:
         data.carte_contribuable && data.carte_contribuable[0]
-          ? data.carte_contribuable[0].path
+          ? data.carte_contribuable[0].path.replace(/\\/g, "/")
           : null,
-      acf: data.acf && data.acf[0] ? data.acf[0].path : null,
+      acf:
+        data.acf && data.acf[0] ? data.acf[0].path.replace(/\\/g, "/") : null,
       plan_localisation:
         data.plan_localisation && data.plan_localisation[0]
-          ? data.plan_localisation[0].path
+          ? data.plan_localisation[0].path.replace(/\\/g, "/")
           : null,
       commerce_registre:
         data.commerce_registre && data.commerce_registre[0]
-          ? data.commerce_registre[0].path
+          ? data.commerce_registre[0].path.replace(/\\/g, "/")
           : null,
       banck_attestation:
         data.banck_attestation && data.banck_attestation[0]
-          ? data.banck_attestation[0].path
+          ? data.banck_attestation[0].path.replace(/\\/g, "/")
           : null,
     };
 
@@ -85,20 +86,21 @@ export default class CmdRequestController {
       ...data,
       carte_contribuable:
         data.carte_contribuable && data.carte_contribuable[0]
-          ? data.carte_contribuable[0].path
+          ? data.carte_contribuable[0].path.replace(/\\/g, "/")
           : null,
-      acf: data.acf && data.acf[0] ? data.acf[0].path : null,
+      acf:
+        data.acf && data.acf[0] ? data.acf[0].path.replace(/\\/g, "/") : null,
       plan_localisation:
         data.plan_localisation && data.plan_localisation[0]
-          ? data.plan_localisation[0].path
+          ? data.plan_localisation[0].path.replace(/\\/g, "/")
           : null,
       commerce_registre:
         data.commerce_registre && data.commerce_registre[0]
-          ? data.commerce_registre[0].path
+          ? data.commerce_registre[0].path.replace(/\\/g, "/")
           : null,
       banck_attestation:
         data.banck_attestation && data.banck_attestation[0]
-          ? data.banck_attestation[0].path
+          ? data.banck_attestation[0].path.replace(/\\/g, "/")
           : null,
     };
 

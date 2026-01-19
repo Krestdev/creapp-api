@@ -27,11 +27,8 @@ export default class DriverRoute {
     this.routes.post(
       "/",
       upload.fields([
-        { name: "carte_contribuable", maxCount: 1 },
-        { name: "acf", maxCount: 1 },
-        { name: "plan_localisation", maxCount: 1 },
-        { name: "commerce_registre", maxCount: 1 },
-        { name: "banck_attestation", maxCount: 1 },
+        { name: "idCard", maxCount: 1 },
+        { name: "licence", maxCount: 1 },
       ]),
       (req, res) => {
         this.driverController
@@ -49,11 +46,8 @@ export default class DriverRoute {
     this.routes.put(
       "/:id",
       upload.fields([
-        { name: "carte_contribuable", maxCount: 1 },
-        { name: "acf", maxCount: 1 },
-        { name: "plan_localisation", maxCount: 1 },
-        { name: "commerce_registre", maxCount: 1 },
-        { name: "banck_attestation", maxCount: 1 },
+        { name: "idCard", maxCount: 1 },
+        { name: "licence", maxCount: 1 },
       ]),
       (req, res) => {
         this.driverController

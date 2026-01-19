@@ -24,15 +24,24 @@ export default class DriverController {
     };
 
     if (licence) {
-      newDriver.licence = licence.map((p) => p.path).join(";");
+      newDriver.licence = licence
+        .map((p) => p.path.replace(/\\/g, "/"))
+        .join(";");
     }
 
     if (idCard) {
-      newDriver.idCard = idCard.map((p) => p.path).join(";");
+      newDriver.idCard = idCard
+        .map((p) => p.path.replace(/\\/g, "/"))
+        .join(";");
     }
 
+    const files = {
+      licence: data.licence ? data.licence : null,
+      idCard: data.idCard ? data.idCard : null,
+    };
+
     getIO().emit("driver:new");
-    return driverService.create(newDriver, { ...data });
+    return driverService.create(newDriver, { ...files });
   }
 
   /**
@@ -49,12 +58,23 @@ export default class DriverController {
   ): Promise<Driver> {
     const newDriver = {
       ...data,
-      licence: data.licence && data.licence[0] ? data.licence[0].path : null,
-      idCard: data.idCard && data.idCard[0] ? data.idCard[0].path : null,
+      licence:
+        data.licence && data.licence[0]
+          ? data.licence[0].path.replace(/\\/g, "/")
+          : null,
+      idCard:
+        data.idCard && data.idCard[0]
+          ? data.idCard[0].path.replace(/\\/g, "/")
+          : null,
+    };
+
+    const files = {
+      licence: data.licence ? data.licence : null,
+      idCard: data.idCard ? data.idCard : null,
     };
 
     getIO().emit("driver:update");
-    return driverService.update(Number(id), newDriver, { ...data });
+    return driverService.update(Number(id), newDriver, { ...files });
   }
 
   @Delete("/{id}")

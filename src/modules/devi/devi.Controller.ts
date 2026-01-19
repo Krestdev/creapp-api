@@ -23,7 +23,7 @@ export default class DeviController {
     };
 
     if (proof) {
-      devi.proof = proof.map((p) => p.path).join(";");
+      devi.proof = proof.map((p) => p.path.replace(/\\/g, "/")).join(";");
     }
 
     const deviElem: DeviElement[] = JSON.parse(
@@ -44,7 +44,7 @@ export default class DeviController {
   ): Promise<Devi> {
     const devi: Devi & { proof: string } = {
       ...(JSON.parse(data.devis as unknown as string) as Devi),
-      proof: (data as unknown as { path: string }).path,
+      proof: (data as unknown as { path: string }).path.replace(/\\/g, "/"),
     };
     const deviElem: DeviElement[] = JSON.parse(
       data.elements as unknown as string,
