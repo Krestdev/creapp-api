@@ -51,8 +51,6 @@ export default class UserController {
   @Put("/{id}")
   update(@Path() id: number, @Body() data: Partial<User> & { role: number[] }) {
     getIO().emit("user:update");
-    getIO().emit("user:new", { message: "testing" });
-    console.log("testing");
     return userService.update(Number(id), data);
   }
 
@@ -73,10 +71,11 @@ export default class UserController {
     post: string;
     status: string;
   }> {
-    if (data.status !== "active") {
+    if (data.status === "inactive") {
       getIO().emit("user:update", { userId: id });
+    } else {
+      getIO().emit("user:update");
     }
-    getIO().emit("user:update");
     return userService.changeStatus(Number(id), data.status);
   }
 
