@@ -1,6 +1,6 @@
+import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { GENERAL_CONFIG } from "../config";
-import { Prisma, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 

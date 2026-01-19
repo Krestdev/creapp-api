@@ -106,7 +106,7 @@ export class AuthService {
       return {
         accessToken: newAccessToken,
       };
-    } catch (error) {
+    } catch {
       throw new Error("Invalid refresh token");
     }
   }

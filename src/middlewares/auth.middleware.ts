@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import { verifyAccessToken, TokenPayload, isUserActive } from "../utils/jwt";
+import { NextFunction, Request, Response } from "express";
+import { isUserActive, verifyAccessToken } from "../utils/jwt";
 import { sendError } from "../utils/response";
 
 export const authenticate = async (
