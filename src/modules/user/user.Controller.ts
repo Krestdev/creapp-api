@@ -81,7 +81,7 @@ export default class UserController {
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<User> {
-    getIO().emit("user:delete", { userId: id });
+    getIO().emit("user:delete", { userId: Number(id) });
     return userService.delete(Number(id));
   }
 
