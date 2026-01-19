@@ -49,9 +49,8 @@ export default class DriverController {
   ): Promise<Driver> {
     const newDriver = {
       ...data,
-      licence:
-        data.licence && data.licence[0] ? data.licence[0].filename : null,
-      idCard: data.idCard && data.idCard[0] ? data.idCard[0].filename : null,
+      licence: data.licence && data.licence[0] ? data.licence[0].path : null,
+      idCard: data.idCard && data.idCard[0] ? data.idCard[0].path : null,
     };
 
     getIO().emit("driver:update");

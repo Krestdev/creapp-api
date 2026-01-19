@@ -29,25 +29,35 @@ export default class CmdRequestController {
       ...data,
       carte_contribuable:
         data.carte_contribuable && data.carte_contribuable[0]
-          ? data.carte_contribuable[0].filename
+          ? data.carte_contribuable[0].path
           : null,
-      acf: data.acf && data.acf[0] ? data.acf[0].filename : null,
+      acf: data.acf && data.acf[0] ? data.acf[0].path : null,
       plan_localisation:
         data.plan_localisation && data.plan_localisation[0]
-          ? data.plan_localisation[0].filename
+          ? data.plan_localisation[0].path
           : null,
       commerce_registre:
         data.commerce_registre && data.commerce_registre[0]
-          ? data.commerce_registre[0].filename
+          ? data.commerce_registre[0].path
           : null,
       banck_attestation:
         data.banck_attestation && data.banck_attestation[0]
-          ? data.banck_attestation[0].filename
+          ? data.banck_attestation[0].path
           : null,
     };
 
+    const files = {
+      carte_contribuable: data.carte_contribuable
+        ? data.carte_contribuable
+        : null,
+      acf: data.acf ? data.acf : null,
+      plan_localisation: data.plan_localisation ? data.plan_localisation : null,
+      commerce_registre: data.commerce_registre ? data.commerce_registre : null,
+      banck_attestation: data.banck_attestation ? data.banck_attestation : null,
+    };
+
     getIO().emit("provider:new");
-    return cmdRequestService.create(newProvider, { ...data });
+    return cmdRequestService.create(newProvider, { ...files });
   }
 
   /**
@@ -75,25 +85,35 @@ export default class CmdRequestController {
       ...data,
       carte_contribuable:
         data.carte_contribuable && data.carte_contribuable[0]
-          ? data.carte_contribuable[0].filename
+          ? data.carte_contribuable[0].path
           : null,
-      acf: data.acf && data.acf[0] ? data.acf[0].filename : null,
+      acf: data.acf && data.acf[0] ? data.acf[0].path : null,
       plan_localisation:
         data.plan_localisation && data.plan_localisation[0]
-          ? data.plan_localisation[0].filename
+          ? data.plan_localisation[0].path
           : null,
       commerce_registre:
         data.commerce_registre && data.commerce_registre[0]
-          ? data.commerce_registre[0].filename
+          ? data.commerce_registre[0].path
           : null,
       banck_attestation:
         data.banck_attestation && data.banck_attestation[0]
-          ? data.banck_attestation[0].filename
+          ? data.banck_attestation[0].path
           : null,
     };
 
+    const files = {
+      carte_contribuable: data.carte_contribuable
+        ? data.carte_contribuable
+        : null,
+      acf: data.acf ? data.acf : null,
+      plan_localisation: data.plan_localisation ? data.plan_localisation : null,
+      commerce_registre: data.commerce_registre ? data.commerce_registre : null,
+      banck_attestation: data.banck_attestation ? data.banck_attestation : null,
+    };
+
     getIO().emit("provider:update");
-    return cmdRequestService.update(Number(id), newProvider, { ...data });
+    return cmdRequestService.update(Number(id), newProvider, { ...files });
   }
 
   @Delete("/{id}")

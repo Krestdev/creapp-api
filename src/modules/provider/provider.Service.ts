@@ -121,6 +121,7 @@ export class ProviderService {
         files.plan_localisation)
     ) {
       const Docs = Object.values(files);
+      console.log(files);
       Docs.map(async (file) => {
         if (file) {
           await storeDocumentsBulk(file, {

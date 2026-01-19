@@ -44,7 +44,7 @@ export default class DeviController {
   ): Promise<Devi> {
     const devi: Devi & { proof: string } = {
       ...(JSON.parse(data.devis as unknown as string) as Devi),
-      proof: (data as unknown as { filename: string }).filename,
+      proof: (data as unknown as { path: string }).path,
     };
     const deviElem: DeviElement[] = JSON.parse(
       data.elements as unknown as string,
