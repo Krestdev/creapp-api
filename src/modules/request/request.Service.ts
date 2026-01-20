@@ -278,11 +278,11 @@ export class RequestService {
     return review;
   };
 
-  reviewBulk = (
+  reviewBulk = async (
     ids: number[],
     data: { validatorId: number; validated: boolean; decision?: string },
   ) => {
-    return Promise.all(
+    const request = await Promise.all(
       ids.map(async (id) => {
         const request = await prisma.requestModel.update({
           where: { id },
@@ -306,10 +306,11 @@ export class RequestService {
 
         await CacheService.del(`${this.CACHE_KEY}:all`);
         await CacheService.del(`${this.CACHE_KEY}:mine`);
-        getIO().emit("request:update");
         return review;
       }),
     );
+    getIO().emit("request:update");
+    return request;
   };
 
   reject = async (id: number) => {
@@ -330,13 +331,14 @@ export class RequestService {
   priority = async (id: number, priority: string) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
-    getIO().emit("request:update");
-    return prisma.requestModel.update({
+    const request = await prisma.requestModel.update({
       where: { id },
       data: {
         priority: priority,
       },
     });
+    getIO().emit("request:update");
+    return request;
   };
 
   // add a submit state

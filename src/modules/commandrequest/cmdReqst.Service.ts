@@ -1,5 +1,6 @@
 import { CommandRequest, PrismaClient } from "@prisma/client";
 import { CacheService } from "../../utils/redis";
+import { getIO } from "../../socket";
 
 const prisma = new PrismaClient();
 
@@ -9,7 +10,7 @@ export class CommandRequestService {
   create = async (data: CommandRequest, requests: number[]) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
     const ref = "ref-" + new Date().getTime();
-    return prisma.commandRequest.create({
+    const commandRequest = await prisma.commandRequest.create({
       data: {
         ...data,
         reference: ref,
@@ -20,12 +21,14 @@ export class CommandRequestService {
         },
       },
     });
+    getIO().emit("command:new");
+    return commandRequest;
   };
 
   // Update
   update = async (id: number, data: CommandRequest, requests: number[]) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    return prisma.commandRequest.update({
+    const commandRequest = await prisma.commandRequest.update({
       where: { id },
       data: {
         ...data,
@@ -34,20 +37,24 @@ export class CommandRequestService {
         },
       },
     });
+    getIO().emit("command:update");
+    return commandRequest;
   };
 
   // Delete
   delete = async (id: number) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    return prisma.commandRequest.delete({
+    const commandRequest = await prisma.commandRequest.delete({
       where: { id },
     });
+    getIO().emit("command:delete");
+    return commandRequest;
   };
 
   // Get all
   getAll = async () => {
     const cached = await CacheService.get<CommandRequest[]>(
-      `${this.CACHE_KEY}:all`
+      `${this.CACHE_KEY}:all`,
     );
     if (cached) return cached;
 

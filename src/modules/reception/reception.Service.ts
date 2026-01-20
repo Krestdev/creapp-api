@@ -3,15 +3,18 @@ import {
   deleteDocumentsByOwner,
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
+import { getIO } from "../../socket";
 
 const prisma = new PrismaClient();
 
 export class ReceptionService {
   // Create
-  create = (data: Reception) => {
-    return prisma.reception.create({
+  create = async (data: Reception) => {
+    const reception = await prisma.reception.create({
       data,
     });
+    getIO().emit("reception:new");
+    return reception;
   };
 
   // Update
@@ -20,7 +23,7 @@ export class ReceptionService {
     data: Reception & {
       Deliverables: { id: number; isDelivered: boolean }[];
     },
-    file: Express.Multer.File[] | null
+    file: Express.Multer.File[] | null,
   ) => {
     if (data.ReceiptDate) {
       data.ReceiptDate = new Date(data.ReceiptDate);
@@ -54,7 +57,7 @@ export class ReceptionService {
             isDelivered: deliv.isDelivered,
           },
         });
-      })
+      }),
     );
 
     await prisma.reception.update({
@@ -102,16 +105,18 @@ export class ReceptionService {
         ownerType: "RECEPTION",
       });
     }
-
+    getIO().emit("reception:update");
     return reception;
   };
 
   // Delete
-  delete = (id: number) => {
+  delete = async (id: number) => {
     deleteDocumentsByOwner(id.toString(), "RECEPTION");
-    return prisma.reception.delete({
+    const reception = await prisma.reception.delete({
       where: { id },
     });
+    getIO().emit("reception:delete");
+    return reception;
   };
 
   // Get all

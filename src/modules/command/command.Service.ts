@@ -1,5 +1,6 @@
 import { Command, PrismaClient } from "@prisma/client";
 import { CacheService } from "../../utils/redis";
+import { getIO } from "../../socket";
 
 const prisma = new PrismaClient();
 
@@ -14,7 +15,7 @@ export class CommandService {
         status?: boolean;
       }[];
     },
-    requestIds: number[]
+    requestIds: number[],
   ) => {
     if (data.providerId == null) throw Error("A provider is required");
     const provider = await prisma.provider.findFirst({
@@ -22,30 +23,6 @@ export class CommandService {
         id: data.providerId,
       },
     });
-
-    // type Command = {
-    //   id: number;
-    //   status: string | null;
-    //   createdAt: Date;
-    //   updatedAt: Date;
-    //   deliveryDelay: Date;
-    //   paymentTerms: string;
-    //   paymentMethod: string;
-    //   priority: string;
-    //   deliveryLocation: string;
-    //   hasPenalties: boolean;
-    //   instalments: {
-    //     percentage: number;
-    //     deadLine: string;
-    //     status: string;
-    //   }[]
-    //   penaltyMode: string;
-    //   amountBase: number;
-    //   motif: string | null;
-    //   reference: string;
-    //   deviId: number | null;
-    //   providerId: number;
-    // }
 
     if (provider == null) throw Error("provider does not exist");
     const providerNotComplete = Object.entries(provider).some(([, value]) => {
@@ -58,7 +35,7 @@ export class CommandService {
     if (data.deviId == null) throw Error("Devi is required");
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    return prisma.command.create({
+    const command = await prisma.command.create({
       data: {
         ...data,
         reference: ref,
@@ -81,6 +58,9 @@ export class CommandService {
         },
       },
     });
+
+    getIO().emit("purchaseOrder:new");
+    return command;
   };
 
   // Update
@@ -118,15 +98,18 @@ export class CommandService {
     }
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("purchaseOrder:update");
     return command;
   };
 
   // Delete
   delete = async (id: number) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    return prisma.command.delete({
+    const command = await prisma.command.delete({
       where: { id },
     });
+    getIO().emit("purchaseOrder:delete");
+    return command;
   };
 
   // Get all

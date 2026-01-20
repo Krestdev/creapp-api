@@ -30,8 +30,6 @@ export default class DeviController {
     const deviElem: DeviElement[] = JSON.parse(
       data.elements as unknown as string,
     ) as DeviElement[];
-
-    getIO().emit("quotation:new");
     return deviService.create(devi, deviElem);
   }
 
@@ -62,7 +60,6 @@ export default class DeviController {
       data.elements as unknown as string,
     ) as DeviElement[];
 
-    getIO().emit("quotation:update");
     return deviService.update(Number(id), devi, deviElem, proof);
   }
 

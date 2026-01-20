@@ -1,5 +1,6 @@
 import { PrismaClient, Project } from "@prisma/client";
 import { CacheService } from "../../utils/redis";
+import { getIO } from "../../socket";
 const prisma = new PrismaClient();
 
 export class ProjectService {
@@ -8,7 +9,7 @@ export class ProjectService {
     const ref = "PRJ-" + new Date().getTime();
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    return prisma.project.create({
+    const project = await prisma.project.create({
       data: {
         reference: ref,
         label: data.label,
@@ -32,11 +33,13 @@ export class ProjectService {
         },
       },
     });
+    getIO().emit("project:new");
+    return project;
   }
 
   async update(
     id: number,
-    data: Partial<Omit<Project, "createdAt" | "updatedAt">>
+    data: Partial<Omit<Project, "createdAt" | "updatedAt">>,
   ) {
     const updateData: any = {};
     if (data.label !== undefined) updateData.label = data.label;
@@ -44,17 +47,21 @@ export class ProjectService {
       updateData.description = data.description;
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    return prisma.project.update({
+    const project = await prisma.project.update({
       where: { id },
       data: { ...updateData, ...data },
     });
+    getIO().emit("project:update");
+    return project;
   }
 
   async delete(id: number) {
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    return prisma.project.delete({
+    const project = await prisma.project.delete({
       where: { id },
     });
+    getIO().emit("project:delete");
+    return project;
   }
 
   async getAll() {

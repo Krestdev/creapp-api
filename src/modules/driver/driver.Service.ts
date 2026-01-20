@@ -102,6 +102,7 @@ export class DriverService {
     }
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("driver:update");
     return driver;
   };
 
@@ -109,9 +110,11 @@ export class DriverService {
   delete = async (id: number) => {
     deleteDocumentsByOwner(id.toString(), "DRIVER");
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    return prisma.driver.delete({
+    const driver = await prisma.driver.delete({
       where: { id },
     });
+    getIO().emit("driver:delete");
+    return driver;
   };
 
   // Get all

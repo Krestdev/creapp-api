@@ -4,6 +4,7 @@ import {
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
+import { getIO } from "../../socket";
 
 const prisma = new PrismaClient();
 
@@ -152,6 +153,7 @@ export class TransactionService {
     }
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("transaction:new");
     return transaction;
   };
 
@@ -199,6 +201,7 @@ export class TransactionService {
     }
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("transaction:update");
     return transaction;
   };
 
@@ -208,7 +211,7 @@ export class TransactionService {
     data: { validatorId: number; status: string; reason: string },
   ) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    return prisma.transaction.update({
+    const transaction = await prisma.transaction.update({
       where: { id },
       data: {
         status: data.status,
@@ -220,6 +223,8 @@ export class TransactionService {
         to: true,
       },
     });
+    getIO().emit("transaction:update");
+    return transaction;
   };
 
   // Delete
@@ -227,9 +232,11 @@ export class TransactionService {
     deleteDocumentsByOwner(id.toString(), "TRANSACTION");
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    return prisma.transaction.delete({
+    const transaction = await prisma.transaction.delete({
       where: { id },
     });
+    getIO().emit("transaction:delete");
+    return transaction;
   };
 
   // Get all

@@ -35,7 +35,7 @@ export class CategoryService {
       }),
     );
 
-    return prisma.category.create({
+    const category = await prisma.category.create({
       data: {
         ...data,
         validators: {
@@ -45,6 +45,8 @@ export class CategoryService {
         },
       },
     });
+    getIO().emit("category:new");
+    return category;
   };
 
   updateCategory = async (
@@ -148,9 +150,11 @@ export class CategoryService {
     });
   };
 
-  deleteCategory = (id: number) => {
-    return prisma.category.delete({
+  deleteCategory = async (id: number) => {
+    const category = await prisma.category.delete({
       where: { id },
     });
+    getIO().emit("category:delete");
+    return category;
   };
 }

@@ -67,13 +67,11 @@ export default class DriverController {
       idCard: isMulterFiles(data.idCard) ? data.idCard : null,
     };
 
-    getIO().emit("driver:update");
     return driverService.update(Number(id), newDriver, { ...files });
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Driver> {
-    getIO().emit("driver:delete");
     return driverService.delete(Number(id));
   }
 

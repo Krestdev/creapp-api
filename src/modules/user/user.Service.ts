@@ -148,6 +148,7 @@ export class UserService {
       include: { role: true },
       omit: { password: true },
     });
+    getIO().emit("user:new");
     return user;
   }
 

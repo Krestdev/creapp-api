@@ -10,7 +10,6 @@ const signatairService = new SignatairService();
 export default class SignatairController {
   @Post("/")
   create(@Body() data: Signatair & { userIds: number[] }): Promise<Signatair> {
-    getIO().emit("signatair:new");
     return signatairService.create(data);
   }
 

@@ -89,7 +89,6 @@ export default class CmdRequestController {
       payment.bankId = Number(caisseId);
     }
 
-    getIO().emit("payment:new");
     return cmdRequestService.createDepense(payment, { proof, justification });
   }
 
@@ -139,7 +138,6 @@ export default class CmdRequestController {
         .join(";");
     }
 
-    getIO().emit("payment:update");
     return cmdRequestService.update(Number(id), payment);
   }
 
@@ -151,13 +149,11 @@ export default class CmdRequestController {
     @Path() id: string,
     @Body() data: { userId: number },
   ): Promise<Payment> {
-    getIO().emit("payment:update");
     return cmdRequestService.validate(Number(id), data);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Payment> {
-    getIO().emit("payment:delete");
     return cmdRequestService.delete(Number(id));
   }
 

@@ -47,7 +47,6 @@ export default class TransactionController {
         .join(";");
     }
 
-    getIO().emit("transaction:new");
     return transactionService.create(
       {
         ...newTransaction,

@@ -4,6 +4,7 @@ import {
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
+import { getIO } from "../../socket";
 
 const prisma = new PrismaClient();
 
@@ -131,21 +132,15 @@ export class PaymentService {
     }
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("payment:new");
     return payment;
   };
 
   // Update
   update = async (id: number, data: Partial<Omit<Payment, "proof">>) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    // const payment = await prisma.payment.findUnique({
-    //   where:{
-    //     id
-    //   },
-    //   include: {
-    //     command: {}
-    //   }
-    // });
-    return prisma.payment.update({
+
+    const payment = await prisma.payment.update({
       where: { id },
       data: {
         ...data,
@@ -153,27 +148,33 @@ export class PaymentService {
         requestId: Number(data.requestId),
       },
     });
+    getIO().emit("payment:update");
+    return payment;
   };
 
   // Update
   validate = async (id: number, data: { userId: number }) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    return prisma.payment.update({
+    const payment = await prisma.payment.update({
       where: { id },
       data: {
         status: "signed",
         signerId: data.userId,
       },
     });
+    getIO().emit("payment:update");
+    return payment;
   };
 
   // Delete
   delete = async (id: number) => {
     deleteDocumentsByOwner(id.toString(), "PAYMENT");
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    return prisma.payment.delete({
+    const payment = await prisma.payment.delete({
       where: { id },
     });
+    getIO().emit("payment:delete");
+    return payment;
   };
 
   // Get all

@@ -10,19 +10,16 @@ const projectService = new ProjectService();
 export default class ProjectController {
   @Post("/")
   create(@Body() data: Project) {
-    getIO().emit("project:new");
     return projectService.create(data);
   }
 
   @Put("/{id}")
   update(@Path() id: string, @Body() data: Project) {
-    getIO().emit("project:update");
     return projectService.update(Number(id), data);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string) {
-    getIO().emit("project:delete");
     return projectService.delete(Number(id));
   }
 

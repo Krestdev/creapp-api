@@ -58,7 +58,6 @@ export default class CmdRequestController {
       banck_attestation: data.banck_attestation ? data.banck_attestation : null,
     };
 
-    getIO().emit("provider:new");
     return cmdRequestService.create(newProvider, { ...files });
   }
 
@@ -108,13 +107,11 @@ export default class CmdRequestController {
         : null,
     };
 
-    getIO().emit("provider:update");
     return cmdRequestService.update(Number(id), newProvider, { ...files });
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Provider> {
-    getIO().emit("provider:delete");
     return cmdRequestService.delete(Number(id));
   }
 

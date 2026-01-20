@@ -1,4 +1,5 @@
 import { PayType, PrismaClient, Signatair } from "@prisma/client";
+import { getIO } from "../../socket";
 
 const prisma = new PrismaClient();
 
@@ -18,7 +19,7 @@ export class SignatairService {
       throw Error("Un group de signatair existe deja pour ce type de payment");
     }
 
-    return prisma.signatair.create({
+    const signatair = await prisma.signatair.create({
       data: {
         ...restData,
         user: {
@@ -28,12 +29,14 @@ export class SignatairService {
         },
       },
     });
+    getIO().emit("signatair:new");
+    return signatair;
   };
 
   // Update
-  update = (id: number, data: Signatair & { userIds: number[] }) => {
+  update = async (id: number, data: Signatair & { userIds: number[] }) => {
     const { userIds, ...restData } = data;
-    return prisma.signatair.update({
+    const signatair = await prisma.signatair.update({
       where: { id },
       data: {
         ...restData,
@@ -44,13 +47,17 @@ export class SignatairService {
         },
       },
     });
+    getIO().emit("signatair:update");
+    return signatair;
   };
 
   // Delete
-  delete = (id: number) => {
-    return prisma.signatair.delete({
+  delete = async (id: number) => {
+    const signatair = await prisma.signatair.delete({
       where: { id },
     });
+    getIO().emit("signatair:delete");
+    return signatair;
   };
 
   // Get all

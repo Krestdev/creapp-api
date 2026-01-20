@@ -4,6 +4,7 @@ import {
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
+import { getIO } from "../../socket";
 
 const prisma = new PrismaClient();
 
@@ -64,6 +65,7 @@ export class ProviderService {
     }
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("provider:new");
     return provider;
   };
 
@@ -136,6 +138,7 @@ export class ProviderService {
     }
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("provider:update");
     return provider;
   };
 
@@ -161,9 +164,11 @@ export class ProviderService {
     });
 
     if (data) {
-      return prisma.provider.delete({
+      const provider = await prisma.provider.delete({
         where: { id },
       });
+      getIO().emit("provider:delete");
+      return provider;
     } else {
       throw Error("Cannot Delete Provider with active processes");
     }

@@ -32,13 +32,11 @@ export default class CategoryController {
     @Body() data: Category & { validators: { userId: number; rank: number }[] },
   ): Promise<Category> {
     const { validators, ...ndata } = data;
-    getIO().emit("category:new");
     return categoryService.createCategory(ndata, validators);
   }
 
   @Delete("/category/{id}")
   deleteCategory(@Path() id: string): Promise<Category> {
-    getIO().emit("category:delete");
     return categoryService.deleteCategory(Number(id));
   }
 }

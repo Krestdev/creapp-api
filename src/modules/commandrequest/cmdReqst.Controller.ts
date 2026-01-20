@@ -13,7 +13,6 @@ export default class CmdRequestController {
     @Body() data: CommandRequest & { requests: number[] },
   ): Promise<CommandRequest> {
     const { requests, ...ndata } = data;
-    getIO().emit("command:new");
     return cmdRequestService.create(ndata, requests);
   }
 
@@ -26,13 +25,11 @@ export default class CmdRequestController {
     @Body() data: CommandRequest & { requests: number[] },
   ): Promise<CommandRequest> {
     const { requests, ...ndata } = data;
-    getIO().emit("command:update");
     return cmdRequestService.update(Number(id), ndata, requests);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<CommandRequest> {
-    getIO().emit("command:delete");
     return cmdRequestService.delete(Number(id));
   }
 

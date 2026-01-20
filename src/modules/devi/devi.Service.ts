@@ -1,18 +1,19 @@
 import { Devi, DeviElement, PrismaClient } from "@prisma/client";
 import { storeDocumentsBulk } from "../../utils/DocumentManager";
+import { getIO } from "../../socket";
 
 const prisma = new PrismaClient();
 
 export class DeviService {
   // Create
 
-  create = (data: Devi, elements: DeviElement[]) => {
+  create = async (data: Devi, elements: DeviElement[]) => {
     const ref = "ref-" + new Date().getTime();
     // | "SUBMITTED" Soumis, en attente d’analyse / comparaison
     // | "APPROVED" Toutes les lignes du devis sont retenues
     // | "REJECTED" Aucune ligne retenue
     // | "PENDING";
-    return prisma.devi.create({
+    const devi = await prisma.devi.create({
       data: {
         ...data,
         ref,
@@ -29,6 +30,9 @@ export class DeviService {
         },
       },
     });
+
+    getIO().emit("quotation:new");
+    return devi;
   };
 
   // Update
@@ -53,7 +57,7 @@ export class DeviService {
       });
     }
 
-    return prisma.devi.update({
+    const devi = await prisma.devi.update({
       where: { id },
       data: {
         ...data,
@@ -82,6 +86,9 @@ export class DeviService {
         },
       },
     });
+
+    getIO().emit("quotation:update");
+    return devi;
   };
 
   validateDevi = async (
