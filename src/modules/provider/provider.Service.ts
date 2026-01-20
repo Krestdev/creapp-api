@@ -146,19 +146,33 @@ export class ProviderService {
 
     // const data = await prisma.provider.findUnique({
     //   where: {
-    //     id
+    //     id,
     //   },
     //   include: {
-    //     commandRequest: {
+    //     commands: {
     //       where: {
-
-    //       }
+    //         status: {
+    //           in: ["APPROVED", "PENDING", "IN-REVIEW"],
+    //         },
+    //       },
     //     },
-    //     commands: true,
-    //     devis: true,
+    //     devis: {
+    //       where: {
+    //         AND: [
+    //           {
+    //             status: {
+    //               in: ["SUBMITTED", "APPROVED", "PENDING"],
+    //             },
+    //           },
+    //           {
+
+    //           }
+    //         ],
+    //       },
+    //     },
     //     réceptions: true,
-    //   }
-    // })
+    //   },
+    // });
 
     return prisma.provider.delete({
       where: { id },

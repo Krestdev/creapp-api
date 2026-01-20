@@ -157,7 +157,7 @@ export class UserService {
       throw Error("User not found");
     }
     if (user.verified) {
-      throw Error("User is verified");
+      return user;
     }
 
     if (user.verificationOtp !== otp) {

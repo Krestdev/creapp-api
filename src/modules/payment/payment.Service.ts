@@ -12,7 +12,7 @@ export class PaymentService {
   // Create
   create = async (
     data: Omit<Payment, "id" | "reference" | "status">,
-    file: Express.Multer.File[] | null
+    file: Express.Multer.File[] | null,
   ) => {
     if (!data.commandId) {
       throw new Error("Command ID is required for payment");
@@ -35,12 +35,12 @@ export class PaymentService {
 
     const totalPaid = commandPayments.reduce(
       (sum, payment) => sum + payment.price,
-      0
+      0,
     );
 
     const commandAmount = command.devi?.element.reduce(
       (sum, element) => sum + element.priceProposed * element.quantity,
-      0
+      0,
     );
 
     const remainingAmount = (commandAmount ?? 0) - totalPaid;
@@ -92,7 +92,7 @@ export class PaymentService {
     files: {
       proof?: Express.Multer.File[] | null;
       justification?: Express.Multer.File[] | null;
-    }
+    },
   ) => {
     const { proof, justification } = files;
     const payment = await prisma.payment.create({
@@ -131,6 +131,14 @@ export class PaymentService {
   // Update
   update = async (id: number, data: Partial<Omit<Payment, "proof">>) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
+    // const payment = await prisma.payment.findUnique({
+    //   where:{
+    //     id
+    //   },
+    //   include: {
+    //     command: {}
+    //   }
+    // });
     return prisma.payment.update({
       where: { id },
       data: {

@@ -124,6 +124,13 @@ export class CategoryService {
     });
     getIO().emit("category:update");
 
+    exValidatorIds
+      .filter((x) => !newList.includes(x))
+      .concat(newList.filter((x) => !exValidatorIds.includes(x)))
+      .map((userId) => {
+        getIO().emit("user:update", { userId });
+      });
+
     return category;
   };
 
