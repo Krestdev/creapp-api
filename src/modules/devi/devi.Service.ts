@@ -1,4 +1,5 @@
 import { Devi, DeviElement, PrismaClient } from "@prisma/client";
+import { storeDocumentsBulk } from "../../utils/DocumentManager";
 
 const prisma = new PrismaClient();
 
@@ -31,7 +32,12 @@ export class DeviService {
   };
 
   // Update
-  update = (id: number, data: Devi, elements: DeviElement[]) => {
+  update = async (
+    id: number,
+    data: Partial<Devi>,
+    elements: DeviElement[],
+    file: Express.Multer.File[] | null,
+  ) => {
     const existing = elements.filter((e) => !!e.id);
     const toCreate = elements.filter((e) => !e.id);
     const existingIds = existing.map((e) => e.id);
@@ -39,11 +45,18 @@ export class DeviService {
     // | "SELECTED"         // Ligne retenue par le DO pour passer en BC
     // | "NOT_SELECTED"     // Ligne explicitement non retenue
 
+    if (file) {
+      await storeDocumentsBulk(file, {
+        role: "JUSTIFICATION",
+        ownerId: id.toString(),
+        ownerType: "BANK",
+      });
+    }
+
     return prisma.devi.update({
       where: { id },
       data: {
         ...data,
-
         element: {
           deleteMany: {
             deviId: id,

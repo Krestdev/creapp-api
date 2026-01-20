@@ -4,6 +4,7 @@ import {
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
+import { getIO } from "../../socket";
 
 const prisma = new PrismaClient();
 
@@ -49,6 +50,7 @@ export class DriverService {
     }
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("driver:new");
     return driver;
   };
 

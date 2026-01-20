@@ -2,6 +2,7 @@ import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { Driver } from "@prisma/client";
 import { getIO } from "../../socket";
 import { DriverService } from "./driver.Service";
+import { isMulterFiles, normalizeFile } from "../../utils/serverUtils";
 
 const driverService = new DriverService();
 
@@ -40,7 +41,6 @@ export default class DriverController {
       idCard: data.idCard ? data.idCard : null,
     };
 
-    getIO().emit("driver:new");
     return driverService.create(newDriver, { ...files });
   }
 
@@ -58,19 +58,13 @@ export default class DriverController {
   ): Promise<Driver> {
     const newDriver = {
       ...data,
-      licence:
-        data.licence && data.licence[0]
-          ? data.licence[0].path.replace(/\\/g, "/")
-          : null,
-      idCard:
-        data.idCard && data.idCard[0]
-          ? data.idCard[0].path.replace(/\\/g, "/")
-          : null,
+      licence: normalizeFile(data.licence),
+      idCard: normalizeFile(data.idCard),
     };
 
     const files = {
-      licence: data.licence ? data.licence : null,
-      idCard: data.idCard ? data.idCard : null,
+      licence: isMulterFiles(data.licence) ? data.licence : null,
+      idCard: isMulterFiles(data.idCard) ? data.idCard : null,
     };
 
     getIO().emit("driver:update");

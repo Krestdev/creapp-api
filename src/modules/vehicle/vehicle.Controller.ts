@@ -2,6 +2,7 @@ import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { VehicleService } from "./vehicle.Service";
 import { Vehicle } from "@prisma/client";
 import { getIO } from "../../socket";
+import { normalizeFile } from "../../utils/serverUtils";
 
 const vehicleService = new VehicleService();
 
@@ -20,12 +21,9 @@ export default class VehicleController {
       label: data.label,
       mark: data.mark,
       matricule: data.matricule,
-      picture: proof
-        ? proof.map((p) => p.path.replace(/\\/g, "/")).join(";")
-        : null,
+      picture: normalizeFile(proof),
     };
-    getIO().emit("vehicle:new");
-    return vehicleService.create(newVehicle);
+    return vehicleService.create(newVehicle, proof);
   }
 
   /**
@@ -42,6 +40,10 @@ export default class VehicleController {
     const { proof, label, mark, matricule } = data;
     const newVehicle: Partial<Vehicle> = {};
 
+    const typeDetermine = (data) => {
+      return typeof data !== "string";
+    };
+
     if (label) {
       newVehicle.label = label;
     }
@@ -51,19 +53,18 @@ export default class VehicleController {
     if (matricule) {
       newVehicle.matricule = matricule;
     }
-    if (proof) {
+
+    if (proof && typeDetermine(proof)) {
       newVehicle.picture = proof
         .map((p) => p.path.replace(/\\/g, "/"))
         .join(";");
     }
 
-    getIO().emit("vehicle:update");
     return vehicleService.update(Number(id), newVehicle);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Vehicle> {
-    getIO().emit("vehicle:delete");
     return vehicleService.delete(Number(id));
   }
 

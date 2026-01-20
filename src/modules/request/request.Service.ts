@@ -4,6 +4,7 @@ import {
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
+import { getIO } from "../../socket";
 
 const prisma = new PrismaClient();
 
@@ -12,13 +13,13 @@ export class RequestService {
 
   create = async (
     data: Omit<RequestModel, "createdAt" | "updatedAt">,
-    benList?: number[]
+    benList?: number[],
   ) => {
     const ref = "ref-" + new Date().getTime();
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
-    return prisma.requestModel.create({
+    const request = await prisma.requestModel.create({
       data: {
         ...data,
         period: data.period
@@ -38,12 +39,14 @@ export class RequestService {
         },
       },
     });
+    getIO().emit("request:new", { userId: request.userId });
+    return request;
   };
 
   update = async (
     id: number,
     data: Partial<Omit<RequestModel, "createdAt" | "updatedAt">>,
-    benList?: number[]
+    benList?: number[],
   ) => {
     const updateData: any = {};
     const { label, description, ...ndata } = data;
@@ -52,7 +55,7 @@ export class RequestService {
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
-    return prisma.requestModel.update({
+    const request = await prisma.requestModel.update({
       where: { id },
       data: {
         ...updateData,
@@ -66,11 +69,14 @@ export class RequestService {
         },
       },
     });
+
+    getIO().emit("request:update");
+    return request;
   };
 
   getAll = async () => {
     const cached = await CacheService.get<RequestModel[]>(
-      `${this.CACHE_KEY}:all`
+      `${this.CACHE_KEY}:all`,
     );
     if (cached) return cached;
 
@@ -105,11 +111,6 @@ export class RequestService {
   };
 
   getMine = async (id: number) => {
-    const cached = await CacheService.get<RequestModel[]>(
-      `${this.CACHE_KEY}:mine`
-    );
-    if (cached) return cached;
-
     const requests = await prisma.requestModel.findMany({
       where: {
         userId: id,
@@ -129,8 +130,6 @@ export class RequestService {
       },
     });
 
-    await CacheService.set(`${this.CACHE_KEY}:mine`, requests, 90);
-
     return requests;
   };
 
@@ -138,9 +137,12 @@ export class RequestService {
     deleteDocumentsByOwner(id.toString(), "COMMANDREQUEST");
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
-    return prisma.requestModel.delete({
+    const request = await prisma.requestModel.delete({
       where: { id },
     });
+
+    getIO().emit("request:delete");
+    return request;
   };
 
   validate = async (id: number, validatorId: number) => {
@@ -190,6 +192,8 @@ export class RequestService {
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
+
+    getIO().emit("request:update");
     return request;
   };
 
@@ -218,7 +222,7 @@ export class RequestService {
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
 
-    return Promise.all(
+    const bulk = await Promise.all(
       ids.map(async (id) => {
         const request = await prisma.requestModel.update({
           where: { id },
@@ -234,13 +238,16 @@ export class RequestService {
         });
         this.createNotification(request);
         return request;
-      })
+      }),
     );
+
+    getIO().emit("request:update");
+    return bulk;
   };
 
   review = async (
     id: number,
-    data: { userId: number; validated: boolean; decision?: string }
+    data: { userId: number; validated: boolean; decision?: string },
   ) => {
     const request = await prisma.requestModel.update({
       where: { id },
@@ -267,12 +274,13 @@ export class RequestService {
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
+    getIO().emit("request:update");
     return review;
   };
 
   reviewBulk = (
     ids: number[],
-    data: { validatorId: number; validated: boolean; decision?: string }
+    data: { validatorId: number; validated: boolean; decision?: string },
   ) => {
     return Promise.all(
       ids.map(async (id) => {
@@ -298,8 +306,9 @@ export class RequestService {
 
         await CacheService.del(`${this.CACHE_KEY}:all`);
         await CacheService.del(`${this.CACHE_KEY}:mine`);
+        getIO().emit("request:update");
         return review;
-      })
+      }),
     );
   };
 
@@ -314,12 +323,14 @@ export class RequestService {
     this.createNotification(request);
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
+    getIO().emit("request:update");
     return request;
   };
 
   priority = async (id: number, priority: string) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
+    getIO().emit("request:update");
     return prisma.requestModel.update({
       where: { id },
       data: {
@@ -341,7 +352,7 @@ export class RequestService {
   specialRequest = async (
     data: RequestModel & { type: string; proof: string | null },
     file?: Express.Multer.File[] | null,
-    benef?: number[]
+    benef?: number[],
   ) => {
     // create request, command and payment
     const ref = "ref-" + new Date().getTime();
@@ -384,10 +395,10 @@ export class RequestService {
           data.type == "SPECIAUX".toLowerCase()
             ? "validated"
             : data.type == "FACILITATION".toLowerCase()
-            ? "ghost"
-            : data.type == "ressource_humaine"
-            ? "accepted"
-            : "pending",
+              ? "ghost"
+              : data.type == "ressource_humaine"
+                ? "accepted"
+                : "pending",
         type: type,
         priority: "medium",
         price: data.amount!,
@@ -405,7 +416,7 @@ export class RequestService {
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
-
+    getIO().emit("request:new");
     return { request: request, payment: payment };
   };
 
@@ -413,7 +424,7 @@ export class RequestService {
     id: number,
     data: Partial<RequestModel> & { proof?: string | null },
     file?: Express.Multer.File[] | null,
-    benef?: number[]
+    benef?: number[],
   ) => {
     // create request, command and payment
     const { proof, ...requestData } = data;
@@ -480,6 +491,7 @@ export class RequestService {
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
+    getIO().emit("request:update");
     return request;
   };
 

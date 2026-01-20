@@ -3,6 +3,7 @@ import {
   deleteDocumentsByOwner,
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
+import { getIO } from "../../socket";
 
 const prisma = new PrismaClient();
 
@@ -21,6 +22,7 @@ export class BankService {
       });
     }
 
+    getIO().emit("bank:new");
     return bank;
   };
 
@@ -29,7 +31,7 @@ export class BankService {
     id: number,
     data: Partial<Bank>,
     justification: string | null,
-    file: Express.Multer.File[] | null
+    file: Express.Multer.File[] | null,
   ) => {
     if (data.balance) {
       data.balance = Number(data.balance);
@@ -53,15 +55,18 @@ export class BankService {
       });
     }
 
+    getIO().emit("bank:update");
     return bank;
   };
 
   // Delete
-  delete = (id: number) => {
+  delete = async (id: number) => {
     deleteDocumentsByOwner(id.toString(), "BANK");
-    return prisma.bank.delete({
+    const bank = await prisma.bank.delete({
       where: { id },
     });
+    getIO().emit("bank:delete");
+    return bank;
   };
 
   // Get all

@@ -24,7 +24,6 @@ export default class CategoryController {
     @Body() data: Category & { validators: { userId: number; rank: number }[] },
   ): Promise<Category> {
     const { validators, ...ndata } = data;
-    getIO().emit("category:update");
     return categoryService.updateCategory(Number(id), ndata, validators);
   }
 

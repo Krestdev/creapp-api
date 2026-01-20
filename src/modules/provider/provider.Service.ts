@@ -70,7 +70,7 @@ export class ProviderService {
   // Update
   update = async (
     id: number,
-    data: {
+    data: Partial<{
       name: string;
       phone: string | null;
       email: string | null;
@@ -84,6 +84,8 @@ export class ProviderService {
       plan_localisation: string | null;
       commerce_registre: string | null;
       banck_attestation: string | null;
+    }> & {
+      name: string;
     },
     files?: {
       carte_contribuable: Express.Multer.File[] | null;
@@ -121,9 +123,10 @@ export class ProviderService {
         files.plan_localisation)
     ) {
       const Docs = Object.values(files);
-      Docs.map(async (file) => {
-        if (file) {
-          await storeDocumentsBulk(file, {
+      Docs.map(async (doc) => {
+        if (doc !== null) {
+          console.log(doc);
+          await storeDocumentsBulk(doc, {
             role: "PROOF",
             ownerId: provider.id.toString(),
             ownerType: "COMMANDREQUEST",
@@ -140,6 +143,23 @@ export class ProviderService {
   delete = async (id: number) => {
     deleteDocumentsByOwner(id.toString(), "PROVIDER");
     await CacheService.del(`${this.CACHE_KEY}:all`);
+
+    // const data = await prisma.provider.findUnique({
+    //   where: {
+    //     id
+    //   },
+    //   include: {
+    //     commandRequest: {
+    //       where: {
+
+    //       }
+    //     },
+    //     commands: true,
+    //     devis: true,
+    //     réceptions: true,
+    //   }
+    // })
+
     return prisma.provider.delete({
       where: { id },
     });

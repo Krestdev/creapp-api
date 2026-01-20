@@ -1,7 +1,6 @@
+import { Bank } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { BankService } from "./bank.Service";
-import { Bank } from "@prisma/client";
-import { getIO } from "../../socket";
 
 const bankService = new BankService();
 
@@ -26,7 +25,6 @@ export default class BankController {
       .map((p) => p.path.replace(/\\/g, "/"))
       .join(";");
 
-    getIO().emit("bank:new");
     return bankService.create(
       { ...newBank, justification: newJustification },
       justification,
@@ -46,16 +44,20 @@ export default class BankController {
   ): Promise<Bank> {
     const { justification, ...restData } = data;
 
+    const typeDetermine = (data) => {
+      return typeof data !== "string";
+    };
+
     const newBank = {
       ...restData,
       balance: Number(data.balance),
       Status: (data.Status as unknown as string) == "true" ? true : false,
     };
-    const newJustification = justification
-      ? justification.map((p) => p.path.replace(/\\/g, "/")).join(";")
-      : null;
+    const newJustification =
+      justification && typeDetermine(justification)
+        ? justification.map((p) => p.path.replace(/\\/g, "/")).join(";")
+        : null;
 
-    getIO().emit("bank:update");
     return bankService.update(
       Number(id),
       newBank,
@@ -66,7 +68,6 @@ export default class BankController {
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Bank> {
-    getIO().emit("bank:delete");
     return bankService.delete(Number(id));
   }
 

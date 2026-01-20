@@ -275,6 +275,7 @@ enum DocumentOwnerType {
   DEVI
   COMMANDREQUEST
   DRIVER
+  VEHICLE
 }
 
 model Document {

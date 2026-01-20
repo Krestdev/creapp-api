@@ -1,4 +1,5 @@
 import { Category, PrismaClient } from "@prisma/client";
+import { getIO } from "../../socket";
 
 const prisma = new PrismaClient();
 
@@ -6,7 +7,7 @@ export class CategoryService {
   // Category
   createCategory = async (
     data: Category,
-    validators: { userId: number; rank: number }[]
+    validators: { userId: number; rank: number }[],
   ) => {
     const manager = await prisma.role.findFirst({
       where: {
@@ -31,7 +32,7 @@ export class CategoryService {
             },
           },
         });
-      })
+      }),
     );
 
     return prisma.category.create({
@@ -49,7 +50,7 @@ export class CategoryService {
   updateCategory = async (
     id: number,
     data: Category,
-    validators: { userId: number; rank: number }[]
+    validators: { userId: number; rank: number }[],
   ) => {
     const exValidators = await prisma.validator.findMany({
       where: {
@@ -101,7 +102,7 @@ export class CategoryService {
             },
           },
         });
-      })
+      }),
     );
 
     await prisma.validator.deleteMany({
@@ -110,7 +111,7 @@ export class CategoryService {
       },
     });
 
-    return prisma.category.update({
+    const category = await prisma.category.update({
       where: { id },
       data: {
         ...data,
@@ -121,6 +122,9 @@ export class CategoryService {
         },
       },
     });
+    getIO().emit("category:update");
+
+    return category;
   };
 
   getOneCategory = (id: number) => {

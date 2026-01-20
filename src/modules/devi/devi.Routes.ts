@@ -55,11 +55,12 @@ export default class DeviRoute {
     // update
     this.routes.put(
       "/:id",
-      upload.single("proof"),
+      // upload.single("proof"),
+      upload.fields([{ name: "proof", maxCount: 5 }]),
       requireRole("USER"),
       (req, res) => {
         this.deviController
-          .update(req.params.id!, req.body)
+          .update(req.params.id!, { ...req.body, ...req.files })
           .then((request) =>
             res
               .status(200)

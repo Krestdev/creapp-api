@@ -2,6 +2,7 @@ import { Devi, DeviElement, Prisma } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { DeviService } from "./devi.Service";
 import { getIO } from "../../socket";
+import { normalizeFile } from "../../utils/serverUtils";
 
 const deviService = new DeviService();
 
@@ -40,18 +41,29 @@ export default class DeviController {
   @Put("/{id}")
   update(
     @Path() id: string,
-    @Body() data: { devis: Devi & { userId: number }; elements: DeviElement[] },
+    @Body()
+    data: { devis: Devi & { userId: number }; elements: DeviElement[] } & {
+      proof: Express.Multer.File[] | null;
+    },
   ): Promise<Devi> {
-    const devi: Devi & { proof: string } = {
-      ...(JSON.parse(data.devis as unknown as string) as Devi),
-      proof: (data as unknown as { path: string }).path.replace(/\\/g, "/"),
+    const { proof, ...deviD } = data;
+
+    const devi = {
+      ...(JSON.parse(deviD.devis as unknown as string) as Devi),
     };
+
+    const nProof = normalizeFile(proof);
+
+    if (nProof) {
+      devi.proof = nProof;
+    }
+
     const deviElem: DeviElement[] = JSON.parse(
       data.elements as unknown as string,
     ) as DeviElement[];
 
     getIO().emit("quotation:update");
-    return deviService.update(Number(id), devi, deviElem);
+    return deviService.update(Number(id), devi, deviElem, proof);
   }
 
   @Put("/validerDevis")
