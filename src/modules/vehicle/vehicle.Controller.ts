@@ -1,8 +1,7 @@
-import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
-import { VehicleService } from "./vehicle.Service";
 import { Vehicle } from "@prisma/client";
-import { getIO } from "../../socket";
+import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { normalizeFile } from "../../utils/serverUtils";
+import { VehicleService } from "./vehicle.Service";
 
 const vehicleService = new VehicleService();
 
