@@ -1,8 +1,7 @@
-import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
-import { ProviderService } from "./provider.Service";
 import { Provider } from "@prisma/client";
-import { getIO } from "../../socket";
+import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { isMulterFiles, normalizeFile } from "../../utils/serverUtils";
+import { ProviderService } from "./provider.Service";
 
 const cmdRequestService = new ProviderService();
 

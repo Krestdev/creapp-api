@@ -1,7 +1,6 @@
 import { Category } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { CategoryService } from "./category.Service";
-import { getIO } from "../../socket";
 
 const categoryService = new CategoryService();
 

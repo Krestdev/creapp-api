@@ -1,7 +1,6 @@
+import { Reception } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { ReceptionService } from "./reception.Service";
-import { Reception } from "@prisma/client";
-import { getIO } from "../../socket";
 
 const receptionService = new ReceptionService();
 

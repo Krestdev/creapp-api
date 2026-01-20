@@ -1,7 +1,6 @@
 import { Project } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { ProjectService } from "./project.Service";
-import { getIO } from "../../socket";
 
 const projectService = new ProjectService();
 

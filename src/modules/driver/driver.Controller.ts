@@ -1,8 +1,7 @@
-import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { Driver } from "@prisma/client";
-import { getIO } from "../../socket";
-import { DriverService } from "./driver.Service";
+import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { isMulterFiles, normalizeFile } from "../../utils/serverUtils";
+import { DriverService } from "./driver.Service";
 
 const driverService = new DriverService();
 

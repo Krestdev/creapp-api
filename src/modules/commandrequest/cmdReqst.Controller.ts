@@ -1,7 +1,6 @@
+import { CommandRequest } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { CommandRequestService } from "./cmdReqst.Service";
-import { CommandRequest } from "@prisma/client";
-import { getIO } from "../../socket";
 
 const cmdRequestService = new CommandRequestService();
 
