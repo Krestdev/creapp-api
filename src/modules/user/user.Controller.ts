@@ -32,31 +32,27 @@ export default class UserController {
       role: number[];
     },
   ) {
-    getIO().emit("user:new");
     return userService.create(data);
   }
 
   @Post("/login")
   login(@Body() data: { email: string; password: string }) {
-    getIO().emit("user:update");
     return userService.login(data);
   }
 
   @Get("/verify/{otp}")
   verify(@Path() otp: string, @Query() email: string) {
-    getIO().emit("user:update");
     return userService.verifyAccount(email as string, otp);
   }
 
   @Put("/{id}")
   update(@Path() id: number, @Body() data: Partial<User> & { role: number[] }) {
-    getIO().emit("user:update", { userId: id });
+    console.log("update user");
     return userService.update(Number(id), data);
   }
 
   @Put("/changePassWord/{id}")
   changePass(@Path() id: number, @Body() data: { password: string }) {
-    getIO().emit("user:update");
     return userService.changePass(Number(id), data);
   }
 
@@ -72,7 +68,7 @@ export default class UserController {
     status: string;
   }> {
     if (data.status === "inactive") {
-      getIO().emit("user:update", { userId: id });
+      getIO().emit("user:update", { userId: id, action: "diactivate" });
     } else {
       getIO().emit("user:update");
     }

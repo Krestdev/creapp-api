@@ -144,39 +144,29 @@ export class ProviderService {
     deleteDocumentsByOwner(id.toString(), "PROVIDER");
     await CacheService.del(`${this.CACHE_KEY}:all`);
 
-    // const data = await prisma.provider.findUnique({
-    //   where: {
-    //     id,
-    //   },
-    //   include: {
-    //     commands: {
-    //       where: {
-    //         status: {
-    //           in: ["APPROVED", "PENDING", "IN-REVIEW"],
-    //         },
-    //       },
-    //     },
-    //     devis: {
-    //       where: {
-    //         AND: [
-    //           {
-    //             status: {
-    //               in: ["SUBMITTED", "APPROVED", "PENDING"],
-    //             },
-    //           },
-    //           {
-
-    //           }
-    //         ],
-    //       },
-    //     },
-    //     réceptions: true,
-    //   },
-    // });
-
-    return prisma.provider.delete({
-      where: { id },
+    const data = await prisma.provider.findUnique({
+      where: {
+        id,
+        commands: {
+          every: {
+            status: { in: ["PAID", "REJECTED"] },
+          },
+        },
+        réceptions: {
+          every: {
+            Status: "COMPLETED",
+          },
+        },
+      },
     });
+
+    if (data) {
+      return prisma.provider.delete({
+        where: { id },
+      });
+    } else {
+      throw Error("Cannot Delete Provider with active processes");
+    }
   };
 
   // Get all

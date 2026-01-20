@@ -81,6 +81,7 @@ export class UserService {
       include: { role: true },
       omit: { password: true },
     });
+    getIO().emit("user:new");
     return user;
   }
 
@@ -173,6 +174,7 @@ export class UserService {
       },
     });
 
+    getIO().emit("user:update");
     return user;
   }
 
@@ -208,6 +210,7 @@ export class UserService {
       },
     });
 
+    getIO().emit("user:update");
     return { user, token: accessToken };
   }
 
@@ -237,6 +240,8 @@ export class UserService {
       include: { role: true },
       omit: { password: true },
     });
+
+    getIO().emit("user:update", { userId: id, action: "data" });
     return user;
   }
 
@@ -254,6 +259,7 @@ export class UserService {
         ...updateData,
       },
     });
+    getIO().emit("user:update");
     return user;
   }
 

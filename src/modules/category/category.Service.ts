@@ -128,7 +128,7 @@ export class CategoryService {
       .filter((x) => !newList.includes(x))
       .concat(newList.filter((x) => !exValidatorIds.includes(x)))
       .map((userId) => {
-        getIO().emit("user:update", { userId });
+        getIO().emit("user:update", { userId, action: "data" });
       });
 
     return category;

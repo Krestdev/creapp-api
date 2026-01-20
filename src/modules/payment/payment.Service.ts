@@ -50,6 +50,12 @@ export class PaymentService {
     }
 
     if (remainingAmount === 0) {
+      prisma.command.update({
+        where: { id: data.commandId },
+        data: {
+          status: "PAID",
+        },
+      });
       throw new Error("The command has already been fully paid");
     }
 
