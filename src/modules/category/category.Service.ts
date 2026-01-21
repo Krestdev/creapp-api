@@ -49,6 +49,7 @@ export class CategoryService {
     return category;
   };
 
+  // handle validators insertion and deletion
   updateCategory = async (
     id: number,
     data: Category,

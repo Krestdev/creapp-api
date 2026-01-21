@@ -50,6 +50,8 @@ model User {
   validatedTransactions Transaction[]    @relation(name: "validator")
   signatairs            Signatair[]
   signedPayments        Payment[]        @relation(name: "signedby")
+  validatorOn           Validators[]
+  requestOlds           RequestOld[]
 }
 
 model Role {
@@ -112,12 +114,23 @@ model Project {
 model RequestValidation {
   id          Int          @id @default(autoincrement())
   decision    String
-  validator   Validator    @relation(references: [id], fields: [validatorId])
+  validator   Validator    @relation(references: [id], fields: [validatorId], onDelete: Cascade)
   validatorId Int
   request     RequestModel @relation(references: [id], fields: [requestId], onDelete: Cascade)
   requestId   Int
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @default(now()) @updatedAt
+}
+
+// users attached to a spesific user
+model Validators {
+  id             Int           @id @default(autoincrement())
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  request        RequestModel? @relation(fields: [requestModelId], references: [id], onDelete: Cascade)
+  validated      Boolean       @default(false)
+  rank           Int
+  userId         Int?
+  requestModelId Int?
 }
 
 model RequestModel {
@@ -151,6 +164,22 @@ model RequestModel {
   commandId        Int?
   deviElements     DeviElement[]
   payments         Payment[]
+  validators       Validators[]
+  requestOlds      RequestOld[]
+}
+
+model RequestOld {
+  id             Int          @id @default(autoincrement())
+  request        RequestModel @relation(fields: [requestModelId], references: [id], onDelete: Cascade)
+  dueDate        DateTime?
+  priority       String?
+  quantity       Int?
+  unit           String?
+  amount         Int?
+  user           User         @relation(fields: [userId], references: [id])
+  userId         Int
+  createdAt      DateTime     @default(now())
+  requestModelId Int
 }
 
 model Category {
@@ -164,11 +193,11 @@ model Category {
 model Validator {
   id               Int                 @id @default(autoincrement())
   user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ctegory          Category            @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  ctegory          Category?           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   RequestValidated RequestValidation[]
   rank             Int
   userId           Int
-  categoryId       Int
+  categoryId       Int?
 }
 
 model CommandRequest {

@@ -137,7 +137,10 @@ export default class RequestRoute {
 
     this.routes.put("/:id", requireRole("USER"), (req, res) => {
       this.requestController
-        .update(req.params.id ?? "-1", req.body)
+        .update(req.params.id ?? "-1", {
+          ...req.body,
+          authUserId: req.user?.userId,
+        })
         .then((request) =>
           res
             .status(200)

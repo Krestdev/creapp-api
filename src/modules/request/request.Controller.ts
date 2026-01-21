@@ -49,10 +49,10 @@ export default class RequestController {
   @Put("/{id}")
   update(
     @Path() id: string,
-    @Body() data: RequestModelDto & { benef?: number[] },
+    @Body() data: RequestModelDto & { benef?: number[]; authUserId: number },
   ): Promise<unknown> {
-    const { benef, ...ndata } = data;
-    return requestService.update(Number(id), ndata, benef);
+    const { benef, authUserId, ...ndata } = data;
+    return requestService.update(Number(id), ndata, authUserId, benef);
   }
 
   @Get("/")

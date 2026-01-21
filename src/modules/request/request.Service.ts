@@ -17,6 +17,12 @@ export class RequestService {
   ) => {
     const ref = "ref-" + new Date().getTime();
 
+    const validators = await prisma.validator.findMany({
+      where: {
+        categoryId: data.categoryId,
+      },
+    });
+
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
     const request = await prisma.requestModel.create({
@@ -37,6 +43,18 @@ export class RequestService {
               })
             : [],
         },
+        validators: {
+          createMany: {
+            data: validators.map((vldr) => ({
+              userId: vldr.userId,
+              rank: vldr.rank,
+              validated: false,
+            })),
+          },
+        },
+      },
+      include: {
+        validators: true,
       },
     });
     getIO().emit("request:new", { userId: request.userId });
@@ -46,12 +64,27 @@ export class RequestService {
   update = async (
     id: number,
     data: Partial<Omit<RequestModel, "createdAt" | "updatedAt">>,
+    authUserId: number,
     benList?: number[],
   ) => {
     const updateData: any = {};
-    const { label, description, ...ndata } = data;
+    const {
+      label,
+      description,
+      priority,
+      quantity,
+      unit,
+      amount,
+      dueDate,
+      ...ndata
+    } = data;
     if (data.label !== undefined) updateData.label = label;
     if (data.description !== undefined) updateData.description = description;
+    if (data.priority !== undefined) updateData.priority = priority;
+    if (data.quantity !== undefined) updateData.quantity = quantity;
+    if (data.unit !== undefined) updateData.unit = unit;
+    if (data.amount !== undefined) updateData.amount = amount;
+    if (data.dueDate !== undefined) updateData.dueDate = dueDate;
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
@@ -70,8 +103,31 @@ export class RequestService {
       },
     });
 
+    const requestOld = await prisma.requestOld.create({
+      data: {
+        unit: updateData.unit ? request.unit : null,
+        quantity: updateData.quantity ? request.quantity : null,
+        priority: updateData.priority ? request.priority : null,
+        amount: updateData.amount ? request.amount : null,
+        dueDate: updateData.dueDate ? request.dueDate : null,
+        request: {
+          connect: { id: request.id },
+        },
+        user: {
+          connect: {
+            id: authUserId,
+          },
+        },
+      },
+    });
+
+    console.log(requestOld);
+
     getIO().emit("request:update");
-    return request;
+    return prisma.requestModel.findUnique({
+      where: { id: request.id },
+      include: { requestOlds: true },
+    });
   };
 
   getAll = async () => {
@@ -93,6 +149,7 @@ export class RequestService {
           },
         },
         revieweeList: true,
+        requestOlds: true,
       },
     });
 
@@ -127,6 +184,7 @@ export class RequestService {
             verificationOtp: true,
           },
         },
+        requestOlds: true,
       },
     });
 
@@ -157,7 +215,8 @@ export class RequestService {
         },
         data: {
           status:
-            requestModel.type === "FACILITATION".toLowerCase()
+            requestModel.type === "FACILITATION".toLowerCase() ||
+            requestModel.type === "ressource_humaine"
               ? "accepted"
               : "pending",
         },
@@ -372,7 +431,9 @@ export class RequestService {
         ref,
         type: data.type,
         state:
-          data.type == "FACILITATION".toLowerCase() ? "pending" : "validated",
+          data.type == "FACILITATION".toLowerCase() || "ressource_humaine"
+            ? "pending"
+            : "validated",
         beficiaryList: {
           connect: benef
             ? benef.map((beId) => {
@@ -397,11 +458,11 @@ export class RequestService {
         status:
           data.type == "SPECIAUX".toLowerCase()
             ? "validated"
-            : data.type == "FACILITATION".toLowerCase()
+            : data.type == "FACILITATION".toLowerCase() ||
+                data.type == "ressource_humaine"
               ? "ghost"
-              : data.type == "ressource_humaine"
-                ? "accepted"
-                : "pending",
+              : // ? "accepted"
+                "pending",
         type: type,
         priority: "medium",
         price: data.amount!,
