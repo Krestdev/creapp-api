@@ -7,6 +7,17 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model ApiKey {
+  id           Int      @id @default(autoincrement())
+  publicId     String
+  hashedSecret String
+  ownerId      String
+  name         String
+  isActive     Boolean
+  lastUsedAt   DateTime
+  createdAt    DateTime @default(now())
+}
+
 model User {
   id                    Int              @id @default(autoincrement())
   email                 String           @unique
@@ -101,7 +112,7 @@ model Project {
 model RequestValidation {
   id          Int          @id @default(autoincrement())
   decision    String
-  validator   Validator    @relation(references: [id], fields: [validatorId], onDelete: Cascade)
+  validator   Validator    @relation(references: [id], fields: [validatorId])
   validatorId Int
   request     RequestModel @relation(references: [id], fields: [requestId], onDelete: Cascade)
   requestId   Int

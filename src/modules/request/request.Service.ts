@@ -392,6 +392,7 @@ export class RequestService {
         title: request.label,
         reference: refpay,
         requestId: request.id,
+        description: request.description ?? "",
         projectId: request.projectId ? Number(request.projectId) : null,
         status:
           data.type == "SPECIAUX".toLowerCase()
