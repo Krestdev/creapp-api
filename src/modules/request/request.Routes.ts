@@ -57,6 +57,17 @@ export default class RequestRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    this.routes.get("/validator/:id", requireRole("USER"), (req, res) => {
+      this.requestController
+        .getMine(req.params.id ?? "-1")
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     this.routes.get("/mine/:id", requireRole("USER"), (req, res) => {
       this.requestController
         .getMine(req.params.id ?? "-1")
@@ -115,7 +126,7 @@ export default class RequestRoute {
 
     this.routes.put("/validateBulk", requireRole("USER"), (req, res) => {
       this.requestController
-        .validateBulk(req.body)
+        .validateBulk({ ...req.body, userId: req.user?.userId })
         .then((request) =>
           res
             .status(200)
@@ -126,7 +137,7 @@ export default class RequestRoute {
 
     this.routes.put("/reviewBulk", requireRole("USER"), (req, res) => {
       this.requestController
-        .reviewedBulk(req.body)
+        .reviewedBulk({ ...req.body, userId: req.user?.userId })
         .then((request) =>
           res
             .status(200)
@@ -173,7 +184,10 @@ export default class RequestRoute {
 
     this.routes.put("/review/:id", requireRole("USER"), (req, res) => {
       this.requestController
-        .reviewed(req.params.id ?? "-1", req.body)
+        .reviewed(req.params.id ?? "-1", {
+          ...req.body,
+          userIdV: req.user?.userId,
+        })
         .then((request) =>
           res
             .status(200)

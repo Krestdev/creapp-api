@@ -65,6 +65,12 @@ export default class RequestController {
     return requestService.getOne(Number(id));
   }
 
+  @Get("/validator/{id}")
+  getMyValidator(@Path() id: string): Promise<unknown[]> {
+    // needs user Id
+    return requestService.getMyValidator(Number(id));
+  }
+
   @Get("/mine/{id}")
   getMine(@Path() id: string): Promise<unknown[]> {
     // needs user Id
@@ -88,17 +94,24 @@ export default class RequestController {
   @Put("/review/{id}")
   reviewed(
     @Path() id: string,
-    @Body() data: { userId: number; validated: boolean; decision?: string },
+    @Body()
+    data: {
+      userId: number;
+      validated: boolean;
+      decision?: string;
+      userIdV: number;
+    },
   ): Promise<RequestValidation> {
-    return requestService.review(Number(id), data);
+    const { userIdV, ...restInfo } = data;
+    return requestService.review(Number(id), restInfo, userIdV);
   }
 
   @Put("/validateBulk")
   validateBulk(
-    @Body() data: { validatorId: number } & { ids: number[] },
+    @Body() data: { validatorId: number } & { ids: number[]; userId: number },
   ): Promise<unknown[]> {
-    const { ids, ...valData } = data;
-    return requestService.validateBulk(ids, valData.validatorId);
+    const { ids, userId, ...valData } = data;
+    return requestService.validateBulk(ids, valData.validatorId, userId);
   }
 
   @Put("/reviewBulk")
@@ -106,10 +119,11 @@ export default class RequestController {
     @Body()
     data: { validatorId: number; validated: boolean; decision?: string } & {
       ids: number[];
+      userId: number;
     },
   ): Promise<RequestValidation[]> {
-    const { ids, ...revData } = data;
-    return requestService.reviewBulk(ids, revData);
+    const { ids, userId, ...revData } = data;
+    return requestService.reviewBulk(ids, revData, userId);
   }
 
   @Put("/reject/{id}")

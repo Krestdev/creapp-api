@@ -44,6 +44,7 @@ export class TransactionService {
     }
 
     if (paymentId) {
+      await CacheService.del(`payment:all`);
       await prisma.payment.update({
         where: {
           id: paymentId,
@@ -174,6 +175,7 @@ export class TransactionService {
     }
 
     if (paymentId) {
+      await CacheService.del(`payment:all`);
       await prisma.payment.update({
         where: { id: paymentId },
         data: {

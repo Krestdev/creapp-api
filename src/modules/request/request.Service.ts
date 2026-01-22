@@ -88,6 +88,11 @@ export class RequestService {
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
+
+    const oldRequest = await prisma.requestModel.findUniqueOrThrow({
+      where: { id },
+    });
+
     const request = await prisma.requestModel.update({
       where: { id },
       data: {
@@ -105,11 +110,11 @@ export class RequestService {
 
     const requestOld = await prisma.requestOld.create({
       data: {
-        unit: updateData.unit ? request.unit : null,
-        quantity: updateData.quantity ? request.quantity : null,
-        priority: updateData.priority ? request.priority : null,
-        amount: updateData.amount ? request.amount : null,
-        dueDate: updateData.dueDate ? request.dueDate : null,
+        unit: updateData.unit ? oldRequest.unit : null,
+        quantity: updateData.quantity ? oldRequest.quantity : null,
+        priority: updateData.priority ? oldRequest.priority : null,
+        amount: updateData.amount ? oldRequest.amount : null,
+        dueDate: updateData.dueDate ? oldRequest.dueDate : null,
         request: {
           connect: { id: request.id },
         },
@@ -150,6 +155,7 @@ export class RequestService {
         },
         revieweeList: true,
         requestOlds: true,
+        validators: true,
       },
     });
 
@@ -165,6 +171,34 @@ export class RequestService {
         revieweeList: true,
       },
     });
+  };
+
+  getMyValidator = async (id: number) => {
+    const requests = await prisma.requestModel.findMany({
+      where: {
+        validators: {
+          some: {
+            userId: id,
+          },
+        },
+      },
+      include: {
+        revieweeList: true,
+        beficiaryList: {
+          omit: {
+            password: true,
+            verified: true,
+            createdAt: true,
+            updatedAt: true,
+            phone: true,
+            verificationOtp: true,
+          },
+        },
+        requestOlds: true,
+      },
+    });
+
+    return requests;
   };
 
   getMine = async (id: number) => {
@@ -185,6 +219,7 @@ export class RequestService {
           },
         },
         requestOlds: true,
+        validators: true,
       },
     });
 
@@ -207,6 +242,8 @@ export class RequestService {
     const requestModel = await prisma.requestModel.findFirst({
       where: { categoryId: 0, id: id },
     });
+
+    await CacheService.del(`payment:all`);
 
     if (requestModel) {
       await prisma.payment.updateMany({
@@ -233,6 +270,12 @@ export class RequestService {
             validatorId: validatorId,
           },
         },
+        validators: {
+          updateMany: {
+            where: { userId: validatorId },
+            data: { validated: true },
+          },
+        },
       },
     });
 
@@ -256,7 +299,7 @@ export class RequestService {
     return request;
   };
 
-  validateBulk = async (ids: number[], validatorId: number) => {
+  validateBulk = async (ids: number[], validatorId: number, userId: number) => {
     const requestModel = await prisma.requestModel.findFirst({
       where: {
         categoryId: 0,
@@ -265,6 +308,8 @@ export class RequestService {
         },
       },
     });
+
+    await CacheService.del(`payment:all`);
 
     if (requestModel) {
       await prisma.payment.updateMany({
@@ -293,6 +338,12 @@ export class RequestService {
                 validatorId: validatorId,
               },
             },
+            validators: {
+              updateMany: {
+                where: { userId: validatorId },
+                data: { validated: true },
+              },
+            },
           },
         });
         this.createNotification(request);
@@ -307,11 +358,18 @@ export class RequestService {
   review = async (
     id: number,
     data: { userId: number; validated: boolean; decision?: string },
+    userIdV: number,
   ) => {
     const request = await prisma.requestModel.update({
       where: { id },
       data: {
         state: data.validated ? "pending" : "rejected",
+        validators: {
+          updateMany: {
+            where: { userId: userIdV },
+            data: { validated: data.validated },
+          },
+        },
       },
     });
 
@@ -340,6 +398,7 @@ export class RequestService {
   reviewBulk = async (
     ids: number[],
     data: { validatorId: number; validated: boolean; decision?: string },
+    userId: number,
   ) => {
     const request = await Promise.all(
       ids.map(async (id) => {
@@ -347,6 +406,12 @@ export class RequestService {
           where: { id },
           data: {
             state: data.validated ? "pending" : "rejected",
+            validators: {
+              updateMany: {
+                where: { userId: userId },
+                data: { validated: data.validated },
+              },
+            },
           },
         });
         const review = await prisma.requestValidation.create({
@@ -447,6 +512,8 @@ export class RequestService {
       },
     });
 
+    await CacheService.del(`payment:all`);
+
     const refpay = "ref-" + new Date().getTime();
     const payment = await prisma.payment.create({
       data: {
@@ -492,6 +559,8 @@ export class RequestService {
   ) => {
     // create request, command and payment
     const { proof, ...requestData } = data;
+
+    await CacheService.del(`payment:all`);
 
     if (requestData.amount || requestData.label || requestData.dueDate) {
       await prisma.payment.updateMany({
