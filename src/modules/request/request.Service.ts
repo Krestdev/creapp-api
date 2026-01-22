@@ -340,7 +340,7 @@ export class RequestService {
             },
             validators: {
               updateMany: {
-                where: { userId: validatorId },
+                where: { userId: userId },
                 data: { validated: true },
               },
             },
@@ -496,7 +496,7 @@ export class RequestService {
         ref,
         type: data.type,
         state:
-          data.type == "FACILITATION".toLowerCase() || "ressource_humaine"
+          data.type == "FACILITATION" || data.type == "ressource_humaine"
             ? "pending"
             : "validated",
         beficiaryList: {
