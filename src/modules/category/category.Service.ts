@@ -96,6 +96,18 @@ export class CategoryService {
         return await prisma.user.update({
           where: {
             id: x,
+            validators: {
+              every: {
+                categoryId: {
+                  equals: null,
+                },
+              },
+            },
+            validatorOn: {
+              none: {
+                validated: false,
+              },
+            },
           },
           data: {
             role: {
