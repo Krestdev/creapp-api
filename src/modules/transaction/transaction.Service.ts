@@ -17,6 +17,7 @@ export class TransactionService {
       to?: Bank;
       paymentId?: number;
       methodId?: number | null;
+      status: string;
     },
     file: Express.Multer.File[] | null,
   ) => {
@@ -50,7 +51,7 @@ export class TransactionService {
           id: paymentId,
         },
         data: {
-          status: "unsigned",
+          status: data.status,
           method: methodId
             ? {
                 connect: {

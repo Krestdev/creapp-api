@@ -158,4 +158,9 @@ export class AuthService {
       roles,
     };
   }
+
+  generateApiKey() {
+    // Implementation for generating API key
+    return;
+  }
 }

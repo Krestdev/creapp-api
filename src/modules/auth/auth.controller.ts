@@ -30,4 +30,13 @@ export default class AuthController {
     // Logout is handled client-side for JWT
     return { message: "Logout successful" };
   }
+
+  /**
+   * @summary User generate API key
+   */
+  @Post("/keygenerate")
+  async generateApiKey() {
+    // Implementation for generating API key
+    return { message: "API key generated successfully" };
+  }
 }

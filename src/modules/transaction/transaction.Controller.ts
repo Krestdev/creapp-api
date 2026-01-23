@@ -18,9 +18,10 @@ export default class TransactionController {
       to?: Bank;
       paymentId: number;
       methodId: number | null;
+      status: string;
     },
   ): Promise<Transaction> {
-    const { proof, paymentId, methodId, ...restData } = data;
+    const { proof, paymentId, status, methodId, ...restData } = data;
 
     const newTransaction = {
       ...restData,
@@ -52,6 +53,7 @@ export default class TransactionController {
         ...newTransaction,
         paymentId: Number(paymentId),
         methodId: methodId ? Number(methodId) : null,
+        status: status,
       },
       proof,
     );

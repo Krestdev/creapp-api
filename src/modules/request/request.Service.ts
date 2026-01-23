@@ -297,7 +297,7 @@ export class RequestService {
     });
     if (!manager) throw Error("MANAGER Role not created");
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: {
         id: userId,
         validators: {
@@ -390,7 +390,7 @@ export class RequestService {
     });
     if (!manager) throw Error("MANAGER Role not created");
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: {
         id: userId,
         validators: {
@@ -453,7 +453,7 @@ export class RequestService {
       },
     });
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: {
         id: userIdV,
         validators: {
@@ -594,7 +594,8 @@ export class RequestService {
         ref,
         type: data.type,
         state:
-          data.type == "FACILITATION" || data.type == "ressource_humaine"
+          data.type == "FACILITATION".toLocaleLowerCase() ||
+          data.type == "ressource_humaine"
             ? "pending"
             : "validated",
         beficiaryList: {
