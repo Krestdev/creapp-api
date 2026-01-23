@@ -269,7 +269,7 @@ export class RequestService {
         state: "validated",
         validators: {
           updateMany: {
-            where: { userId: validatorId },
+            where: { userId: userId },
             data: { validated: true, decision: "validated" },
           },
         },
