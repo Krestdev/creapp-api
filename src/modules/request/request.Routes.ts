@@ -173,7 +173,10 @@ export default class RequestRoute {
 
     this.routes.put("/validate/:id", requireRole("USER"), (req, res) => {
       this.requestController
-        .validate(req.params.id ?? "-1", req.body)
+        .validate(req.params.id ?? "-1", {
+          ...req.body,
+          userId: req.user?.userId,
+        })
         .then((request) =>
           res
             .status(200)
