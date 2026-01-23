@@ -316,8 +316,8 @@ export class RequestService {
     });
     if (user) {
       log("User found:", user);
-      return await prisma.user.update({
-        where: { id: user.id },
+      await prisma.user.update({
+        where: { id: userId },
         data: {
           role: {
             disconnect: {
@@ -326,6 +326,8 @@ export class RequestService {
           },
         },
       });
+
+      getIO().emit("user:update", { userId });
     }
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
@@ -407,7 +409,7 @@ export class RequestService {
     });
     if (user) {
       await prisma.user.update({
-        where: { id: user.id },
+        where: { id: userId },
         data: {
           role: {
             disconnect: {
@@ -416,6 +418,7 @@ export class RequestService {
           },
         },
       });
+      getIO().emit("user:update", { userId });
     }
     getIO().emit("request:update");
     return bulk;
@@ -471,7 +474,7 @@ export class RequestService {
       console.log("user found:", user);
 
       await prisma.user.update({
-        where: { id: user.id },
+        where: { id: userIdV },
         data: {
           role: {
             disconnect: {
@@ -480,6 +483,7 @@ export class RequestService {
           },
         },
       });
+      getIO().emit("user:update", { userId: userIdV });
     }
     if (!data.validated) {
       try {
