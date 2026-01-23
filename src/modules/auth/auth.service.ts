@@ -5,6 +5,7 @@ import {
   TokenPayload,
 } from "../../utils/jwt";
 import { PrismaClient } from "@prisma/client";
+import { generateApiKey } from "../../utils/apikey";
 
 const prisma = new PrismaClient();
 
@@ -159,8 +160,20 @@ export class AuthService {
     };
   }
 
-  generateApiKey() {
+  async generateApiKey(userId: number) {
     // Implementation for generating API key
-    return;
+    const { rawKey, publicId, hashedSecret } = generateApiKey();
+
+    await prisma.apiKey.create({
+      data: {
+        publicId,
+        hashedSecret,
+        ownerId: userId,
+        name: "Production key",
+        isActive: true,
+      },
+    });
+
+    return { apiKey: rawKey };
   }
 }

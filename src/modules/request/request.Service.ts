@@ -580,6 +580,17 @@ export class RequestService {
     const ref = "ref-" + new Date().getTime();
     const { type, proof, ...requestData } = data;
 
+    const validators = await prisma.category
+      .findUniqueOrThrow({
+        where: {
+          id: data.categoryId,
+        },
+        include: {
+          validators: true,
+        },
+      })
+      .then((cat) => cat.validators || []);
+
     const request = await prisma.requestModel.create({
       data: {
         ...requestData,
@@ -603,9 +614,19 @@ export class RequestService {
               })
             : [],
         },
+        validators: {
+          createMany: {
+            data: validators.map((vldr) => ({
+              userId: vldr.userId,
+              rank: vldr.rank,
+              validated: false,
+            })),
+          },
+        },
       },
       include: {
         beficiaryList: true,
+        validators: true,
       },
     });
 
