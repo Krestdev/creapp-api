@@ -444,7 +444,9 @@ export class RequestService {
             where: { userId: userIdV },
             data: {
               validated: true,
-              decision: data.validated ? "pending" : "rejected",
+              decision: data.validated
+                ? "pending"
+                : `rejected - ${data.decision}`,
             },
           },
         },
