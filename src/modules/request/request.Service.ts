@@ -5,7 +5,6 @@ import {
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
 import { getIO } from "../../socket";
-import { log } from "console";
 
 const prisma = new PrismaClient();
 
