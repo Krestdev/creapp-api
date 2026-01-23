@@ -315,7 +315,6 @@ export class RequestService {
       },
     });
     if (user) {
-      log("User found:", user);
       await prisma.user.update({
         where: { id: userId },
         data: {
