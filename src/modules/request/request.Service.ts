@@ -469,8 +469,7 @@ export class RequestService {
       },
     });
     if (user) {
-      console.log("user found:", user);
-
+      console.log("removing manager role from user ", user);
       await prisma.user.update({
         where: { id: userIdV },
         data: {
@@ -481,7 +480,7 @@ export class RequestService {
           },
         },
       });
-      getIO().emit("user:update", { userId: userIdV });
+      getIO().emit("user:update", { userId: userIdV, action: "data" });
     }
     if (!data.validated) {
       try {
