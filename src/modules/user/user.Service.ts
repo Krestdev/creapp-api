@@ -69,14 +69,6 @@ export class UserService {
             return { id: role };
           }),
         },
-        members: data.department
-          ? {
-              create: {
-                departmentId: data.department,
-                label: data.post ?? "Employee",
-              },
-            }
-          : {},
       },
       include: { role: true },
       omit: { password: true },
@@ -136,14 +128,6 @@ export class UserService {
         role: {
           connect: { id: existingRole.id },
         },
-        members: data.department
-          ? {
-              create: {
-                departmentId: data.department,
-                label: data.post ?? "Employee",
-              },
-            }
-          : {},
       },
       include: { role: true },
       omit: { password: true },
@@ -295,7 +279,6 @@ export class UserService {
       include: {
         role: true,
         validators: true,
-        members: { include: { department: true } },
       },
       omit: { password: true },
     });

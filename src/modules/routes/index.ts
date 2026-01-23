@@ -1,6 +1,5 @@
 import { Router } from "express";
 import UserRouter from "../user/user.Route";
-import DepartmentRouter from "../department/department.Route";
 import projectRouter from "../project/project.Routes";
 import CmdRequestRoute from "../commandrequest/cmdReqst.Routes";
 import ProviderRoute from "../provider/provider.Routes";
@@ -26,16 +25,12 @@ import DriverRoute from "../driver/driver.Routes";
 export function connectBaseRoutes() {
   const router = Router();
   const userRouter = new UserRouter();
-  const departmentRouter = new DepartmentRouter();
   const authRoute = new AuthRoute();
 
   // user routes connection
   router.use("/user", userRouter.routes);
 
   router.use("/auth", authRoute.routes);
-
-  // department routes connection (uncomment when needed)
-  router.use("/department", departmentRouter.routes);
 
   // base module connection
   router.use("/", (req, res) => {

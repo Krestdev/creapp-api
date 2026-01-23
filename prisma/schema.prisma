@@ -27,7 +27,6 @@ model User {
   password              String
   post                  String           @default("Employee")
   role                  Role[]
-  members               Member[]
   benefits              RequestModel[]   @relation(name: "userbeneficiary")
   requests              RequestModel[]
   spending              Spending[]
@@ -68,32 +67,6 @@ model RolePages {
   pageId     String
 }
 
-model Department {
-  id          Int      @id @default(autoincrement())
-  reference   String   @default("none")
-  label       String
-  description String?
-  members     Member[]
-  status      String   @default("active")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Member {
-  id             Int        @id @default(autoincrement())
-  label          String
-  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         Int
-  department     Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  departmentId   Int
-  validator      Boolean    @default(false)
-  position       Int        @default(0)
-  chief          Boolean    @default(false)
-  finalValidator Boolean    @default(false)
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-}
-
 model Project {
   id          Int            @id @default(autoincrement())
   label       String
@@ -111,30 +84,20 @@ model Project {
   userId      Int            @default(1)
 }
 
-model RequestValidation {
-  id          Int          @id @default(autoincrement())
-  decision    String
-  validator   Validator    @relation(references: [id], fields: [validatorId], onDelete: Cascade)
-  validatorId Int
-  request     RequestModel @relation(references: [id], fields: [requestId], onDelete: Cascade)
-  requestId   Int
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @default(now()) @updatedAt
-}
-
 // users attached to a spesific user
 model Validators {
   id             Int           @id @default(autoincrement())
   user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   request        RequestModel? @relation(fields: [requestModelId], references: [id], onDelete: Cascade)
   validated      Boolean       @default(false)
+  decision       String?
   rank           Int
   userId         Int?
   requestModelId Int?
 }
 
 model RequestModel {
-  id               Int                 @id @default(autoincrement())
+  id               Int             @id @default(autoincrement())
   ref              String
   label            String
   description      String?
@@ -145,22 +108,21 @@ model RequestModel {
   unit             String
   beneficiary      String
   amount           Int?
-  type             String              @default("PURCHASE")
-  beficiaryList    User[]              @relation(name: "userbeneficiary")
-  revieweeList     RequestValidation[]
-  state            String              @default("pending")
-  priority         String              @default("normal")
-  category         Category            @relation(name: "RequestCategory", references: [id], fields: [categoryId], onDelete: Cascade)
+  type             String          @default("PURCHASE")
+  beficiaryList    User[]          @relation(name: "userbeneficiary")
+  state            String          @default("pending")
+  priority         String          @default("normal")
+  category         Category        @relation(name: "RequestCategory", references: [id], fields: [categoryId], onDelete: Cascade)
   categoryId       Int
-  user             User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user             User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId           Int?
-  project          Project?            @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  project          Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
   projectId        Int?
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
-  commandRequest   CommandRequest?     @relation(fields: [commandRequestId], references: [id], onDelete: SetNull)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  commandRequest   CommandRequest? @relation(fields: [commandRequestId], references: [id], onDelete: SetNull)
   commandRequestId Int?
-  command          Command?            @relation(fields: [commandId], references: [id])
+  command          Command?        @relation(fields: [commandId], references: [id])
   commandId        Int?
   deviElements     DeviElement[]
   payments         Payment[]
@@ -191,13 +153,12 @@ model Category {
 }
 
 model Validator {
-  id               Int                 @id @default(autoincrement())
-  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ctegory          Category?           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  RequestValidated RequestValidation[]
-  rank             Int
-  userId           Int
-  categoryId       Int?
+  id         Int       @id @default(autoincrement())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ctegory    Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  rank       Int
+  userId     Int
+  categoryId Int?
 }
 
 model CommandRequest {

@@ -59,7 +59,7 @@ export default class RequestRoute {
 
     this.routes.get("/validator/:id", requireRole("USER"), (req, res) => {
       this.requestController
-        .getMine(req.params.id ?? "-1")
+        .getMyValidator(req.params.id ?? "-1")
         .then((request) =>
           res
             .status(200)

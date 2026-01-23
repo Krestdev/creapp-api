@@ -93,7 +93,7 @@ export class CategoryService {
             },
           });
         }
-        return await prisma.user.update({
+        const user = await prisma.user.findUnique({
           where: {
             id: x,
             validators: {
@@ -109,14 +109,18 @@ export class CategoryService {
               },
             },
           },
-          data: {
-            role: {
-              disconnect: {
-                id: manager.id,
+        });
+        if (user)
+          return await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              role: {
+                disconnect: {
+                  id: manager.id,
+                },
               },
             },
-          },
-        });
+          });
       }),
     );
 

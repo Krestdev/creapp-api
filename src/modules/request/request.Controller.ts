@@ -1,7 +1,7 @@
-import { Payment, RequestValidation } from "@prisma/client";
+import { Payment } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
-import { RequestService } from "./request.Service";
 import { getIO } from "../../socket";
+import { RequestService } from "./request.Service";
 
 const requestService = new RequestService();
 
@@ -86,9 +86,9 @@ export default class RequestController {
   @Put("/validate/{id}")
   validate(
     @Path() id: string,
-    @Body() data: { validatorId: number },
+    @Body() data: { validatorId: number; userId: number },
   ): Promise<unknown> {
-    return requestService.validate(Number(id), data.validatorId);
+    return requestService.validate(Number(id), data.validatorId, data.userId);
   }
 
   @Put("/review/{id}")
@@ -101,7 +101,7 @@ export default class RequestController {
       decision?: string;
       userIdV: number;
     },
-  ): Promise<RequestValidation> {
+  ): Promise<unknown> {
     const { userIdV, ...restInfo } = data;
     return requestService.review(Number(id), restInfo, userIdV);
   }
@@ -121,7 +121,7 @@ export default class RequestController {
       ids: number[];
       userId: number;
     },
-  ): Promise<RequestValidation[]> {
+  ): Promise<unknown[]> {
     const { ids, userId, ...revData } = data;
     return requestService.reviewBulk(ids, revData, userId);
   }

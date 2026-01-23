@@ -5,6 +5,7 @@ import {
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
 import { getIO } from "../../socket";
+import { log } from "console";
 
 const prisma = new PrismaClient();
 
@@ -17,11 +18,16 @@ export class RequestService {
   ) => {
     const ref = "ref-" + new Date().getTime();
 
-    const validators = await prisma.validator.findMany({
-      where: {
-        categoryId: data.categoryId,
-      },
-    });
+    const validators = await prisma.category
+      .findUniqueOrThrow({
+        where: {
+          id: data.categoryId,
+        },
+        include: {
+          validators: true,
+        },
+      })
+      .then((cat) => cat.validators || []);
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
@@ -153,7 +159,6 @@ export class RequestService {
             verificationOtp: true,
           },
         },
-        revieweeList: true,
         requestOlds: true,
         validators: true,
       },
@@ -167,9 +172,6 @@ export class RequestService {
   getOne = (id: number) => {
     return prisma.requestModel.findUnique({
       where: { id },
-      include: {
-        revieweeList: true,
-      },
     });
   };
 
@@ -178,12 +180,13 @@ export class RequestService {
       where: {
         validators: {
           some: {
-            userId: id,
+            userId: {
+              equals: id,
+            },
           },
         },
       },
       include: {
-        revieweeList: true,
         beficiaryList: {
           omit: {
             password: true,
@@ -195,6 +198,7 @@ export class RequestService {
           },
         },
         requestOlds: true,
+        validators: true,
       },
     });
 
@@ -207,7 +211,6 @@ export class RequestService {
         userId: id,
       },
       include: {
-        revieweeList: true,
         beficiaryList: {
           omit: {
             password: true,
@@ -238,7 +241,7 @@ export class RequestService {
     return request;
   };
 
-  validate = async (id: number, validatorId: number) => {
+  validate = async (id: number, validatorId: number, userId: number) => {
     const requestModel = await prisma.requestModel.findFirst({
       where: { categoryId: 0, id: id },
     });
@@ -264,16 +267,10 @@ export class RequestService {
       where: { id },
       data: {
         state: "validated",
-        revieweeList: {
-          create: {
-            decision: "validated",
-            validatorId: validatorId,
-          },
-        },
         validators: {
           updateMany: {
             where: { userId: validatorId },
-            data: { validated: true },
+            data: { validated: true, decision: "validated" },
           },
         },
       },
@@ -292,6 +289,44 @@ export class RequestService {
       console.error(`Could not create notification ${e}`);
     }
 
+    // find manager Id
+    const manager = await prisma.role.findFirst({
+      where: {
+        label: "MANAGER",
+      },
+    });
+    if (!manager) throw Error("MANAGER Role not created");
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+        validators: {
+          every: {
+            categoryId: {
+              equals: null,
+            },
+          },
+        },
+        validatorOn: {
+          none: {
+            validated: false,
+          },
+        },
+      },
+    });
+    if (user) {
+      log("User found:", user);
+      return await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          role: {
+            disconnect: {
+              id: manager.id,
+            },
+          },
+        },
+      });
+    }
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
 
@@ -332,16 +367,10 @@ export class RequestService {
           where: { id },
           data: {
             state: "validated",
-            revieweeList: {
-              create: {
-                decision: "validated",
-                validatorId: validatorId,
-              },
-            },
             validators: {
               updateMany: {
                 where: { userId: userId },
-                data: { validated: true },
+                data: { validated: true, decision: "validated" },
               },
             },
           },
@@ -351,6 +380,43 @@ export class RequestService {
       }),
     );
 
+    // find manager Id
+    const manager = await prisma.role.findFirst({
+      where: {
+        label: "MANAGER",
+      },
+    });
+    if (!manager) throw Error("MANAGER Role not created");
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+        validators: {
+          every: {
+            categoryId: {
+              equals: null,
+            },
+          },
+        },
+        validatorOn: {
+          none: {
+            validated: false,
+          },
+        },
+      },
+    });
+    if (user) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          role: {
+            disconnect: {
+              id: manager.id,
+            },
+          },
+        },
+      });
+    }
     getIO().emit("request:update");
     return bulk;
   };
@@ -360,6 +426,14 @@ export class RequestService {
     data: { userId: number; validated: boolean; decision?: string },
     userIdV: number,
   ) => {
+    // find manager Id
+    const manager = await prisma.role.findFirst({
+      where: {
+        label: "MANAGER",
+      },
+    });
+    if (!manager) throw Error("MANAGER Role not created");
+
     const request = await prisma.requestModel.update({
       where: { id },
       data: {
@@ -367,20 +441,46 @@ export class RequestService {
         validators: {
           updateMany: {
             where: { userId: userIdV },
-            data: { validated: data.validated },
+            data: {
+              validated: true,
+              decision: data.validated ? "pending" : "rejected",
+            },
           },
         },
       },
     });
 
-    const review = prisma.requestValidation.create({
-      data: {
-        validatorId: data.userId,
-        decision: data.validated ? "validated" : `rejected ${data.decision}`,
-        requestId: id,
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userIdV,
+        validators: {
+          every: {
+            categoryId: {
+              equals: null,
+            },
+          },
+        },
+        validatorOn: {
+          none: {
+            validated: false,
+          },
+        },
       },
     });
+    if (user) {
+      console.log("user found:", user);
 
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          role: {
+            disconnect: {
+              id: manager.id,
+            },
+          },
+        },
+      });
+    }
     if (!data.validated) {
       try {
         this.createNotification(request);
@@ -392,7 +492,7 @@ export class RequestService {
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
     getIO().emit("request:update");
-    return review;
+    return request;
   };
 
   reviewBulk = async (
@@ -409,18 +509,12 @@ export class RequestService {
             validators: {
               updateMany: {
                 where: { userId: userId },
-                data: { validated: data.validated },
+                data: {
+                  validated: true,
+                  decision: data.validated ? "pending" : "rejected",
+                },
               },
             },
-          },
-        });
-        const review = await prisma.requestValidation.create({
-          data: {
-            validatorId: data.validatorId,
-            decision: data.validated
-              ? "validated"
-              : `rejected ${data.decision}`,
-            requestId: id,
           },
         });
 
@@ -430,7 +524,7 @@ export class RequestService {
 
         await CacheService.del(`${this.CACHE_KEY}:all`);
         await CacheService.del(`${this.CACHE_KEY}:mine`);
-        return review;
+        return request;
       }),
     );
     getIO().emit("request:update");
