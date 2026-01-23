@@ -171,6 +171,7 @@ export class AuthService {
         ownerId: userId,
         name: "Production key",
         isActive: true,
+        lastUsedAt: null,
       },
     });
 

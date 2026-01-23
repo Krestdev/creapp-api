@@ -8,14 +8,14 @@ generator client {
 }
 
 model ApiKey {
-  id           Int      @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   publicId     String
   hashedSecret String
   ownerId      Int
   name         String
   isActive     Boolean
-  lastUsedAt   DateTime
-  createdAt    DateTime @default(now())
+  lastUsedAt   DateTime?
+  createdAt    DateTime  @default(now())
 }
 
 model User {
