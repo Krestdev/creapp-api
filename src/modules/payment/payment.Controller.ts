@@ -147,9 +147,14 @@ export default class CmdRequestController {
   @Put("validate/{id}")
   validate(
     @Path() id: string,
-    @Body() data: { userId: number },
+    @Body() data: { userId: number; signDoc: Express.Multer.File[] | null },
   ): Promise<Payment> {
-    return cmdRequestService.validate(Number(id), data);
+    const { signDoc, userId } = data;
+    return cmdRequestService.validate(
+      Number(id),
+      { userId: Number(userId) },
+      signDoc,
+    );
   }
 
   @Delete("/{id}")

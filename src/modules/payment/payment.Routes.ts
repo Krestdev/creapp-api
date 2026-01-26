@@ -58,16 +58,21 @@ export default class PaymentRoute {
     );
 
     // update
-    this.routes.put("/validate/:id", requireRole("USER"), (req, res) => {
-      this.paymentController
-        .validate(req.params.id!, req.body)
-        .then((request) =>
-          res
-            .status(200)
-            .json({ message: create.success.create, data: request }),
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
+    this.routes.put(
+      "/validate/:id",
+      upload.fields([{ name: "signeDoc", maxCount: 5 }]),
+      requireRole("USER"),
+      (req, res) => {
+        this.paymentController
+          .validate(req.params.id!, { ...req.body, ...(req.files ?? null) })
+          .then((request) =>
+            res
+              .status(200)
+              .json({ message: create.success.create, data: request }),
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      },
+    );
 
     // update
     this.routes.put(

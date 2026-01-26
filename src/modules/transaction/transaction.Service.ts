@@ -126,6 +126,7 @@ export class TransactionService {
           include: {
             from: true,
             to: true,
+            payement: true,
           },
         })
       : await prisma.transaction.create({
@@ -143,6 +144,7 @@ export class TransactionService {
           include: {
             from: true,
             to: true,
+            payement: true,
           },
         });
 

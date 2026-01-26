@@ -1,10 +1,11 @@
-import { Payment, PrismaClient } from "@prisma/client";
+import { Payment, PrismaClient, Signatair, User } from "@prisma/client";
 import {
   deleteDocumentsByOwner,
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
 import { getIO } from "../../socket";
+import e from "cors";
 
 const prisma = new PrismaClient();
 
@@ -153,15 +154,76 @@ export class PaymentService {
   };
 
   // Update
-  validate = async (id: number, data: { userId: number }) => {
+  validate = async (
+    id: number,
+    data: { userId: number },
+    file: Express.Multer.File[] | null,
+  ) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    const payment = await prisma.payment.update({
+    // determine the signing mode for this payment from the back and payment type
+    const paymentData = await prisma.payment.findFirstOrThrow({
       where: { id },
-      data: {
-        status: "signed",
-        signerId: data.userId,
-      },
+      include: { signer: true },
     });
+
+    let signatair: (Signatair & { user: User[] }) | null = null;
+    if (paymentData.bankId && paymentData.methodId) {
+      signatair = await prisma.signatair.findFirst({
+        where: {
+          Bank: {
+            id: paymentData?.bankId,
+          },
+          payTypes: { id: paymentData?.methodId },
+        },
+        include: {
+          user: true,
+        },
+      });
+    }
+
+    let payment: Payment | null = null;
+
+    if (signatair?.mode === "BOTH") {
+      payment = await prisma.payment.update({
+        where: { id },
+        data: {
+          status:
+            signatair.user.length - 1 === paymentData.signer.length
+              ? "signed"
+              : "unsigned",
+          signer: {
+            connect: { id: data.userId },
+          },
+          signeDoc: file
+            ? file.map((f) => f.path.replace(/\\/g, "/")).join(";")
+            : null,
+          signed: true,
+        },
+      });
+    } else {
+      payment = await prisma.payment.update({
+        where: { id },
+        data: {
+          status: "signed",
+          signer: {
+            connect: { id: data.userId },
+          },
+          signed: true,
+          signeDoc: file
+            ? file.map((f) => f.path.replace(/\\/g, "/")).join(";")
+            : null,
+        },
+      });
+    }
+
+    if (file) {
+      await storeDocumentsBulk(file, {
+        role: "PROOF",
+        ownerId: payment.id.toString(),
+        ownerType: "COMMANDREQUEST",
+      });
+    }
+
     getIO().emit("payment:update");
     return payment;
   };
@@ -182,7 +244,11 @@ export class PaymentService {
     const cached = await CacheService.get<Payment[]>(`${this.CACHE_KEY}:all`);
     if (cached) return cached;
 
-    const payment = await prisma.payment.findMany();
+    const payment = await prisma.payment.findMany({
+      include: {
+        signer: true,
+      },
+    });
 
     await CacheService.set(`${this.CACHE_KEY}:all`, payment, 90);
 

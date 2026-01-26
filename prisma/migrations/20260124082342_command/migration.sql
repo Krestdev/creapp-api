@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Command" ADD COLUMN     "isHT" BOOLEAN NOT NULL DEFAULT true;

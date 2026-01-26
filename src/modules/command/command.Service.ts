@@ -35,6 +35,31 @@ export class CommandService {
     if (data.deviId == null) throw Error("Devi is required");
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
+    const devi = await prisma.devi.findUnique({
+      where: { id: data.deviId },
+      include: {
+        element: true,
+      },
+    });
+
+    const isReel = provider.regem === "Réel";
+    const amountHt =
+      devi?.element?.reduce((acc, req) => acc + (req.priceProposed || 0), 0) ||
+      0;
+
+    const netCommercial =
+      amountHt -
+      (data.rabaisAmount || 0) -
+      (data.remiseAmount || 0) -
+      (data.remiseAmount || 0);
+
+    if (isReel) {
+      // TVA + IR + IS
+      data.netToPay = netCommercial * (1 + 0.1925 + 0.05 + 0.022 + 0.02);
+    } else {
+      data.netToPay = netCommercial;
+    }
+
     const command = await prisma.command.create({
       data: {
         ...data,

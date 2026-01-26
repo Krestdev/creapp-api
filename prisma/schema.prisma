@@ -224,8 +224,8 @@ model DeviElement {
 }
 
 model Command {
-  id               Int            @id @default(autoincrement())
-  provider         Provider       @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  id               Int      @id @default(autoincrement())
+  provider         Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
   deliveryDelay    DateTime
   paymentTerms     String
   paymentMethod    String
@@ -235,19 +235,40 @@ model Command {
   penaltyMode      String
   amountBase       Int
   motif            String?
-  requests         RequestModel[]
-  providerId       Int
-  instalments      Instalments[]
-  payments         Payment[]
-  reference        String         @default("none")
+  isHT             Boolean  @default(true)
+  keepTaxes        Boolean  @default(true)
+  rabaisAmount     Int? // réduction exceptionnelle
+  remiseAmount     Int? // réduction commerciale
+  ristourneAmount  Int? // réduction a posteriori
+  escompteRate     Float?   @default(0)
+
+  netToPay Int? // (ce qu'on va utiliser sur les paiements)
+
+  requests    RequestModel[]
+  providerId  Int
+  instalments Instalments[]
+  payments    Payment[]
+  reference   String         @default("none")
   // one to one relation with Devi
-  devi             Devi?
-  deviId           Int?           @unique()
-  status           String?        @default("PENDING")
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @default(now()) @updatedAt
-  réceptions      Reception[]
+  devi        Devi?
+  deviId      Int?           @unique()
+  status      String?        @default("PENDING")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @default(now()) @updatedAt
+  réceptions Reception[]
 }
+
+// {
+//   subtotalHT
+//   discount
+//   netHT
+//   vatRate
+//   vatAmount
+//   withholdingRate
+//   withholdingAmount
+//   totalTTC
+//   netToPay
+// }
 
 model Instalments {
   id         Int      @id @default(autoincrement())
@@ -359,8 +380,11 @@ model Payment {
   user      User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId    Int?
 
-  signer    User?         @relation(name: "signedby", fields: [signerId], references: [id])
-  signerId  Int?
+  signer User[]  @relation(name: "signedby")
+  signed Boolean @default(false)
+
+  signeDoc String?
+
   command   Command?      @relation(fields: [commandId], references: [id], onDelete: Cascade)
   commandId Int?
   project   Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
