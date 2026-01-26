@@ -1,11 +1,10 @@
 import { Payment, PrismaClient, Signatair, User } from "@prisma/client";
+import { getIO } from "../../socket";
 import {
   deleteDocumentsByOwner,
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
-import { getIO } from "../../socket";
-import e from "cors";
 
 const prisma = new PrismaClient();
 
