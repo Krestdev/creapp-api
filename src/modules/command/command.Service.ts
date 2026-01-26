@@ -49,15 +49,18 @@ export class CommandService {
 
     const netCommercial =
       amountHt -
-      (data.rabaisAmount || 0) -
-      (data.remiseAmount || 0) -
-      (data.remiseAmount || 0);
+      (data.rabaisAmount || 0) * amountHt -
+      (data.remiseAmount || 0) * amountHt -
+      (data.remiseAmount || 0) * amountHt;
 
     if (isReel) {
       // TVA + IR + IS
-      data.netToPay = netCommercial * (1 + 0.1925 + 0.05 + 0.022 + 0.02);
+      data.netToPay =
+        netCommercial < 0
+          ? 0
+          : netCommercial * (1 + 0.1925 + 0.05 + 0.022 + 0.02);
     } else {
-      data.netToPay = netCommercial;
+      data.netToPay = netCommercial < 0 ? 0 : netCommercial;
     }
 
     const command = await prisma.command.create({
