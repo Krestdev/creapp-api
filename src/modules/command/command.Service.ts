@@ -93,7 +93,7 @@ export class CommandService {
 
   // Update
   update = async (id: number, data: Command) => {
-    if (data.providerId !== null) {
+    if (data.providerId !== null && data.providerId !== undefined) {
       const provider = await prisma.provider.findFirst({
         where: {
           id: data.providerId,
