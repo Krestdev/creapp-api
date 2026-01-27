@@ -93,6 +93,51 @@ export class CommandService {
 
   // Update
   update = async (id: number, data: Command) => {
+    if (data.providerId == null) throw Error("A provider is required");
+    const provider = await prisma.provider.findFirst({
+      where: {
+        id: data.providerId,
+      },
+    });
+
+    if (provider == null) throw Error("provider does not exist");
+    const providerNotComplete = Object.entries(provider).some(([, value]) => {
+      return value === null || value === "";
+    });
+
+    if (providerNotComplete) throw Error("The Provider info is not Complete");
+    const ref = "ref-" + new Date().getTime();
+
+    if (data.deviId == null) throw Error("Devi is required");
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    const devi = await prisma.devi.findUnique({
+      where: { id: data.deviId },
+      include: {
+        element: true,
+      },
+    });
+
+    const isReel = provider.regem === "Réel";
+    const amountHt =
+      devi?.element?.reduce((acc, req) => acc + (req.priceProposed || 0), 0) ||
+      0;
+
+    const netCommercial =
+      amountHt -
+      (data.rabaisAmount || 0) * amountHt -
+      (data.remiseAmount || 0) * amountHt -
+      (data.remiseAmount || 0) * amountHt;
+
+    if (isReel) {
+      // TVA + IR + IS
+      data.netToPay =
+        netCommercial < 0
+          ? 0
+          : netCommercial * (1 + 0.1925 + 0.05 + 0.022 + 0.02);
+    } else {
+      data.netToPay = netCommercial < 0 ? 0 : netCommercial;
+    }
+
     const command = await prisma.command.update({
       where: { id },
       data,
