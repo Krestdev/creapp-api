@@ -1,0 +1,22 @@
+@host = https://creappapi.krestdev.com/api/v1.0.0
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFU19NQU5BR0VSIiwiVk9MVF9NQU5BR0VSIiwiUkgiXSwiaWF0IjoxNzY5NTAxMjI1LCJleHAiOjE3Njk1ODc2MjV9.kS9ysrIWIyaFSesCLzfTvtklKiMAPXxZeETtBFjLJ00
+
+### Get all requests
+GET {{host}}/request/command 
+Authorization: Bearer {{token}}
+
+### Get all projects in management
+GET {{host}}/project/management 
+Authorization: Bearer {{token}}
+
+### Get all payment requests
+GET {{host}}/request/payment 
+Authorization: Bearer {{token}}
+
+### Get all object requests
+GET {{host}}/request/object 
+Authorization: Bearer {{token}}
+
+### Get my object request with ID 1
+GET {{host}}/request/object/mine/1
+Authorization: Bearer {{token}}

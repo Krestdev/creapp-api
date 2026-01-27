@@ -20,6 +20,7 @@ export class CommandRequestService {
           }),
         },
       },
+      include: { besoins: true },
     });
     getIO().emit("command:new");
     return commandRequest;
