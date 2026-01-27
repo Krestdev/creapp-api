@@ -106,7 +106,6 @@ export class CommandService {
     });
 
     if (providerNotComplete) throw Error("The Provider info is not Complete");
-    const ref = "ref-" + new Date().getTime();
 
     if (data.deviId == null) throw Error("Devi is required");
     await CacheService.del(`${this.CACHE_KEY}:all`);
