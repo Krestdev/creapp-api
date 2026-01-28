@@ -690,6 +690,7 @@ export class RequestService {
           price: requestData.amount!,
           title: requestData.label!,
           deadline: requestData.dueDate!,
+          priority: requestData.priority!,
         },
       });
     } else throw Error("Lack information Can not update");
