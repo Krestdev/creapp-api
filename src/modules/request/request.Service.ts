@@ -128,7 +128,7 @@ export class RequestService {
       },
     });
 
-    const requestOld = await prisma.requestOld.create({
+    await prisma.requestOld.create({
       data: {
         unit: updateData.unit ? oldRequest.unit : null,
         quantity: updateData.quantity ? oldRequest.quantity : null,

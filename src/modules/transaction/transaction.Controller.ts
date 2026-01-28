@@ -120,11 +120,7 @@ export default class TransactionController {
       userId: number | null;
     },
   ): Promise<Transaction> {
-    const { signDoc, userId, ...restData } = data;
-
-    const newTransaction = {
-      ...restData,
-    };
+    const { signDoc, userId } = data;
 
     const newProof = signDoc
       ? signDoc.map((p) => p.path.replace(/\\/g, "/")).join(";")
