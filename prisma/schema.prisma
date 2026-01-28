@@ -552,6 +552,7 @@ model TransactionSigners {
   signed        Boolean     @default(false)
   transactionId Int
   userId        Int
+  signedAt      DateTime?   @default(now())
 }
 
 model RequestType {

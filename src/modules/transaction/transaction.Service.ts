@@ -274,7 +274,9 @@ export class TransactionService {
       include: {
         from: true,
         to: true,
-        signers: true,
+        signers: {
+          include: { user: true },
+        },
       },
     });
 

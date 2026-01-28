@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "TransactionSigners" ADD COLUMN     "signedAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP;
