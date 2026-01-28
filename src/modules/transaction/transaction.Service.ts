@@ -68,7 +68,7 @@ export class TransactionService {
       });
     }
 
-    if (transak.toBankId)
+    if (transak.toBankId && transak.fromBankId)
       await prisma.$transaction([
         prisma.bank.update({
           where: {
@@ -80,6 +80,52 @@ export class TransactionService {
             },
           },
         }),
+        prisma.bank.update({
+          where: {
+            id: transak.toBankId,
+          },
+          data: {
+            balance: {
+              increment: transak.amount,
+            },
+          },
+        }),
+      ]);
+    else if (!transak.toBankId && transak.fromBankId)
+      await prisma.$transaction([
+        prisma.bank.update({
+          where: {
+            id: transak.fromBankId,
+          },
+          data: {
+            balance: {
+              decrement: transak.amount,
+            },
+          },
+        }),
+        // prisma.bank.update({
+        //   where: {
+        //     id: transak.toBankId,
+        //   },
+        //   data: {
+        //     balance: {
+        //       increment: transak.amount,
+        //     },
+        //   },
+        // }),
+      ]);
+    else if (transak.toBankId && !transak.fromBankId)
+      await prisma.$transaction([
+        // prisma.bank.update({
+        //   where: {
+        //     id: transak.fromBankId,
+        //   },
+        //   data: {
+        //     balance: {
+        //       decrement: transak.amount,
+        //     },
+        //   },
+        // }),
         prisma.bank.update({
           where: {
             id: transak.toBankId,
@@ -111,6 +157,7 @@ export class TransactionService {
             ...transak,
             fromBankId: transak.fromBankId ?? fromBank?.id,
             toBankId: transak.toBankId ?? toBank?.id,
+            methodId: methodId ?? null,
             status:
               data.Type == "TRANSFER" && transak.status
                 ? transak.status
@@ -190,6 +237,39 @@ export class TransactionService {
       where: { id },
       data: {
         ...data,
+      },
+      include: {
+        from: true,
+        to: true,
+      },
+    });
+
+    if (file) {
+      await storeDocumentsBulk(file, {
+        role: "PROOF",
+        ownerId: transaction.id.toString(),
+        ownerType: "TRANSACTION",
+      });
+    }
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("transaction:update");
+    return transaction;
+  };
+
+  // Update
+  sign = async (
+    id: number,
+    signDoc: string | null,
+    userId: number | null,
+    file: Express.Multer.File[] | null,
+  ) => {
+    const transaction = await prisma.transaction.update({
+      where: { id },
+      data: {
+        isSigned: true,
+        signerId: userId,
+        signDoc,
       },
       include: {
         from: true,

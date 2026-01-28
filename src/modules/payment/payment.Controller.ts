@@ -138,6 +138,10 @@ export default class CmdRequestController {
         .join(";");
     }
 
+    if (data.requestId) {
+      payment.requestId = Number(data.requestId);
+    }
+
     return cmdRequestService.update(Number(id), payment);
   }
 

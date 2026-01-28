@@ -145,7 +145,6 @@ export class PaymentService {
       data: {
         ...data,
         isPartial: Boolean(data.isPartial),
-        requestId: Number(data.requestId),
       },
     });
     getIO().emit("payment:update");

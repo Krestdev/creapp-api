@@ -127,7 +127,6 @@ export class ProviderService {
       const Docs = Object.values(files);
       Docs.map(async (doc) => {
         if (doc !== null) {
-          console.log(doc);
           await storeDocumentsBulk(doc, {
             role: "PROOF",
             ownerId: provider.id.toString(),

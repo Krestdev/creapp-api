@@ -81,6 +81,10 @@ export default class TransactionController {
       newTransaction.date = new Date(data.date);
     }
 
+    if (data.methodId) {
+      newTransaction.methodId = Number(data.methodId);
+    }
+
     if (data.amount) {
       newTransaction.amount = Number(data.amount);
     }
@@ -102,6 +106,32 @@ export default class TransactionController {
       payId,
       proof,
     );
+  }
+
+  /**
+   * @summary Update Command request
+   */
+  @Put("sign/{id}")
+  sign(
+    @Path() id: string,
+    @Body()
+    data: Omit<Transaction, "proof"> & {
+      signDoc: Express.Multer.File[] | null;
+      userId: number | null;
+    },
+  ): Promise<Transaction> {
+    const { signDoc, userId, ...restData } = data;
+
+    const newTransaction = {
+      ...restData,
+    };
+
+    const newProof = signDoc
+      ? signDoc.map((p) => p.path.replace(/\\/g, "/")).join(";")
+      : null;
+
+    getIO().emit("transaction:update");
+    return transactionService.sign(Number(id), newProof, userId, signDoc);
   }
 
   @Put("/validate/{id}")

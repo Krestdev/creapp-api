@@ -56,6 +56,43 @@ export default class TransactionRoute {
     );
 
     // update
+    this.routes.put(
+      "sign/:id",
+      authenticate,
+      upload.fields([{ name: "signDoc", maxCount: 5 }]),
+      (req, res) => {
+        this.trTransactionController
+          .sign(req.params.id!, {
+            ...req.body,
+            ...req.files,
+            userId: req.user?.userId ?? null,
+          })
+          .then((request) =>
+            res
+              .status(200)
+              .json({ message: create.success.create, data: request }),
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      },
+    );
+
+    // update
+    this.routes.put(
+      "/:id",
+      upload.fields([{ name: "proof", maxCount: 5 }]),
+      (req, res) => {
+        this.trTransactionController
+          .update(req.params.id!, { ...req.body, ...req.files })
+          .then((request) =>
+            res
+              .status(200)
+              .json({ message: create.success.create, data: request }),
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      },
+    );
+
+    // update
     this.routes.put("/validate/:id", requireRole("USER"), (req, res) => {
       this.trTransactionController
         .validate(req.params.id!, req.body)

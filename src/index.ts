@@ -174,7 +174,7 @@ class ApiServer {
         // 🔥 INIT SOCKET HERE
         initSocket(this.server);
 
-        console.log(`Server is running on port ${GENERAL_CONFIG.app.port}`);
+        console.info(`Server is running on port ${GENERAL_CONFIG.app.port}`);
 
         // server base urls
         console.table([

@@ -51,6 +51,7 @@ model User {
   signedPayments        Payment[]        @relation(name: "signedby")
   validatorOn           Validators[]
   requestOlds           RequestOld[]
+  transactionSigner     Transaction[]    @relation(name: "singer")
 }
 
 model Role {
@@ -447,12 +448,13 @@ model Signatair {
 }
 
 model PayType {
-  id          Int         @id @default(autoincrement())
-  label       String?
-  type        String?
-  signatairs  Signatair[]
-  signatairId Int?
-  payments    Payment[]
+  id           Int           @id @default(autoincrement())
+  label        String?
+  type         String?
+  signatairs   Signatair[]
+  signatairId  Int?
+  payments     Payment[]
+  transactions Transaction[]
 }
 
 model Reception {
@@ -513,25 +515,35 @@ model Bank {
 }
 
 model Transaction {
-  id          Int       @id @default(autoincrement())
-  label       String
-  amount      Float
-  date        DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now()) @updatedAt
-  Type        String
-  from        Bank      @relation(name: "incoming", fields: [fromBankId], references: [id])
-  to          Bank      @relation(name: "outgoing", fields: [toBankId], references: [id])
-  fromBankId  Int
-  toBankId    Int
-  proof       String?
-  status      String? // APPROVED, PENDING, REJECTED, ACCEPTED
-  reason      String?
-  user        User?     @relation(name: "creator", fields: [userId], references: [id], onDelete: SetNull)
+  id         Int       @id @default(autoincrement())
+  label      String
+  amount     Float
+  date       DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
+  Type       String
+  from       Bank      @relation(name: "incoming", fields: [fromBankId], references: [id])
+  to         Bank      @relation(name: "outgoing", fields: [toBankId], references: [id])
+  fromBankId Int
+  toBankId   Int
+  proof      String?
+  status     String? // APPROVED, PENDING, REJECTED, ACCEPTED
+  reason     String?
+  docNumber  String?
+
+  method   PayType? @relation(fields: [methodId], references: [id])
+  methodId Int?
+
+  isSigned Boolean @default(false)
+  signer   User?   @relation(name: "singer", fields: [signerId], references: [id])
+  signerId Int?
+  signDoc  String?
+
+  user        User?    @relation(name: "creator", fields: [userId], references: [id], onDelete: SetNull)
   userId      Int?
-  validator   User?     @relation(name: "validator", fields: [validatorId], references: [id])
+  validator   User?    @relation(name: "validator", fields: [validatorId], references: [id])
   validatorId Int?
-  payement    Payment?  @relation(name: "paymentTransaction")
+  payement    Payment? @relation(name: "paymentTransaction")
 }
 
 model RequestType {

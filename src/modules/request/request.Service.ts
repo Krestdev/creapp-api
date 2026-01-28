@@ -40,6 +40,20 @@ export class RequestService {
           ? JSON.parse(data.benFac as unknown as string)
           : null,
         ref,
+        requestOlds: {
+          create: {
+            unit: data.unit,
+            quantity: data.quantity,
+            priority: data.priority,
+            amount: data.amount,
+            dueDate: data.dueDate,
+            user: {
+              connect: {
+                id: data.userId!,
+              },
+            },
+          },
+        },
         type: "ACHAT".toLowerCase(),
         beficiaryList: {
           connect: benList
@@ -62,6 +76,7 @@ export class RequestService {
         validators: true,
       },
     });
+
     getIO().emit("request:new", { userId: request.userId });
     return request;
   };
@@ -130,8 +145,6 @@ export class RequestService {
         },
       },
     });
-
-    console.log(requestOld);
 
     getIO().emit("request:update");
     return prisma.requestModel.findUnique({
@@ -471,7 +484,6 @@ export class RequestService {
       },
     });
     if (user) {
-      console.log("removing manager role from user ", user);
       await prisma.user.update({
         where: { id: userIdV },
         data: {
