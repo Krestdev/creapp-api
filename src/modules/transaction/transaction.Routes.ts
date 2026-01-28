@@ -57,7 +57,7 @@ export default class TransactionRoute {
 
     // update
     this.routes.put(
-      "sign/:id",
+      "/sign/:id",
       authenticate,
       upload.fields([{ name: "signDoc", maxCount: 5 }]),
       (req, res) => {

@@ -2,6 +2,7 @@ import { Bank, Transaction } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { TransactionService } from "./transaction.Service";
 import { getIO } from "../../socket";
+import { normalizeFile } from "../../utils/serverUtils";
 
 const transactionService = new TransactionService();
 
@@ -23,11 +24,13 @@ export default class TransactionController {
   ): Promise<Transaction> {
     const { proof, paymentId, status, methodId, ...restData } = data;
 
-    const newTransaction = {
+    const newTransaction: Transaction & { from: Bank; to?: Bank } = {
       ...restData,
       amount: Number(data.amount),
       date: new Date(data.date ?? "now"),
-      proof: "",
+      proof: null,
+      status: data.status,
+      methodId: methodId ? Number(methodId) : null,
     };
 
     if (data.from !== undefined) {
@@ -43,9 +46,7 @@ export default class TransactionController {
     }
 
     if (proof) {
-      newTransaction.proof = proof
-        .map((p) => p.path.replace(/\\/g, "/"))
-        .join(";");
+      newTransaction.proof = normalizeFile(proof);
     }
 
     return transactionService.create(
@@ -73,9 +74,12 @@ export default class TransactionController {
   ): Promise<Transaction> {
     const { proof, paymentId, ...restData } = data;
 
-    const newTransaction = {
+    const newTransaction: Transaction & { proof: string | null } = {
       ...restData,
+      proof: null,
     };
+
+    console.log(data);
 
     if (data.date) {
       newTransaction.date = new Date(data.date);
@@ -89,23 +93,16 @@ export default class TransactionController {
       newTransaction.amount = Number(data.amount);
     }
 
+    if (proof) {
+      newTransaction.proof = normalizeFile(proof);
+    }
+
     let payId: number | null = null;
     if (paymentId) {
       payId = Number(paymentId);
     }
 
-    const newProof = proof
-      ? proof.map((p) => p.path.replace(/\\/g, "/")).join(";")
-      : null;
-
-    getIO().emit("transaction:update");
-    return transactionService.update(
-      Number(id),
-      newTransaction,
-      newProof,
-      payId,
-      proof,
-    );
+    return transactionService.update(Number(id), newTransaction, payId, proof);
   }
 
   /**
@@ -117,14 +114,12 @@ export default class TransactionController {
     @Body()
     data: Omit<Transaction, "proof"> & {
       signDoc: Express.Multer.File[] | null;
-      userId: number | null;
+      userId: number;
     },
   ): Promise<Transaction> {
     const { signDoc, userId } = data;
 
-    const newProof = signDoc
-      ? signDoc.map((p) => p.path.replace(/\\/g, "/")).join(";")
-      : null;
+    const newProof = normalizeFile(signDoc);
 
     getIO().emit("transaction:update");
     return transactionService.sign(Number(id), newProof, userId, signDoc);
@@ -136,13 +131,11 @@ export default class TransactionController {
     @Body()
     data: { validatorId: number; status: string; reason: string },
   ): Promise<Transaction> {
-    getIO().emit("transaction:update");
     return transactionService.validate(Number(id), data);
   }
 
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Transaction> {
-    getIO().emit("transaction:delete");
     return transactionService.delete(Number(id));
   }
 

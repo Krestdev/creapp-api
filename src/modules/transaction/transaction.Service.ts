@@ -212,16 +212,11 @@ export class TransactionService {
   update = async (
     id: number,
     data: Partial<Transaction>,
-    proof: string | null,
     paymentId: number | null,
     file: Express.Multer.File[] | null,
   ) => {
     if (data.amount) {
       data.amount = Number(data.amount);
-    }
-
-    if (data.proof) {
-      data.proof = proof;
     }
 
     if (paymentId) {
@@ -261,19 +256,25 @@ export class TransactionService {
   sign = async (
     id: number,
     signDoc: string | null,
-    userId: number | null,
+    userId: number,
     file: Express.Multer.File[] | null,
   ) => {
     const transaction = await prisma.transaction.update({
       where: { id },
       data: {
         isSigned: true,
-        signerId: userId,
         signDoc,
+        signers: {
+          create: {
+            userId: userId,
+            signed: true,
+          },
+        },
       },
       include: {
         from: true,
         to: true,
+        signers: true,
       },
     });
 
@@ -335,6 +336,8 @@ export class TransactionService {
       include: {
         from: true,
         to: true,
+        method: true,
+        signers: true,
       },
     });
 
@@ -349,6 +352,8 @@ export class TransactionService {
       include: {
         from: true,
         to: true,
+        method: true,
+        signers: true,
       },
     });
   };

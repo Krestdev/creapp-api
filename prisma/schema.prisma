@@ -19,39 +19,39 @@ model ApiKey {
 }
 
 model User {
-  id                    Int              @id @default(autoincrement())
-  email                 String           @unique
+  id                    Int                  @id @default(autoincrement())
+  email                 String               @unique
   firstName             String?
   lastName              String?
   phone                 String
   password              String
-  post                  String           @default("Employee")
+  post                  String               @default("Employee")
   role                  Role[]
-  benefits              RequestModel[]   @relation(name: "userbeneficiary")
+  benefits              RequestModel[]       @relation(name: "userbeneficiary")
   requests              RequestModel[]
   spending              Spending[]
-  project               Project[]        @relation("ProjectChief")
-  status                String           @default("active")
+  project               Project[]            @relation("ProjectChief")
+  status                String               @default("active")
   lastConnection        DateTime?
   verificationOtp       String?
-  verified              Boolean          @default(false)
-  createdAt             DateTime         @default(now())
-  updatedAt             DateTime         @updatedAt
+  verified              Boolean              @default(false)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
   commandRequests       CommandRequest[]
   devis                 Devi[]
   validators            Validator[]
   payments              Payment[]
   receptions            Reception[]
   notifications         Notification[]
-  projects              Project[]        @relation("ProjectOwner")
-  beneficiat            Payment[]        @relation("paymentBenef")
-  transactions          Transaction[]    @relation(name: "creator")
-  validatedTransactions Transaction[]    @relation(name: "validator")
+  projects              Project[]            @relation("ProjectOwner")
+  beneficiat            Payment[]            @relation("paymentBenef")
+  transactions          Transaction[]        @relation(name: "creator")
+  validatedTransactions Transaction[]        @relation(name: "validator")
   signatairs            Signatair[]
-  signedPayments        Payment[]        @relation(name: "signedby")
+  signedPayments        Payment[]            @relation(name: "signedby")
   validatorOn           Validators[]
   requestOlds           RequestOld[]
-  transactionSigner     Transaction[]    @relation(name: "singer")
+  transactionSigners    TransactionSigners[]
 }
 
 model Role {
@@ -535,15 +535,23 @@ model Transaction {
   methodId Int?
 
   isSigned Boolean @default(false)
-  signer   User?   @relation(name: "singer", fields: [signerId], references: [id])
-  signerId Int?
   signDoc  String?
 
-  user        User?    @relation(name: "creator", fields: [userId], references: [id], onDelete: SetNull)
+  user        User?                @relation(name: "creator", fields: [userId], references: [id], onDelete: SetNull)
   userId      Int?
-  validator   User?    @relation(name: "validator", fields: [validatorId], references: [id])
+  validator   User?                @relation(name: "validator", fields: [validatorId], references: [id])
   validatorId Int?
-  payement    Payment? @relation(name: "paymentTransaction")
+  payement    Payment?             @relation(name: "paymentTransaction")
+  signers     TransactionSigners[]
+}
+
+model TransactionSigners {
+  id            Int         @id @default(autoincrement())
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  signed        Boolean     @default(false)
+  transactionId Int
+  userId        Int
 }
 
 model RequestType {
