@@ -167,30 +167,6 @@ export class TransactionService {
       },
     });
 
-    if (transaction.status === "REJECTED")
-      await prisma.bank.update({
-        where: {
-          id: transaction.fromBankId,
-        },
-        data: {
-          balance: {
-            increment: transaction.amount,
-          },
-        },
-      });
-
-    if (transaction.status === "APPROVED")
-      await prisma.bank.update({
-        where: {
-          id: transaction.toBankId,
-        },
-        data: {
-          balance: {
-            increment: transaction.amount,
-          },
-        },
-      });
-
     if (file) {
       await storeDocumentsBulk(file, {
         role: "PROOF",
@@ -312,6 +288,31 @@ export class TransactionService {
         to: true,
       },
     });
+
+    if (transaction.status === "REJECTED")
+      await prisma.bank.update({
+        where: {
+          id: transaction.fromBankId,
+        },
+        data: {
+          balance: {
+            increment: transaction.amount,
+          },
+        },
+      });
+
+    if (transaction.status === "APPROVED")
+      await prisma.bank.update({
+        where: {
+          id: transaction.toBankId,
+        },
+        data: {
+          balance: {
+            increment: transaction.amount,
+          },
+        },
+      });
+
     getIO().emit("transaction:update");
     return transaction;
   };
