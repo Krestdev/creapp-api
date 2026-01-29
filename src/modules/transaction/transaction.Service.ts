@@ -68,16 +68,31 @@ export class TransactionService {
       });
     }
 
-    await prisma.bank.update({
-      where: {
-        id: transak.fromBankId,
-      },
-      data: {
-        balance: {
-          decrement: transak.amount,
+    if (transak.fromBankId) {
+      await prisma.bank.update({
+        where: {
+          id: transak.fromBankId,
         },
-      },
-    });
+        data: {
+          balance: {
+            decrement: transak.amount,
+          },
+        },
+      });
+    }
+
+    if (transak.toBankId && !transak.fromBankId) {
+      await prisma.bank.update({
+        where: {
+          id: transak.toBankId,
+        },
+        data: {
+          balance: {
+            increment: transak.amount,
+          },
+        },
+      });
+    }
 
     const transaction = paymentId
       ? await prisma.transaction.create({
