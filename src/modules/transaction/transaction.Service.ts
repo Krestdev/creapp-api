@@ -68,88 +68,16 @@ export class TransactionService {
       });
     }
 
-    if (transak.toBankId && transak.fromBankId)
-      await prisma.$transaction([
-        prisma.bank.update({
-          where: {
-            id: transak.fromBankId,
-          },
-          data: {
-            balance: {
-              decrement: transak.amount,
-            },
-          },
-        }),
-        prisma.bank.update({
-          where: {
-            id: transak.toBankId,
-          },
-          data: {
-            balance: {
-              increment: transak.amount,
-            },
-          },
-        }),
-      ]);
-    else if (!transak.toBankId && transak.fromBankId)
-      await prisma.$transaction([
-        prisma.bank.update({
-          where: {
-            id: transak.fromBankId,
-          },
-          data: {
-            balance: {
-              decrement: transak.amount,
-            },
-          },
-        }),
-        // prisma.bank.update({
-        //   where: {
-        //     id: transak.toBankId,
-        //   },
-        //   data: {
-        //     balance: {
-        //       increment: transak.amount,
-        //     },
-        //   },
-        // }),
-      ]);
-    else if (transak.toBankId && !transak.fromBankId)
-      await prisma.$transaction([
-        // prisma.bank.update({
-        //   where: {
-        //     id: transak.fromBankId,
-        //   },
-        //   data: {
-        //     balance: {
-        //       decrement: transak.amount,
-        //     },
-        //   },
-        // }),
-        prisma.bank.update({
-          where: {
-            id: transak.toBankId,
-          },
-          data: {
-            balance: {
-              increment: transak.amount,
-            },
-          },
-        }),
-      ]);
-    else
-      await prisma.$transaction([
-        prisma.bank.update({
-          where: {
-            id: transak.fromBankId,
-          },
-          data: {
-            balance: {
-              decrement: transak.amount,
-            },
-          },
-        }),
-      ]);
+    await prisma.bank.update({
+      where: {
+        id: transak.fromBankId,
+      },
+      data: {
+        balance: {
+          decrement: transak.amount,
+        },
+      },
+    });
 
     const transaction = paymentId
       ? await prisma.transaction.create({
@@ -244,28 +172,32 @@ export class TransactionService {
       transaction.fromBankId &&
       transaction.status === "REJECTED"
     )
-      await prisma.$transaction([
-        prisma.bank.update({
-          where: {
-            id: transaction.fromBankId,
+      await prisma.bank.update({
+        where: {
+          id: transaction.fromBankId,
+        },
+        data: {
+          balance: {
+            increment: transaction.amount,
           },
-          data: {
-            balance: {
-              increment: transaction.amount,
-            },
+        },
+      });
+
+    if (
+      transaction.toBankId &&
+      transaction.fromBankId &&
+      transaction.status === "APPROVED"
+    )
+      await prisma.bank.update({
+        where: {
+          id: transaction.toBankId,
+        },
+        data: {
+          balance: {
+            increment: transaction.amount,
           },
-        }),
-        prisma.bank.update({
-          where: {
-            id: transaction.toBankId,
-          },
-          data: {
-            balance: {
-              decrement: transaction.amount,
-            },
-          },
-        }),
-      ]);
+        },
+      });
 
     if (file) {
       await storeDocumentsBulk(file, {
