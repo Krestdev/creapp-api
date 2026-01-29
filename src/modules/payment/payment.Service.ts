@@ -34,10 +34,9 @@ export class PaymentService {
       where: { commandId: data.commandId },
     });
 
-    const totalPaid = commandPayments.reduce(
-      (sum, payment) => sum + payment.price,
-      0,
-    );
+    const totalPaid = commandPayments
+      .filter((elm) => elm.status !== "rejected")
+      .reduce((sum, payment) => sum + payment.price, 0);
 
     const commandAmount = command.devi?.element.reduce(
       (sum, element) => sum + element.priceProposed * element.quantity,
