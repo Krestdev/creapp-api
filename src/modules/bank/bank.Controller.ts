@@ -1,6 +1,7 @@
 import { Bank } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { BankService } from "./bank.Service";
+import { normalizeFile } from "../../utils/serverUtils";
 
 const bankService = new BankService();
 
@@ -20,15 +21,10 @@ export default class BankController {
       ...restData,
       balance: Number(data.balance),
       Status: (data.Status as unknown as string) == "true" ? true : false,
+      justification: normalizeFile(justification),
     };
-    const newJustification = justification
-      .map((p) => p.path.replace(/\\/g, "/"))
-      .join(";");
 
-    return bankService.create(
-      { ...newBank, justification: newJustification },
-      justification,
-    );
+    return bankService.create({ ...newBank }, justification);
   }
 
   /**
