@@ -49,9 +49,11 @@ export class CommandService {
 
     const netCommercial =
       amountHt -
-      (data.rabaisAmount || 0) * amountHt -
-      (data.remiseAmount || 0) * amountHt -
-      (data.remiseAmount || 0) * amountHt;
+      (((data.rabaisAmount || 0) -
+        (data.remiseAmount || 0) -
+        (data.ristourneAmount || 0)) *
+        amountHt) /
+        100;
 
     if (isReel) {
       // TVA + IR + IS
@@ -125,9 +127,11 @@ export class CommandService {
 
       const netCommercial =
         amountHt -
-        (data.rabaisAmount || 0) * amountHt -
-        (data.remiseAmount || 0) * amountHt -
-        (data.remiseAmount || 0) * amountHt;
+        (((data.rabaisAmount || 0) -
+          (data.remiseAmount || 0) -
+          (data.ristourneAmount || 0)) *
+          amountHt) /
+          100;
 
       if (isReel) {
         // TVA + IR + IS
