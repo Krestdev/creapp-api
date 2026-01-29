@@ -38,10 +38,7 @@ export class PaymentService {
       .filter((elm) => elm.status !== "rejected")
       .reduce((sum, payment) => sum + payment.price, 0);
 
-    const commandAmount = command.devi?.element.reduce(
-      (sum, element) => sum + element.priceProposed * element.quantity,
-      0,
-    );
+    const commandAmount = command.netToPay;
 
     const remainingAmount = (commandAmount ?? 0) - totalPaid;
 
