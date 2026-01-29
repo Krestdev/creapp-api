@@ -259,26 +259,74 @@ export class TransactionService {
     userId: number,
     file: Express.Multer.File[] | null,
   ) => {
-    const transaction = await prisma.transaction.update({
+    const transactionInfo = await prisma.transaction.findUniqueOrThrow({
       where: { id },
-      data: {
-        isSigned: true,
-        signDoc,
-        signers: {
-          create: {
-            userId: userId,
-            signed: true,
+      include: { from: true, to: true, method: true, signers: true },
+    });
+
+    if (transactionInfo.methodId == null)
+      throw Error("Payment method is required to sign the transaction");
+    if (transactionInfo.fromBankId == null)
+      throw Error("From Bank is required to sign the transaction");
+
+    const signers = await prisma.signatair.findFirst({
+      where: {
+        payTypeId: transactionInfo.methodId,
+        bankId: transactionInfo.fromBankId,
+      },
+      include: { user: true },
+    });
+
+    if (signers == null)
+      throw Error("No signature method found for this payment method and bank");
+
+    let transaction;
+    if (signers.mode === "ONE") {
+      transaction = await prisma.transaction.update({
+        where: { id },
+        data: {
+          isSigned: true,
+          signDoc,
+          signers: {
+            create: {
+              userId: userId,
+              signed: true,
+            },
           },
         },
-      },
-      include: {
-        from: true,
-        to: true,
-        signers: {
-          include: { user: true },
+        include: {
+          from: true,
+          to: true,
+          signers: {
+            include: { user: true },
+          },
         },
-      },
-    });
+      });
+    } else {
+      transaction = await prisma.transaction.update({
+        where: { id },
+        data: {
+          isSigned:
+            transactionInfo.signers.length + 1 >= signers.user.length
+              ? true
+              : false,
+          signDoc,
+          signers: {
+            create: {
+              userId: userId,
+              signed: true,
+            },
+          },
+        },
+        include: {
+          from: true,
+          to: true,
+          signers: {
+            include: { user: true },
+          },
+        },
+      });
+    }
 
     if (file) {
       await storeDocumentsBulk(file, {
