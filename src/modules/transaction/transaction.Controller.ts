@@ -30,6 +30,7 @@ export default class TransactionController {
       date: new Date(data.date ?? "now"),
       proof: null,
       status: data.status,
+      Type: data.Type === "undefined" ? "DEBIT" : data.Type,
       methodId: methodId ? Number(methodId) : null,
     };
 
