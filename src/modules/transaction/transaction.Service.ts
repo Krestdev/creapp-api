@@ -68,7 +68,7 @@ export class TransactionService {
       });
     }
 
-    if (transak.toBankId && transak.fromBankId && transak.status === "APPROVED")
+    if (transak.toBankId && transak.fromBankId)
       await prisma.$transaction([
         prisma.bank.update({
           where: {
@@ -242,7 +242,7 @@ export class TransactionService {
     if (
       transaction.toBankId &&
       transaction.fromBankId &&
-      transaction.status === "APPROVED"
+      transaction.status === "REJECTED"
     )
       await prisma.$transaction([
         prisma.bank.update({
@@ -251,7 +251,7 @@ export class TransactionService {
           },
           data: {
             balance: {
-              decrement: transaction.amount,
+              increment: transaction.amount,
             },
           },
         }),
@@ -261,7 +261,7 @@ export class TransactionService {
           },
           data: {
             balance: {
-              increment: transaction.amount,
+              decrement: transaction.amount,
             },
           },
         }),
