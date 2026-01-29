@@ -167,11 +167,7 @@ export class TransactionService {
       },
     });
 
-    if (
-      transaction.toBankId &&
-      transaction.fromBankId &&
-      transaction.status === "REJECTED"
-    )
+    if (transaction.status === "REJECTED")
       await prisma.bank.update({
         where: {
           id: transaction.fromBankId,
@@ -183,11 +179,7 @@ export class TransactionService {
         },
       });
 
-    if (
-      transaction.toBankId &&
-      transaction.fromBankId &&
-      transaction.status === "APPROVED"
-    )
+    if (transaction.status === "APPROVED")
       await prisma.bank.update({
         where: {
           id: transaction.toBankId,
@@ -209,6 +201,7 @@ export class TransactionService {
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     getIO().emit("transaction:update");
+    getIO().emit("bank:update");
     return transaction;
   };
 
