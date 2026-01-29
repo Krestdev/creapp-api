@@ -44,13 +44,15 @@ export class CommandService {
 
     const isReel = provider.regem === "Réel";
     const amountHt =
-      devi?.element?.reduce((acc, req) => acc + (req.priceProposed || 0), 0) ||
-      0;
+      devi?.element?.reduce(
+        (acc, req) => acc + (req.priceProposed || 0) * req.quantity,
+        0,
+      ) || 0;
 
     const netCommercial =
       amountHt -
-      (((data.rabaisAmount || 0) -
-        (data.remiseAmount || 0) -
+      (((data.rabaisAmount || 0) +
+        (data.remiseAmount || 0) +
         (data.ristourneAmount || 0)) *
         amountHt) /
         100;
