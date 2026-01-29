@@ -213,6 +213,7 @@ export class CommandService {
             element: true,
           },
         },
+        instalments: true,
         provider: true,
       },
     });
