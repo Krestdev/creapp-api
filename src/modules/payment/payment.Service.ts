@@ -35,7 +35,7 @@ export class PaymentService {
     });
 
     const totalPaid = commandPayments
-      .filter((elm) => elm.status !== "rejected")
+      .filter((elm) => elm.status !== "rejected" && elm.status !== "cancelled")
       .reduce((sum, payment) => sum + payment.price, 0);
 
     const commandAmount = command.netToPay;
