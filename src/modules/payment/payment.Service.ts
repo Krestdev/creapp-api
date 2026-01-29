@@ -146,6 +146,19 @@ export class PaymentService {
         isPartial: Boolean(data.isPartial),
       },
     });
+
+    if (payment && payment.status === "paid" && payment.bankId)
+      await prisma.bank.update({
+        where: {
+          id: payment.bankId ?? -1,
+        },
+        data: {
+          balance: {
+            decrement: payment.price,
+          },
+        },
+      });
+
     getIO().emit("payment:update");
     return payment;
   };
