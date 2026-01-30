@@ -98,6 +98,14 @@ export default class TransactionController {
       newTransaction.proof = normalizeFile(proof);
     }
 
+    if (data.fromBankId) {
+      newTransaction.fromBankId = Number(data.fromBankId);
+    }
+
+    if (data.toBankId) {
+      newTransaction.toBankId = Number(data.toBankId);
+    }
+
     let payId: number | null = null;
     if (paymentId) {
       payId = Number(paymentId);
