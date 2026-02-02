@@ -1,6 +1,7 @@
 import { Command } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { CommandService } from "./command.Service";
+import { normalizeFile } from "../../utils/serverUtils";
 
 const commandService = new CommandService();
 
@@ -19,9 +20,10 @@ export default class CommandController {
         }[];
       };
       ids: number[];
+      conditions: number[];
     },
   ): Promise<Command> {
-    return commandService.create(data.command, data.ids);
+    return commandService.create(data.command, data.ids, data.conditions);
   }
 
   /**
@@ -30,6 +32,21 @@ export default class CommandController {
   @Put("/{id}")
   update(@Path() id: string, @Body() data: Command): Promise<Command> {
     return commandService.update(Number(id), data);
+  }
+
+  @Put("addFile/{id}")
+  signedFile(
+    @Path() id: string,
+    @Body()
+    data: {
+      proof: Express.Multer.File[] | null;
+    },
+  ): Promise<Command> {
+    return commandService.addSignedFile(
+      Number(id),
+      normalizeFile(data.proof),
+      data.proof,
+    );
   }
 
   @Delete("/{id}")

@@ -91,6 +91,18 @@ export default class ProviderRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    // getAll
+    this.routes.get("/valid", requireRole("USER"), (req, res) => {
+      this.providerController
+        .getValid()
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // getOne
     this.routes.get("/:id", requireRole("USER"), (req, res) => {
       this.providerController

@@ -21,6 +21,7 @@ import PayTypeRoute from "../payType/payType.Routes";
 import SignatairRoute from "../signatair/signatair.Routes";
 import AuthRoute from "../auth/auth.routes";
 import DriverRoute from "../driver/driver.Routes";
+import CommandConditionsRoute from "../commandCondition/condition.Routes";
 
 export function connectBaseRoutes() {
   const router = Router();
@@ -76,6 +77,7 @@ export function connectRequestRoutes() {
   const payTypeRoute = new PayTypeRoute();
   const signatairRoute = new SignatairRoute();
   const driverRoute = new DriverRoute();
+  const commandConditionRoutes = new CommandConditionsRoute();
 
   // request routes connection
   router.use("/object", request.routes);
@@ -106,6 +108,9 @@ export function connectRequestRoutes() {
 
   // command request connection
   router.use("/command", commandRoute.routes);
+
+  // command request connection
+  router.use("/commandCondition", commandConditionRoutes.routes);
 
   // reception request connection
   router.use("/reception", receptionRoute.routes);

@@ -1,9 +1,8 @@
 import { Router } from "express";
 import { request } from "../../../assets/messages/requestMessages.json";
-import CommandController from "./command.Controller";
+import CommandConditionsController from "./condition.Controller";
 import { requireRole } from "../../middlewares/rbac.middleware";
 import { authenticate } from "../../middlewares/auth.middleware";
-import upload from "../../utils/upload";
 
 const {
   create,
@@ -14,9 +13,9 @@ const {
   // get_by_id
 } = request;
 
-export default class CommandRoute {
+export default class CommandConditionsRoute {
   routes: Router = Router();
-  commandController = new CommandController();
+  notificationController = new CommandConditionsController();
 
   constructor() {
     this.config();
@@ -25,7 +24,7 @@ export default class CommandRoute {
   private config() {
     this.routes.use(authenticate); // create
     this.routes.post("/", requireRole("USER"), (req, res) => {
-      this.commandController
+      this.notificationController
         .create(req.body)
         .then((request) =>
           res
@@ -37,7 +36,7 @@ export default class CommandRoute {
 
     // update
     this.routes.put("/:id", requireRole("USER"), (req, res) => {
-      this.commandController
+      this.notificationController
         .update(req.params.id!, req.body)
         .then((request) =>
           res
@@ -47,26 +46,9 @@ export default class CommandRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
-    // update
-    this.routes.put(
-      "addFile/:id",
-      upload.fields([{ name: "proof", maxCount: 1 }]),
-      requireRole("USER"),
-      (req, res) => {
-        this.commandController
-          .signedFile(req.params.id!, { ...req.body, ...req.files })
-          .then((request) =>
-            res
-              .status(200)
-              .json({ message: create.success.create, data: request }),
-          )
-          .catch((error) => res.status(400).json({ error: error.message }));
-      },
-    );
-
     // delete
     this.routes.delete("/:id", requireRole("USER"), (req, res) => {
-      this.commandController
+      this.notificationController
         .delete(req.params.id!)
         .then((request) =>
           res
@@ -78,7 +60,7 @@ export default class CommandRoute {
 
     // getAll
     this.routes.get("/", requireRole("USER"), (req, res) => {
-      this.commandController
+      this.notificationController
         .getAll()
         .then((request) =>
           res
@@ -90,7 +72,7 @@ export default class CommandRoute {
 
     // getOne
     this.routes.get("/:id", requireRole("USER"), (req, res) => {
-      this.commandController
+      this.notificationController
         .getOne(req.params.id ?? "-1")
         .then((request) =>
           res

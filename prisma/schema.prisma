@@ -257,6 +257,16 @@ model Command {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @default(now()) @updatedAt
   réceptions Reception[]
+
+  commandConditions CommandConditions[]
+  commandFile       String?
+}
+
+model CommandConditions {
+  id      Int       @id @default(autoincrement())
+  title   String?
+  content String?
+  command Command[]
 }
 
 // {
@@ -299,6 +309,7 @@ enum DocumentOwnerType {
   COMMANDREQUEST
   DRIVER
   VEHICLE
+  COMMAND
 }
 
 model Document {
@@ -335,18 +346,30 @@ model Provider {
   NIU   String?
   regem String?
 
-  status             Boolean          @default(false)
-  commandRequest     CommandRequest[]
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-  devis              Devi[]
-  commands           Command[]
-  carte_contribuable String?
-  acf                String?
-  plan_localisation  String?
-  commerce_registre  String?
-  banck_attestation  String?
-  réceptions        Reception[]
+  valid Boolean?
+
+  status                     Boolean          @default(false)
+  commandRequest             CommandRequest[]
+  createdAt                  DateTime         @default(now())
+  updatedAt                  DateTime         @updatedAt
+  devis                      Devi[]
+  commands                   Command[]
+  carte_contribuable         String?
+  expireAtcarte_contribuable DateTime?
+
+  acf         String?
+  expireAtacf DateTime?
+
+  plan_localisation         String?
+  expireAtplan_localisation DateTime?
+
+  commerce_registre         String?
+  expireAtcommerce_registre DateTime?
+
+  banck_attestation         String?
+  expireAtbanck_attestation DateTime?
+
+  réceptions Reception[]
 }
 
 // working on

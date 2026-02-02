@@ -114,6 +114,11 @@ export default class CmdRequestController {
     return cmdRequestService.delete(Number(id));
   }
 
+  @Get("/valid")
+  getValid(): Promise<Provider[]> {
+    return cmdRequestService.getValidProviders();
+  }
+
   @Get("/{id}")
   getOne(@Path() id: string): Promise<Provider> {
     return cmdRequestService.getOne(Number(id));

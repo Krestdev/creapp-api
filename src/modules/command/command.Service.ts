@@ -1,6 +1,7 @@
 import { Command, PrismaClient } from "@prisma/client";
 import { CacheService } from "../../utils/redis";
 import { getIO } from "../../socket";
+import { storeDocumentsBulk } from "../../utils/DocumentManager";
 
 const prisma = new PrismaClient();
 
@@ -16,6 +17,7 @@ export class CommandService {
       }[];
     },
     requestIds: number[],
+    conditions: number[],
   ) => {
     if (data.providerId == null) throw Error("A provider is required");
     const provider = await prisma.provider.findFirst({
@@ -80,6 +82,11 @@ export class CommandService {
           connect: {
             id: data.deviId,
           },
+        },
+        commandConditions: {
+          connect: conditions.map((id) => {
+            return { id };
+          }),
         },
         instalments: {
           create: data.instalments.map((inst) => {
@@ -181,6 +188,31 @@ export class CommandService {
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     getIO().emit("purchaseOrder:update");
+    return command;
+  };
+
+  addSignedFile = async (
+    id: number,
+    filePath: string | null,
+    file: Express.Multer.File[] | null,
+  ) => {
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    const command = await prisma.command.update({
+      where: { id },
+      data: {
+        commandFile: filePath,
+      },
+    });
+
+    if (file) {
+      await storeDocumentsBulk(file, {
+        role: "PROOF",
+        ownerId: command.id.toString(),
+        ownerType: "COMMAND",
+      });
+    }
+
+    getIO().emit("purchaseOrder:delete");
     return command;
   };
 

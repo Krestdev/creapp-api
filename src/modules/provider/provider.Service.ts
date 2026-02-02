@@ -17,6 +17,7 @@ export class ProviderService {
       phone: string | null;
       email: string | null;
       address: string | null;
+      NIU: string | null;
       status: boolean;
       carte_contribuable: string | null;
       acf: string | null;
@@ -40,8 +41,25 @@ export class ProviderService {
     if (exist?.id) {
       throw Error("Provider Exist");
     }
+
+    let valid = true;
+    if (
+      !files.acf ||
+      !files.banck_attestation ||
+      !files.carte_contribuable ||
+      !files.commerce_registre ||
+      !files.plan_localisation ||
+      !data.phone ||
+      !data.NIU
+    ) {
+      valid = false;
+    }
+
     const provider = await prisma.provider.create({
-      data,
+      data: {
+        ...data,
+        valid,
+      },
     });
 
     if (
@@ -111,9 +129,31 @@ export class ProviderService {
       throw Error("Provider Exist");
     }
 
-    const provider = await prisma.provider.update({
+    const providerUp = await prisma.provider.update({
       where: { id },
       data,
+    });
+
+    let valid = true;
+    if (
+      !providerUp?.acf ||
+      !providerUp?.banck_attestation ||
+      !providerUp?.carte_contribuable ||
+      !providerUp?.commerce_registre ||
+      !providerUp?.plan_localisation ||
+      !data.phone ||
+      !data.NIU
+    ) {
+      // console.log(providerUp, data.phone, data.NIU);
+      valid = false;
+    }
+    // console.log(valid);
+
+    const provider = await prisma.provider.update({
+      where: { id },
+      data: {
+        valid,
+      },
     });
 
     if (
@@ -139,6 +179,14 @@ export class ProviderService {
     await CacheService.del(`${this.CACHE_KEY}:all`);
     getIO().emit("provider:update");
     return provider;
+  };
+
+  getValidProviders = async () => {
+    return prisma.provider.findMany({
+      where: {
+        valid: true,
+      },
+    });
   };
 
   // Delete
