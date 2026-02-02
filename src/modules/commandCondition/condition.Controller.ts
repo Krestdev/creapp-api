@@ -4,7 +4,7 @@ import { CommandConditions } from "@prisma/client";
 
 const cmdRequestService = new CommandConditionsService();
 
-@Route("request/notification")
+@Route("request/condition")
 @Tags("CommandConditions Routes")
 export default class CommandConditionsController {
   @Post("/")
