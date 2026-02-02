@@ -30,8 +30,12 @@ export default class CommandController {
    * @summary Update Command request
    */
   @Put("/{id}")
-  update(@Path() id: string, @Body() data: Command): Promise<Command> {
-    return commandService.update(Number(id), data);
+  update(
+    @Path() id: string,
+    @Body() data: Command & { conditions: number[] },
+  ): Promise<Command> {
+    const { conditions, ...command } = data;
+    return commandService.update(Number(id), command, conditions);
   }
 
   @Put("addFile/{id}")

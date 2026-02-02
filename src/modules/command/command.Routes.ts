@@ -49,7 +49,7 @@ export default class CommandRoute {
 
     // update
     this.routes.put(
-      "addFile/:id",
+      "/addFile/:id",
       upload.fields([{ name: "proof", maxCount: 1 }]),
       requireRole("USER"),
       (req, res) => {

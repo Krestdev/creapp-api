@@ -96,6 +96,9 @@ export class CommandService {
           }),
         },
       },
+      include: {
+        commandConditions: true,
+      },
     });
 
     getIO().emit("purchaseOrder:new");
@@ -103,7 +106,7 @@ export class CommandService {
   };
 
   // Update
-  update = async (id: number, data: Command) => {
+  update = async (id: number, data: Command, conditions: number[]) => {
     if (data.providerId !== null && data.providerId !== undefined) {
       const provider = await prisma.provider.findFirst({
         where: {
@@ -155,13 +158,21 @@ export class CommandService {
 
     const command = await prisma.command.update({
       where: { id },
-      data,
+      data: {
+        ...data,
+        commandConditions: {
+          set: conditions.map((id) => {
+            return { id };
+          }),
+        },
+      },
       include: {
         devi: {
           include: {
             element: true,
           },
         },
+        commandConditions: true,
       },
     });
 
@@ -247,6 +258,7 @@ export class CommandService {
             element: true,
           },
         },
+        commandConditions: true,
         instalments: true,
         provider: true,
       },
