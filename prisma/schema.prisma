@@ -358,16 +358,16 @@ model Provider {
   expireAtcarte_contribuable DateTime?
 
   acf         String?
-  expireAtacf DateTime?
+  expireAtacf DateTime? @default(dbgenerated("now() + interval '1 year'"))
 
   plan_localisation         String?
-  expireAtplan_localisation DateTime?
+  expireAtplan_localisation DateTime? @default(dbgenerated("now() + interval '1 year'"))
 
   commerce_registre         String?
-  expireAtcommerce_registre DateTime?
+  expireAtcommerce_registre DateTime? @default(dbgenerated("now() + interval '1 year'"))
 
   banck_attestation         String?
-  expireAtbanck_attestation DateTime?
+  expireAtbanck_attestation DateTime? @default(dbgenerated("now() + interval '1 year'"))
 
   réceptions Reception[]
 }
