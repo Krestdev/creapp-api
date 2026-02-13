@@ -179,7 +179,10 @@ class ApiServer {
         // server base urls
         console.table([
           ...this.appUrl,
-          { url: "docs", value: "http://localhost:5000/docs" },
+          {
+            url: "docs",
+            value: `http://localhost:${GENERAL_CONFIG.app.port}/docs`,
+          },
         ]);
 
         const ModulesState = await checkModules(MODULES_LIST);

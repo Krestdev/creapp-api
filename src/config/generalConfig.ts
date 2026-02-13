@@ -6,7 +6,9 @@ const isProduction = env.NODE_ENV === "production";
 
 export const GENERAL_CONFIG = {
   app: {
-    port: isProduction ? Number(env.APP_PORT) : 5000,
+    port: isProduction
+      ? parseInt(env.API_PORT ?? "5000", 10)
+      : parseInt(env.API_PORT ?? "5000", 10),
     key: isProduction ? env.API_KEY : "test-api-key",
     baseUrl: isProduction ? env.BASE_URL : `http://localhost`,
     name: isProduction ? env.APP_NAME : "Creapp",
