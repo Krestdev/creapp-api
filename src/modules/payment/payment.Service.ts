@@ -15,64 +15,55 @@ export class PaymentService {
     data: Omit<Payment, "id" | "reference" | "status">,
     file: Express.Multer.File[] | null,
   ) => {
-    if (!data.commandId) {
-      throw new Error("Command ID is required for payment");
+    if (!data.invoiceId) {
+      throw new Error("Invoice ID is required for payment");
     }
 
-    const command = await prisma.command.findUniqueOrThrow({
-      where: { id: data.commandId },
-      include: {
-        devi: {
-          include: {
-            element: true,
-          },
-        },
-      },
+    const invoice = await prisma.invoice.findUniqueOrThrow({
+      where: { id: data.invoiceId },
     });
 
-    const commandPayments = await prisma.payment.findMany({
-      where: { commandId: data.commandId },
+    const invoicePayments = await prisma.payment.findMany({
+      where: { invoiceId: data.invoiceId },
     });
 
-    const totalPaid = commandPayments
+    const totalPaid = invoicePayments
       .filter((elm) => elm.status !== "rejected" && elm.status !== "cancelled")
       .reduce((sum, payment) => sum + payment.price, 0);
 
-    const commandAmount = command.netToPay;
-
-    const remainingAmount = (commandAmount ?? 0) - totalPaid;
+    const remainingAmount = invoice.amount - totalPaid;
 
     if (data.price > remainingAmount) {
-      throw new Error("Payment amount exceeds the remaining command amount");
+      throw new Error("Payment amount exceeds the remaining invoice amount");
     }
 
     if (remainingAmount === 0) {
-      prisma.command.update({
-        where: { id: data.commandId },
+      prisma.invoice.update({
+        where: { id: data.invoiceId },
         data: {
           status: "PAID",
         },
       });
-      throw new Error("The command has already been fully paid");
+      throw new Error("The invoice has already been fully paid");
     }
 
-    if (data.price !== command.amountBase) {
+    if (data.price !== invoice.amount) {
       data.isPartial = true;
     }
 
     const payment = await prisma.payment.create({
       data: {
         ...data,
-        commandId: Number(data.commandId),
+        invoiceId: Number(data.invoiceId),
         reference: `PAY-${Date.now()}`, // simple reference generation
         status: "pending",
       },
     });
 
-    if (data.price + totalPaid === command.amountBase) {
-      // update command status to paid
-      await prisma.command.update({
-        where: { id: data.commandId },
+    if (data.price + totalPaid === invoice.amount) {
+      // update invoice status to paid
+      await prisma.invoice.update({
+        where: { id: data.invoiceId },
         data: { status: "PAID" },
       });
     }

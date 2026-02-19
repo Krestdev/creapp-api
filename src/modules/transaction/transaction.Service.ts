@@ -68,20 +68,39 @@ export class TransactionService {
       });
     }
 
-    if (transak.fromBankId) {
+    if (!!transak.fromBankId || transak.fromBankId === 0) {
+      console.log("Decrementing");
+      await prisma.bank
+        .update({
+          where: {
+            id: transak.fromBankId,
+          },
+          data: {
+            balance: {
+              decrement: transak.amount,
+            },
+          },
+        })
+        .then((res) => {
+          console.log(res);
+        });
+    }
+
+    if ((!!transak.toBankId || transak.toBankId === 0) && !transak.fromBankId) {
       await prisma.bank.update({
         where: {
-          id: transak.fromBankId,
+          id: transak.toBankId,
         },
         data: {
           balance: {
-            decrement: transak.amount,
+            increment: transak.amount,
           },
         },
       });
-    }
-
-    if (transak.toBankId && !transak.fromBankId) {
+    } else if (
+      (!!transak.toBankId || transak.toBankId === 0) &&
+      transak.Type === "TRANSFER"
+    ) {
       await prisma.bank.update({
         where: {
           id: transak.toBankId,

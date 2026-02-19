@@ -12,7 +12,10 @@ export class RequestService {
   CACHE_KEY = "request";
 
   create = async (
-    data: Omit<RequestModel, "createdAt" | "updatedAt">,
+    data: Omit<
+      RequestModel,
+      "createdAt" | "updatedAt" | "driverId" | "km" | "liters" | "vehiclesId"
+    >,
     benList?: number[],
   ) => {
     const ref = "ref-" + new Date().getTime();
@@ -585,7 +588,10 @@ export class RequestService {
   };
 
   specialRequest = async (
-    data: RequestModel & { type: string; proof: string | null },
+    data: Omit<
+      RequestModel,
+      "driverI" | "km" | "liters" | "vehiclesId" | "driverId"
+    > & { type: string; proof: string | null },
     file?: Express.Multer.File[] | null,
     benef?: number[],
   ) => {

@@ -163,6 +163,7 @@ export class CategoryService {
     return prisma.category.findMany({
       include: {
         validators: true,
+        type: true,
       },
     });
   };

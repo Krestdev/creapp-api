@@ -20,7 +20,7 @@ export default class ReceptionController {
     @Path() id: string,
     @Body()
     data: Omit<Reception, "Proof"> & { proof: Express.Multer.File[] | null } & {
-      Deliverables: { id: number; state: boolean }[];
+      Deliverables: { id: number; isDelivered: boolean; delivered: number }[];
     },
   ): Promise<Reception> {
     const { proof, Deliverables, ...restData } = data;

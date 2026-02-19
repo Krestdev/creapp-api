@@ -22,7 +22,8 @@ export default class CmdRequestController {
       deadline: paymentData.deadline ? new Date(paymentData.deadline) : null,
       price: Number(paymentData.price),
       userId: Number(paymentData.userId),
-      commandId: Number(paymentData.commandId),
+      invoiceId: Number(paymentData.invoiceId),
+      isPartial: Boolean(paymentData.isPartial),
       proof: null,
       justification: null,
     };
@@ -59,7 +60,7 @@ export default class CmdRequestController {
       deadline: paymentData.deadline ? new Date(paymentData.deadline) : null,
       price: Number(paymentData.price),
       userId: Number(paymentData.userId),
-      commandId: Number(paymentData.commandId),
+      // commandId: Number(paymentData.commandId),
       vehiclesId: Number(paymentData.vehiclesId),
       methodId: Number(paymentData.methodId),
       isPartial: false,
@@ -120,8 +121,8 @@ export default class CmdRequestController {
     if (paymentData.userId) {
       payment.userId = Number(paymentData.userId);
     }
-    if (paymentData.commandId) {
-      payment.commandId = Number(paymentData.commandId);
+    if (paymentData.invoiceId) {
+      payment.invoiceId = Number(paymentData.invoiceId);
     }
 
     if (proof) {

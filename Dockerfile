@@ -7,18 +7,16 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 
-RUN npx prisma generate && \
-  npm run build
+RUN npx prisma generate
+RUN npm run build
 
 # ---- Runtime Stage ----
 FROM base AS runtime
 
 WORKDIR /app
 
-# Copy built files
 COPY --from=base /app/package*.json ./
 COPY --from=base /app/node_modules ./node_modules
-# COPY --from=base /app/generated/prisma ./generated/prisma
 COPY --from=base /app/prisma ./prisma
 COPY --from=base /app/build ./build
 COPY --from=base /app/assets ./app/assets

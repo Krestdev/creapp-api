@@ -80,8 +80,6 @@ export default class TransactionController {
       proof: null,
     };
 
-    console.log(data);
-
     if (data.date) {
       newTransaction.date = new Date(data.date);
     }

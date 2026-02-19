@@ -1,0 +1,108 @@
+# base module tests
+@host = http://localhost:5001/api/v1.0.0/request/invoice
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFUyIsIlZPTFRfTUFOQUdFUiIsIlJIIl0sImlhdCI6MTc3MTI1MTk1MywiZXhwIjoxNzcxMzM4MzUzfQ.5DSxZtIbsBxrqKhT7scqNAIE7ROadFDrDniBFpa9juk
+
+### get all projects
+GET {{host}}/
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### get project by id
+GET {{host}}/1
+Accept: application/json
+
+### create project
+POST {{host}}/
+Content-Type: application/json
+
+{
+  "label": "New Project",
+  "description": "Project Description",
+  "chiefId": 1
+}
+
+### update project
+PUT {{host}}/1
+Content-Type: application/json
+
+{
+  "label": "Updated Project",
+  "description": "Project Description"
+}
+
+### create member
+POST {{host}}/1/members
+Content-Type: application/json
+
+{
+  "label": "employee",
+  "userId": 1
+}
+
+### list members
+GET {{host}}/1/members
+Content-Type: application/json
+
+### remove member
+DELETE {{host}}/1/members
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### create validator
+POST {{host}}/1/validators
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### list validators
+GET {{host}}/department/1/validators
+Content-Type: application/json
+
+### remove validator
+DELETE {{host}}/department/1/validators
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### create final validator
+POST {{host}}/department/1/final-validators
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### remove final validator
+DELETE {{host}}/department/1/final-validators
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### list final validators
+GET {{host}}/department/1/final-validators
+Content-Type: application/json
+
+### set chief
+POST {{host}}/department/1/chief
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### unset chief
+DELETE {{host}}/department/1/chief
+Content-Type: application/json
+
+{
+  "userId": 1
+} 

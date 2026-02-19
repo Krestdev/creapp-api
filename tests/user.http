@@ -1,6 +1,6 @@
 # base module tests
 # @host = http://creappapi.krestdev.com/api/v1.0.0/base
-@host = http://localhost:5000/api/v1.0.0/base
+@host = http://localhost:5001/api/v1.0.0/base
 
 ### all users
 GET {{host}}/user/
@@ -33,8 +33,8 @@ POST {{host}}/user/login
 Content-Type: application/json
 
 {
-  "email": "user@example.com",
-  "password": "password"
+  "email": "wassom@gmail.com",
+  "password": "1234567"
 }
 
 ### Delete user

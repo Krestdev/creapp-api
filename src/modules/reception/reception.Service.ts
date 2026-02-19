@@ -21,7 +21,7 @@ export class ReceptionService {
   update = async (
     id: number,
     data: Reception & {
-      Deliverables: { id: number; isDelivered: boolean }[];
+      Deliverables: { id: number; isDelivered: boolean; delivered: number }[];
     },
     file: Express.Multer.File[] | null,
   ) => {
@@ -55,6 +55,7 @@ export class ReceptionService {
           },
           data: {
             isDelivered: deliv.isDelivered,
+            delivered: deliv.delivered,
           },
         });
       }),

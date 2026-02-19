@@ -20,6 +20,8 @@ export default class VehicleController {
       label: data.label,
       mark: data.mark,
       matricule: data.matricule,
+      serial: data.serial,
+      purchaseDate: data.purchaseDate,
       picture: normalizeFile(proof),
     };
     return vehicleService.create(newVehicle, proof);

@@ -52,6 +52,7 @@ model User {
   validatorOn           Validators[]
   requestOlds           RequestOld[]
   transactionSigners    TransactionSigners[]
+  factures              Invoice[]
 }
 
 model Role {
@@ -129,6 +130,14 @@ model RequestModel {
   payments         Payment[]
   validators       Validators[]
   requestOlds      RequestOld[]
+
+  driver   Driver? @relation(fields: [driverId], references: [id])
+  driverId Int?
+
+  model      Vehicle? @relation(fields: [vehiclesId], references: [id])
+  km         String?
+  liters     String?
+  vehiclesId Int?
 }
 
 model RequestOld {
@@ -146,11 +155,13 @@ model RequestOld {
 }
 
 model Category {
-  id          Int            @id @default(autoincrement())
-  label       String
-  description String?
-  requests    RequestModel[] @relation(name: "RequestCategory")
-  validators  Validator[]
+  id            Int            @id @default(autoincrement())
+  label         String
+  description   String?
+  type          RequestType    @relation(fields: [requestTypeId], references: [id])
+  requests      RequestModel[] @relation(name: "RequestCategory")
+  validators    Validator[]
+  requestTypeId Int            @default(1)
 }
 
 model Validator {
@@ -217,6 +228,7 @@ model DeviElement {
   title          String
   status         String        @default("NOT_SELECTED")
   isDelivered    Boolean       @default(false)
+  delivered      Int           @default(0)
   priceProposed  Int
   devi           Devi          @relation(fields: [deviId], references: [id], onDelete: Cascade)
   deviId         Int
@@ -248,7 +260,7 @@ model Command {
   requests    RequestModel[]
   providerId  Int
   instalments Instalments[]
-  payments    Payment[]
+  facture     Invoice[]
   reference   String         @default("none")
   // one to one relation with Devi
   devi        Devi?
@@ -260,6 +272,33 @@ model Command {
 
   commandConditions CommandConditions[]
   commandFile       String?
+  // payments          Payment[]
+}
+
+enum InvoiceStatus {
+  CANCELLED
+  UNPAID
+  PAID
+}
+
+model Invoice {
+  id        Int       @id @default(autoincrement())
+  title     String?
+  reference String    @unique
+  amount    Int
+  proof     String? // document
+  command   Command   @relation(fields: [commandId], references: [id])
+  payment   Payment[]
+  isPartial Boolean
+
+  user     User     @relation(fields: [userId], references: [id])
+  deadline DateTime
+
+  status    InvoiceStatus @default(UNPAID)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @default(now()) @updatedAt
+  commandId Int
+  userId    Int
 }
 
 model CommandConditions {
@@ -268,18 +307,6 @@ model CommandConditions {
   content String?
   command Command[]
 }
-
-// {
-//   subtotalHT
-//   discount
-//   netHT
-//   vatRate
-//   vatAmount
-//   withholdingRate
-//   withholdingAmount
-//   totalTTC
-//   netToPay
-// }
 
 model Instalments {
   id         Int      @id @default(autoincrement())
@@ -409,8 +436,8 @@ model Payment {
 
   signeDoc String?
 
-  command   Command?      @relation(fields: [commandId], references: [id], onDelete: Cascade)
-  commandId Int?
+  // command   Command?      @relation(fields: [commandId], references: [id], onDelete: Cascade)
+  // commandId Int?
   project   Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
   request   RequestModel? @relation(fields: [requestId], references: [id], onDelete: SetNull)
   requestId Int?
@@ -428,6 +455,8 @@ model Payment {
 
   transaction   Transaction? @relation(name: "paymentTransaction", fields: [transactionId], references: [id])
   transactionId Int?         @unique
+  facture       Invoice?     @relation(fields: [invoiceId], references: [id])
+  invoiceId     Int?
 }
 
 model Accounting {
@@ -496,6 +525,7 @@ model Reception {
   userId       Int?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  note         String        @default("RAS")
 }
 
 model Notification {
@@ -579,28 +609,35 @@ model TransactionSigners {
 }
 
 model RequestType {
-  id          Int     @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   label       String
   description String?
   type        String
+  categories  Category[]
 }
 
 model Vehicle {
-  id        Int       @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   label     String
   mark      String
-  matricule String    @unique
-  picture   String?
-  payments  Payment[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
+  matricule String @unique
+
+  serial       String?
+  purchaseDate String?
+
+  picture       String?
+  payments      Payment[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  requestModels RequestModel[]
 }
 
 model Driver {
-  id        Int       @id @default(autoincrement())
-  firstName String
-  lastName  String?
-  licence   String?
-  idCard    String?
-  payments  Payment[]
+  id            Int            @id @default(autoincrement())
+  firstName     String
+  lastName      String?
+  licence       String?
+  idCard        String?
+  payments      Payment[]
+  requestModels RequestModel[]
 }
