@@ -44,7 +44,7 @@ export default class Mailer {
     const loginUrl = `${GENERAL_CONFIG.app.frontend}/connexion`;
     const supportEmail = "support@krestdev.com";
     const companyAddress = "Douala Akwa";
-    const phone = "123-456-789";
+    const phone = GENERAL_CONFIG.app.contact;
     const verifyAccount = `${GENERAL_CONFIG.app.frontend}/auth?otp=${otp}&email=${email}`;
     // const verifyAccount = `https://creappapi.krestdev.com/api/v1.0.0/base/user/verify/${otp}?email=${encodeURIComponent(
     //   email

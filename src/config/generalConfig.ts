@@ -18,6 +18,7 @@ export const GENERAL_CONFIG = {
     baseUrl: isProduction ? env.BASE_URL : `http://localhost`,
     frontend: env.FRONT_END,
     name: isProduction ? env.APP_NAME : "Creapp",
+    contact: env.APP_CONTACT,
   },
   email: {
     from: isProduction ? env.EMAIL_FROM : "contact@krestdev.com",
