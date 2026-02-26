@@ -81,7 +81,7 @@ export default class RequestRoute {
 
     this.routes.post("/", requireRole("USER"), (req, res) => {
       this.requestController
-        .create(req.body)
+        .create({ ...req.body, userId: req.user?.userId })
         .then((request) =>
           res
             .status(200)

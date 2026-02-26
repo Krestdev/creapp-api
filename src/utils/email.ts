@@ -41,11 +41,11 @@ export default class Mailer {
     const logoUrl = "https://creappui.krestdev.com";
     const userEmail = email;
     const userPassword = password;
-    const loginUrl = "https://creapp-two.vercel.app/connexion";
+    const loginUrl = `${GENERAL_CONFIG.app.frontend}/connexion`;
     const supportEmail = "support@krestdev.com";
     const companyAddress = "Douala Akwa";
     const phone = "123-456-789";
-    const verifyAccount = `https://creapp-two.vercel.app/auth?otp=${otp}&email=${email}`;
+    const verifyAccount = `${GENERAL_CONFIG.app.frontend}/auth?otp=${otp}&email=${email}`;
     // const verifyAccount = `https://creappapi.krestdev.com/api/v1.0.0/base/user/verify/${otp}?email=${encodeURIComponent(
     //   email
     // )}`;
@@ -70,7 +70,7 @@ export default class Mailer {
         unsubscribeUrl,
         supportEmail,
         phone,
-      }
+      },
     );
 
     // Send email
@@ -114,7 +114,7 @@ export default class Mailer {
         phone,
         email,
         appName: GENERAL_CONFIG.app.name,
-      }
+      },
     );
 
     // Send email
@@ -142,7 +142,7 @@ export default class Mailer {
     // Render HTML from EJS template
     const html = await ejs.renderFile(
       path.join(__dirname, "../../emailtemplates/passwordReset.ejs"),
-      { userName, email, appName: GENERAL_CONFIG.app.name, resetUrl, year }
+      { userName, email, appName: GENERAL_CONFIG.app.name, resetUrl, year },
     );
 
     // Send the email

@@ -16,6 +16,7 @@ export const GENERAL_CONFIG = {
       : parsePort(env.API_PORT, 5000),
     key: isProduction ? env.API_KEY : "test-api-key",
     baseUrl: isProduction ? env.BASE_URL : `http://localhost`,
+    frontend: env.FRONT_END,
     name: isProduction ? env.APP_NAME : "Creapp",
   },
   email: {

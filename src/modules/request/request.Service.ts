@@ -20,65 +20,70 @@ export class RequestService {
   ) => {
     const ref = "ref-" + new Date().getTime();
 
-    const validators = await prisma.category
-      .findUniqueOrThrow({
-        where: {
-          id: data.categoryId,
+    const category = await prisma.category.findUniqueOrThrow({
+      where: {
+        id: data.categoryId,
+      },
+      include: {
+        validators: true,
+        type: true,
+      },
+    });
+    const validators = category.validators || [];
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    await CacheService.del(`${this.CACHE_KEY}:mine`);
+    const request = await prisma.requestModel
+      .create({
+        data: {
+          ...data,
+          period: data.period
+            ? JSON.parse(data.period as unknown as string)
+            : null,
+          benFac: data.benFac
+            ? JSON.parse(data.benFac as unknown as string)
+            : null,
+          ref,
+          requestOlds: {
+            create: {
+              unit: data.unit,
+              quantity: data.quantity,
+              priority: data.priority,
+              amount: data.amount,
+              dueDate: data.dueDate,
+              user: {
+                connect: {
+                  id: data.userId!,
+                },
+              },
+            },
+          },
+          type: category.type.type,
+          beficiaryList: {
+            connect: benList
+              ? benList.map((beId) => {
+                  return { id: beId };
+                })
+              : [],
+          },
+          validators: {
+            createMany: {
+              data: validators.map((vldr) => ({
+                userId: vldr.userId,
+                rank: vldr.rank,
+                validated: false,
+              })),
+            },
+          },
         },
         include: {
           validators: true,
         },
       })
-      .then((cat) => cat.validators || []);
-
-    await CacheService.del(`${this.CACHE_KEY}:all`);
-    await CacheService.del(`${this.CACHE_KEY}:mine`);
-    const request = await prisma.requestModel.create({
-      data: {
-        ...data,
-        period: data.period
-          ? JSON.parse(data.period as unknown as string)
-          : null,
-        benFac: data.benFac
-          ? JSON.parse(data.benFac as unknown as string)
-          : null,
-        ref,
-        requestOlds: {
-          create: {
-            unit: data.unit,
-            quantity: data.quantity,
-            priority: data.priority,
-            amount: data.amount,
-            dueDate: data.dueDate,
-            user: {
-              connect: {
-                id: data.userId!,
-              },
-            },
-          },
-        },
-        type: "ACHAT".toLowerCase(),
-        beficiaryList: {
-          connect: benList
-            ? benList.map((beId) => {
-                return { id: beId };
-              })
-            : [],
-        },
-        validators: {
-          createMany: {
-            data: validators.map((vldr) => ({
-              userId: vldr.userId,
-              rank: vldr.rank,
-              validated: false,
-            })),
-          },
-        },
-      },
-      include: {
-        validators: true,
-      },
-    });
+      .catch((r) => {
+        console.log(r);
+        throw r;
+      });
 
     getIO().emit("request:new", { userId: request.userId });
     return request;
@@ -270,7 +275,7 @@ export class RequestService {
         },
         data: {
           status:
-            requestModel.type === "FACILITATION".toLowerCase() ||
+            requestModel.type === "facilitation" ||
             requestModel.type === "ressource_humaine"
               ? "accepted"
               : "pending",
@@ -290,6 +295,21 @@ export class RequestService {
         },
       },
     });
+
+    if (["transport", "gas", "others"].includes(request.type)) {
+      await prisma.payment.create({
+        data: {
+          type: request.type,
+          title: request.label,
+          description: request.description || "",
+          deadline: request.dueDate,
+          price: request.amount || 0,
+          status: "validated",
+          reference: `PAY-${Date.now()}`,
+          requestId: request.id,
+        },
+      });
+    }
 
     try {
       await prisma.notification.create({

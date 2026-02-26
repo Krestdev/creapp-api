@@ -245,6 +245,13 @@ export class PaymentService {
     const payment = await prisma.payment.findMany({
       include: {
         signer: true,
+        method: true,
+        bank: true,
+        facture: {
+          include: {
+            command: true,
+          },
+        },
       },
     });
 
