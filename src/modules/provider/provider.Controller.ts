@@ -40,27 +40,17 @@ export default class CmdRequestController {
       plan_localisation: normalizeFile(data.plan_localisation),
       commerce_registre: normalizeFile(data.commerce_registre),
       banck_attestation: normalizeFile(data.banck_attestation),
+      expireAtbanck_attestation: !!expireAtbanck_attestation
+        ? expireAtbanck_attestation
+        : undefined,
+      expireAtcarte_contribuable: !!expireAtcarte_contribuable
+        ? expireAtcarte_contribuable
+        : undefined,
+      expireAtacf: !!expireAtacf ? expireAtacf : undefined,
+      expireAtplan_localisation: !!expireAtplan_localisation
+        ? expireAtplan_localisation
+        : undefined,
     };
-
-    let newProviderWithDates;
-
-    if (!!expireAtbanck_attestation)
-      newProviderWithDates = {
-        ...newProvider,
-        expireAtbanck_attestation: expireAtbanck_attestation,
-      };
-    if (!!expireAtacf)
-      newProviderWithDates = { ...newProvider, expireAtacf: expireAtacf };
-    if (!!expireAtcarte_contribuable)
-      newProviderWithDates = {
-        ...newProvider,
-        expireAtcarte_contribuable: expireAtcarte_contribuable,
-      };
-    if (!!expireAtplan_localisation)
-      newProviderWithDates = {
-        ...newProvider,
-        expireAtplan_localisation: expireAtplan_localisation,
-      };
 
     const files = {
       carte_contribuable: data.carte_contribuable
@@ -72,7 +62,7 @@ export default class CmdRequestController {
       banck_attestation: data.banck_attestation ? data.banck_attestation : null,
     };
 
-    return cmdRequestService.create(newProviderWithDates, { ...files });
+    return cmdRequestService.create(newProvider, { ...files });
   }
 
   /**
@@ -111,27 +101,17 @@ export default class CmdRequestController {
       plan_localisation: normalizeFile(data.plan_localisation),
       commerce_registre: normalizeFile(data.commerce_registre),
       banck_attestation: normalizeFile(data.banck_attestation),
+      expireAtbanck_attestation: !!expireAtbanck_attestation
+        ? expireAtbanck_attestation
+        : undefined,
+      expireAtcarte_contribuable: !!expireAtcarte_contribuable
+        ? expireAtcarte_contribuable
+        : undefined,
+      expireAtacf: !!expireAtacf ? expireAtacf : undefined,
+      expireAtplan_localisation: !!expireAtplan_localisation
+        ? expireAtplan_localisation
+        : undefined,
     };
-
-    let newProviderWithDates;
-
-    if (!!expireAtbanck_attestation)
-      newProviderWithDates = {
-        ...newProvider,
-        expireAtbanck_attestation: expireAtbanck_attestation,
-      };
-    if (!!expireAtacf)
-      newProviderWithDates = { ...newProvider, expireAtacf: expireAtacf };
-    if (!!expireAtcarte_contribuable)
-      newProviderWithDates = {
-        ...newProvider,
-        expireAtcarte_contribuable: expireAtcarte_contribuable,
-      };
-    if (!!expireAtplan_localisation)
-      newProviderWithDates = {
-        ...newProvider,
-        expireAtplan_localisation: expireAtplan_localisation,
-      };
 
     const files = {
       carte_contribuable: isMulterFiles(data.carte_contribuable)
