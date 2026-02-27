@@ -35,41 +35,28 @@ export default class CmdRequestController {
     } = data;
     let newProvider = {
       ...ndata,
-      carte_contribuable:
-        data.carte_contribuable && data.carte_contribuable[0]
-          ? data.carte_contribuable[0].path.replace(/\\/g, "/")
-          : null,
-      acf:
-        data.acf && data.acf[0] ? data.acf[0].path.replace(/\\/g, "/") : null,
-      plan_localisation:
-        data.plan_localisation && data.plan_localisation[0]
-          ? data.plan_localisation[0].path.replace(/\\/g, "/")
-          : null,
-      commerce_registre:
-        data.commerce_registre && data.commerce_registre[0]
-          ? data.commerce_registre[0].path.replace(/\\/g, "/")
-          : null,
-      banck_attestation:
-        data.banck_attestation && data.banck_attestation[0]
-          ? data.banck_attestation[0].path.replace(/\\/g, "/")
-          : null,
+      carte_contribuable: normalizeFile(data.carte_contribuable),
+      acf: normalizeFile(data.acf),
+      plan_localisation: normalizeFile(data.plan_localisation),
+      commerce_registre: normalizeFile(data.commerce_registre),
+      banck_attestation: normalizeFile(data.banck_attestation),
     };
 
     let newProviderWithDates;
 
-    if (expireAtbanck_attestation)
+    if (!!expireAtbanck_attestation)
       newProviderWithDates = {
         ...newProvider,
         expireAtbanck_attestation: expireAtbanck_attestation,
       };
-    if (expireAtacf)
+    if (!!expireAtacf)
       newProviderWithDates = { ...newProvider, expireAtacf: expireAtacf };
-    if (expireAtcarte_contribuable)
+    if (!!expireAtcarte_contribuable)
       newProviderWithDates = {
         ...newProvider,
         expireAtcarte_contribuable: expireAtcarte_contribuable,
       };
-    if (expireAtplan_localisation)
+    if (!!expireAtplan_localisation)
       newProviderWithDates = {
         ...newProvider,
         expireAtplan_localisation: expireAtplan_localisation,
@@ -109,14 +96,42 @@ export default class CmdRequestController {
       banck_attestation: Express.Multer.File[] | null;
     },
   ): Promise<Provider> {
-    const newProvider = {
-      ...data,
+    const {
+      expireAtbanck_attestation,
+      expireAtcarte_contribuable,
+      expireAtcommerce_registre,
+      expireAtplan_localisation,
+      expireAtacf,
+      ...ndata
+    } = data;
+    let newProvider = {
+      ...ndata,
       carte_contribuable: normalizeFile(data.carte_contribuable),
       acf: normalizeFile(data.acf),
       plan_localisation: normalizeFile(data.plan_localisation),
       commerce_registre: normalizeFile(data.commerce_registre),
       banck_attestation: normalizeFile(data.banck_attestation),
     };
+
+    let newProviderWithDates;
+
+    if (!!expireAtbanck_attestation)
+      newProviderWithDates = {
+        ...newProvider,
+        expireAtbanck_attestation: expireAtbanck_attestation,
+      };
+    if (!!expireAtacf)
+      newProviderWithDates = { ...newProvider, expireAtacf: expireAtacf };
+    if (!!expireAtcarte_contribuable)
+      newProviderWithDates = {
+        ...newProvider,
+        expireAtcarte_contribuable: expireAtcarte_contribuable,
+      };
+    if (!!expireAtplan_localisation)
+      newProviderWithDates = {
+        ...newProvider,
+        expireAtplan_localisation: expireAtplan_localisation,
+      };
 
     const files = {
       carte_contribuable: isMulterFiles(data.carte_contribuable)
