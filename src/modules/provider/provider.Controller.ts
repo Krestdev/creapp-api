@@ -41,14 +41,16 @@ export default class CmdRequestController {
       commerce_registre: normalizeFile(data.commerce_registre),
       banck_attestation: normalizeFile(data.banck_attestation),
       expireAtbanck_attestation: !!expireAtbanck_attestation
-        ? expireAtbanck_attestation
+        ? new Date(expireAtbanck_attestation).toISOString()
         : undefined,
       expireAtcarte_contribuable: !!expireAtcarte_contribuable
-        ? expireAtcarte_contribuable
+        ? new Date(expireAtcarte_contribuable).toISOString()
         : undefined,
-      expireAtacf: !!expireAtacf ? expireAtacf : undefined,
+      expireAtacf: !!expireAtacf
+        ? new Date(expireAtacf).toISOString()
+        : undefined,
       expireAtplan_localisation: !!expireAtplan_localisation
-        ? expireAtplan_localisation
+        ? new Date(expireAtplan_localisation).toISOString()
         : undefined,
     };
 
@@ -102,14 +104,16 @@ export default class CmdRequestController {
       commerce_registre: normalizeFile(data.commerce_registre),
       banck_attestation: normalizeFile(data.banck_attestation),
       expireAtbanck_attestation: !!expireAtbanck_attestation
-        ? expireAtbanck_attestation
+        ? new Date(expireAtbanck_attestation).toISOString()
         : undefined,
       expireAtcarte_contribuable: !!expireAtcarte_contribuable
-        ? expireAtcarte_contribuable
+        ? new Date(expireAtcarte_contribuable).toISOString()
         : undefined,
-      expireAtacf: !!expireAtacf ? expireAtacf : undefined,
+      expireAtacf: !!expireAtacf
+        ? new Date(expireAtacf).toISOString()
+        : undefined,
       expireAtplan_localisation: !!expireAtplan_localisation
-        ? expireAtplan_localisation
+        ? new Date(expireAtplan_localisation).toISOString()
         : undefined,
     };
 

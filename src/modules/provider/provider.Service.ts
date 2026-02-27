@@ -55,12 +55,17 @@ export class ProviderService {
       valid = false;
     }
 
-    const provider = await prisma.provider.create({
-      data: {
-        ...data,
-        valid,
-      },
-    });
+    const provider = await prisma.provider
+      .create({
+        data: {
+          ...data,
+          valid,
+        },
+      })
+      .catch((e) => {
+        console.log(e);
+        throw e;
+      });
 
     if (
       files &&
