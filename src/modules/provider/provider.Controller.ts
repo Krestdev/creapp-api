@@ -25,8 +25,16 @@ export default class CmdRequestController {
       banck_attestation: Express.Multer.File[] | null;
     },
   ): Promise<Provider> {
-    const newProvider = {
-      ...data,
+    const {
+      expireAtbanck_attestation,
+      expireAtcarte_contribuable,
+      expireAtcommerce_registre,
+      expireAtplan_localisation,
+      expireAtacf,
+      ...ndata
+    } = data;
+    let newProvider = {
+      ...ndata,
       carte_contribuable:
         data.carte_contribuable && data.carte_contribuable[0]
           ? data.carte_contribuable[0].path.replace(/\\/g, "/")
@@ -47,6 +55,26 @@ export default class CmdRequestController {
           : null,
     };
 
+    let newProviderWithDates;
+
+    if (expireAtbanck_attestation)
+      newProviderWithDates = {
+        ...newProvider,
+        expireAtbanck_attestation: expireAtbanck_attestation,
+      };
+    if (expireAtacf)
+      newProviderWithDates = { ...newProvider, expireAtacf: expireAtacf };
+    if (expireAtcarte_contribuable)
+      newProviderWithDates = {
+        ...newProvider,
+        expireAtcarte_contribuable: expireAtcarte_contribuable,
+      };
+    if (expireAtplan_localisation)
+      newProviderWithDates = {
+        ...newProvider,
+        expireAtplan_localisation: expireAtplan_localisation,
+      };
+
     const files = {
       carte_contribuable: data.carte_contribuable
         ? data.carte_contribuable
@@ -57,7 +85,7 @@ export default class CmdRequestController {
       banck_attestation: data.banck_attestation ? data.banck_attestation : null,
     };
 
-    return cmdRequestService.create(newProvider, { ...files });
+    return cmdRequestService.create(newProviderWithDates, { ...files });
   }
 
   /**
