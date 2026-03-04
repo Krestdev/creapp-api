@@ -263,7 +263,7 @@ export class RequestService {
 
   validate = async (id: number, validatorId: number, userId: number) => {
     const requestModel = await prisma.requestModel.findFirst({
-      where: { categoryId: 0, id: id },
+      where: { id },
     });
 
     await CacheService.del(`payment:all`);

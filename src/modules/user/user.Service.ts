@@ -166,7 +166,7 @@ export class UserService {
   async login(data: { email: string; password: string }) {
     const user = await prisma.user.findUnique({
       where: { email: data.email },
-      include: { role: true, validators: true },
+      include: { role: true, validators: true, signatairs: true },
     });
 
     if (!user || !user.verified)
@@ -222,7 +222,7 @@ export class UserService {
           }),
         },
       },
-      include: { role: true },
+      include: { role: true, signatairs: true },
       omit: { password: true },
     });
 
@@ -279,6 +279,7 @@ export class UserService {
       include: {
         role: true,
         validators: true,
+        signatairs: true,
       },
       omit: { password: true },
     });

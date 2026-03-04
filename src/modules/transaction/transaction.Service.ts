@@ -69,7 +69,6 @@ export class TransactionService {
     }
 
     if (!!transak.fromBankId || transak.fromBankId === 0) {
-      console.log("Decrementing");
       await prisma.bank
         .update({
           where: {
