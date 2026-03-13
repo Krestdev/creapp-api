@@ -66,7 +66,10 @@ export class CommandService {
       const cumulativeTaxes =
         keepTaxes || !devi
           ? 0
-          : devi.element.reduce((acc, req) => acc + (req.hasIs ? 0 : 0.022), 0);
+          : devi.element.reduce(
+              (acc, req) => acc + (!req.hasIs ? 0 : 0.022),
+              0,
+            );
 
       data.netToPay =
         netCommercial *
@@ -75,7 +78,10 @@ export class CommandService {
       const cumulativeTaxes =
         keepTaxes || !devi
           ? 0
-          : devi.element.reduce((acc, req) => acc + (req.hasIs ? 0 : 0.055), 0);
+          : devi.element.reduce(
+              (acc, req) => acc + (!req.hasIs ? 0 : 0.055),
+              0,
+            );
 
       data.netToPay =
         netCommercial * (1 - (!hasPrecompt ? 0 : 0.02) - cumulativeTaxes);
