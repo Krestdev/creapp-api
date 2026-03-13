@@ -59,14 +59,26 @@ export class CommandService {
         amountHt) /
         100;
 
+    // =============== Net Commercial =====================
+    const { keepTaxes, hasPrecompt } = data;
+
     if (isReel) {
-      // TVA + IR + IS
-      data.netToPay =
-        netCommercial < 0
+      const cumulativeTaxes =
+        keepTaxes || !devi
           ? 0
-          : netCommercial * (1 + 0.1925 + 0.05 + 0.022 + 0.02);
+          : devi.element.reduce((acc, req) => acc + (req.hasIs ? 0 : 0.022), 0);
+
+      data.netToPay =
+        netCommercial *
+        (1 + 0.1925 - (!hasPrecompt ? 0 : 0.02) - cumulativeTaxes);
     } else {
-      data.netToPay = netCommercial < 0 ? 0 : netCommercial;
+      const cumulativeTaxes =
+        keepTaxes || !devi
+          ? 0
+          : devi.element.reduce((acc, req) => acc + (req.hasIs ? 0 : 0.055), 0);
+
+      data.netToPay =
+        netCommercial * (1 - (!hasPrecompt ? 0 : 0.02) - cumulativeTaxes);
     }
 
     const command = await prisma.command.create({

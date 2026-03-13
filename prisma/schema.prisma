@@ -234,6 +234,8 @@ model DeviElement {
   deviId         Int
   reception      Reception?    @relation(fields: [receptionId], references: [id])
   receptionId    Int?
+
+  hasIs Boolean @default(false)
 }
 
 model Command {
@@ -250,6 +252,7 @@ model Command {
   motif            String?
   isHT             Boolean  @default(true)
   keepTaxes        Boolean  @default(true)
+  keepTaxesPayed   Boolean  @default(false)
   rabaisAmount     Int? // réduction exceptionnelle
   remiseAmount     Int? // réduction commerciale
   ristourneAmount  Int? // réduction a posteriori
@@ -273,6 +276,8 @@ model Command {
   commandConditions CommandConditions[]
   commandFile       String?
   // payments          Payment[]
+
+  hasPrecompt Boolean @default(false)
 }
 
 enum InvoiceStatus {
