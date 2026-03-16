@@ -45,47 +45,19 @@ export class CommandService {
     });
 
     const isReel = provider.regem === "Réel";
-    const amountHt =
-      devi?.element?.reduce(
-        (acc, req) => acc + (req.priceProposed || 0) * req.quantity,
-        0,
-      ) || 0;
 
-    const netCommercial =
-      amountHt -
-      (((data.rabaisAmount || 0) +
-        (data.remiseAmount || 0) +
-        (data.ristourneAmount || 0)) *
-        amountHt) /
-        100;
+    data.netToPay = devi
+      ? devi.element?.reduce((acc, req) => {
+          const totalPrice = req.priceProposed * req.quantity;
+          const iSiR = !req.hasIs ? 0 : isReel ? 0.022 : 0.055;
+          const tva = req.tva / 100;
+          const precompt = data.hasPrecompt ? 0.02 : 0;
 
-    // =============== Net Commercial =====================
-    const { keepTaxes, hasPrecompt } = data;
-
-    if (isReel) {
-      const cumulativeTaxes =
-        keepTaxes || !devi
-          ? 0
-          : devi.element.reduce(
-              (acc, req) => acc + (!req.hasIs ? 0 : 0.022),
-              0,
-            );
-
-      data.netToPay =
-        netCommercial *
-        (1 + 0.1925 - (!hasPrecompt ? 0 : 0.02) - cumulativeTaxes);
-    } else {
-      const cumulativeTaxes =
-        keepTaxes || !devi
-          ? 0
-          : devi.element.reduce(
-              (acc, req) => acc + (!req.hasIs ? 0 : 0.055),
-              0,
-            );
-
-      data.netToPay =
-        netCommercial * (1 - (!hasPrecompt ? 0 : 0.02) - cumulativeTaxes);
-    }
+          return (
+            acc + totalPrice * (1 - req.reduction) * (1 - iSiR + tva + precompt)
+          );
+        }, 0)
+      : 0;
 
     const command = await prisma.command.create({
       data: {
