@@ -258,6 +258,7 @@ export class DeviService {
         commandRequest: {
           include: {
             besoins: true,
+            provider: true,
           },
         },
       },
