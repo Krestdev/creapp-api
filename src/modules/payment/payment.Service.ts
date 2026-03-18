@@ -127,6 +127,10 @@ export class PaymentService {
   update = async (id: number, data: Partial<Omit<Payment, "proof">>) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
 
+    const prevPayment = await prisma.payment.findUnique({ where: { id } });
+
+    if (!prevPayment) throw new Error("Provide a valid payment Id");
+
     const payment = await prisma.payment.update({
       where: { id },
       data: {
@@ -135,17 +139,12 @@ export class PaymentService {
       },
     });
 
-    if (payment && payment.status === "paid" && payment.bankId)
-      await prisma.bank.update({
-        where: {
-          id: payment.bankId ?? -1,
-        },
-        data: {
-          balance: {
-            decrement: payment.price,
-          },
-        },
-      });
+    if (
+      prevPayment?.status !== "paid" &&
+      payment.status === "paid" &&
+      payment.bankId
+    )
+      this.decrementFromBank(payment);
 
     getIO().emit("payment:update");
     return payment;
@@ -266,4 +265,36 @@ export class PaymentService {
       where: { id },
     });
   };
+
+  // decrement from bank
+  private decrementFromBank = async (payment: Payment) => {
+    const { bankId } = payment;
+    if (!bankId) throw Error("BankId Should Not Null");
+    const bank = await prisma.bank.update({
+      where: { id: bankId },
+      data: {
+        balance: {
+          decrement: payment.price,
+        },
+      },
+    });
+
+    return bank;
+  };
+
+  // Increment in bank
+  // private incrementFromBank = async (payment: Payment) => {
+  //   const { bankId } = payment;
+  //   if (!bankId) throw Error("BankId Should Not Null");
+  //   const bank = await prisma.bank.update({
+  //     where: { id: bankId },
+  //     data: {
+  //       balance: {
+  //         increment: payment.price,
+  //       },
+  //     },
+  //   });
+
+  //   return bank;
+  // };
 }

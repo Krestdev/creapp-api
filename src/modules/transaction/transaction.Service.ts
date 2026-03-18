@@ -24,6 +24,8 @@ export class TransactionService {
     const { from, to, paymentId, methodId, ...transak } = data;
     let fromBank: Bank | null = null;
     let toBank: Bank | null = null;
+
+    // create the bank if the provider bank is an inverstor
     if (from) {
       fromBank = await prisma.bank.create({
         data: {
@@ -34,6 +36,7 @@ export class TransactionService {
       transak.fromBankId = Number(transak.fromBankId);
     }
 
+    // create the bank if the destination bank is a service provider
     if (to) {
       toBank = await prisma.bank.create({
         data: {
@@ -86,6 +89,7 @@ export class TransactionService {
     }
 
     if ((!!transak.toBankId || transak.toBankId === 0) && !transak.fromBankId) {
+      // in case of an investment
       await prisma.bank.update({
         where: {
           id: transak.toBankId,
@@ -98,8 +102,10 @@ export class TransactionService {
       });
     } else if (
       (!!transak.toBankId || transak.toBankId === 0) &&
-      transak.Type === "TRANSFER"
+      transak.Type === "TRANSFER" &&
+      transak.fromBankId === 0
     ) {
+      // in case of a transfer
       await prisma.bank.update({
         where: {
           id: transak.toBankId,
