@@ -1,6 +1,7 @@
 import { Reception } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { ReceptionService } from "./reception.Service";
+import { normalizeFile } from "../../utils/serverUtils";
 
 const receptionService = new ReceptionService();
 
@@ -28,9 +29,7 @@ export default class ReceptionController {
     const newReception = {
       ...restData,
       Deliverables: [],
-      Proof: proof
-        ? proof.map((p) => p.path.replace(/\\/g, "/")).join(";")
-        : null,
+      Proof: normalizeFile(proof),
     };
 
     if (Deliverables) {

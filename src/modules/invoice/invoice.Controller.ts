@@ -2,6 +2,7 @@ import { Invoice } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { InvoiceService } from "./invoice.Service";
 import { getIO } from "../../socket";
+import { normalizeFile } from "../../utils/serverUtils";
 
 const cmdRequestService = new InvoiceService();
 
@@ -31,7 +32,7 @@ export default class CmdRequestController {
     };
 
     if (proof) {
-      invoice.proof = proof.map((p) => p.path.replace(/\\/g, "/")).join(";");
+      invoice.proof = normalizeFile(proof);
     }
 
     getIO().emit("invoice:new");
@@ -72,7 +73,7 @@ export default class CmdRequestController {
     // }
 
     if (proof) {
-      invoice.proof = proof.map((p) => p.path.replace(/\\/g, "/")).join(";");
+      invoice.proof = normalizeFile(proof);
     }
 
     return cmdRequestService.update(Number(id), invoice);

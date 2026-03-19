@@ -49,10 +49,10 @@ export default class BankController {
       balance: Number(data.balance),
       Status: (data.Status as unknown as string) == "true" ? true : false,
     };
-    const newJustification =
-      justification && typeDetermine(justification)
-        ? justification.map((p) => p.path.replace(/\\/g, "/")).join(";")
-        : null;
+    const newJustification = normalizeFile(justification);
+    // justification && typeDetermine(justification)
+    // ? justification.map((p) => p.path.replace(/\\/g, "/")).join(";")
+    // : null;
 
     return bankService.update(
       Number(id),

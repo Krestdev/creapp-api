@@ -24,7 +24,7 @@ export default class DeviController {
     };
 
     if (proof) {
-      devi.proof = proof.map((p) => p.path.replace(/\\/g, "/")).join(";");
+      devi.proof = normalizeFile(proof)!; // le devi dois etre defini
     }
 
     const deviElem: DeviElement[] = JSON.parse(

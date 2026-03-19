@@ -2,6 +2,7 @@ import { Payment } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { getIO } from "../../socket";
 import { RequestService } from "./request.Service";
+import { normalizeFile } from "../../utils/serverUtils";
 
 const requestService = new RequestService();
 
@@ -175,7 +176,7 @@ export default class RequestController {
     };
 
     if (proof) {
-      request.proof = proof.map((p) => p.path.replace(/\\/g, "/")).join(";");
+      request.proof = normalizeFile(proof);
     }
 
     return requestService.specialRequest(
@@ -215,7 +216,7 @@ export default class RequestController {
 
     if (proof && typeof proof !== "string") {
       file = proof;
-      request.proof = proof.map((p) => p.path.replace(/\\/g, "/")).join(";");
+      request.proof = normalizeFile(proof);
     }
 
     return requestService.specialRequestUpdate(

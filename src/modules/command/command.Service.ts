@@ -178,7 +178,7 @@ export class CommandService {
                   .map((el) => ({ id: el.id }))
               : [],
           },
-          Proof: "",
+          Proof: null,
           CommandId: command.id,
           ProviderId: command.providerId,
           userId: command.devi ? command.devi.userId : null,

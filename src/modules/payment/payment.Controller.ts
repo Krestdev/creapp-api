@@ -34,13 +34,11 @@ export default class CmdRequestController {
     }
 
     if (proof) {
-      payment.proof = proof.map((p) => p.path.replace(/\\/g, "/")).join(";");
+      payment.proof = normalizeFile(proof);
     }
 
     if (justification) {
-      payment.justification = justification
-        .map((p) => p.path.replace(/\\/g, "/"))
-        .join(";");
+      payment.justification = normalizeFile(justification);
     }
 
     getIO().emit("payment:new");
