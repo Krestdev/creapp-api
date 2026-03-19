@@ -2,6 +2,7 @@ import { Payment } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { PaymentService } from "./payment.Service";
 import { getIO } from "../../socket";
+import { normalizeFile } from "../../utils/serverUtils";
 
 const cmdRequestService = new PaymentService();
 
@@ -77,13 +78,11 @@ export default class CmdRequestController {
     }
 
     if (proof) {
-      payment.proof = proof.map((p) => p.path.replace(/\\/g, "/")).join(";");
+      payment.proof = normalizeFile(proof);
     }
 
     if (justification) {
-      payment.justification = justification
-        .map((p) => p.path.replace(/\\/g, "/"))
-        .join(";");
+      payment.justification = normalizeFile(justification);
     }
 
     if (caisseId) {
@@ -126,7 +125,8 @@ export default class CmdRequestController {
     }
 
     if (proof) {
-      payment.proof = proof.map((p) => p.path.replace(/\\/g, "/")).join(";");
+      // payment.proof = proof.map((p) => p.path.replace(/\\/g, "/")).join(";");
+      payment.proof = normalizeFile(proof);
     }
 
     if (data.methodId) {
@@ -134,9 +134,10 @@ export default class CmdRequestController {
     }
 
     if (justification) {
-      payment.justification = justification
-        .map((p) => p.path.replace(/\\/g, "/"))
-        .join(";");
+      // payment.justification = justification
+      //   .map((p) => p.path.replace(/\\/g, "/"))
+      //   .join(";");
+      payment.justification = normalizeFile(justification);
     }
 
     if (data.requestId) {

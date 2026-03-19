@@ -186,15 +186,17 @@ export class TransactionService {
       data.amount = Number(data.amount);
     }
 
-    if (paymentId) {
+    if (paymentId && data.proof) {
       await CacheService.del(`payment:all`);
       await prisma.payment.update({
         where: { id: paymentId },
         data: {
           status: "paid",
+          proof: data.proof,
         },
       });
     }
+
     const transaction = await prisma.transaction.update({
       where: { id },
       data: {
