@@ -106,6 +106,18 @@ export default class RequestRoute {
       },
     );
 
+    // multiple files
+    this.routes.post("/approvisionement", requireRole("USER"), (req, res) => {
+      this.requestController
+        .approvisionementRequest({ userId: req.user?.userId, ...req.body })
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     this.routes.put(
       "/special/:id",
       upload.fields([{ name: "proof", maxCount: 5 }]),

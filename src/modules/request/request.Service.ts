@@ -708,6 +708,84 @@ export class RequestService {
     return { request: request, payment: payment };
   };
 
+  approvisionement = async (
+    data: Omit<
+      RequestModel,
+      "driverI" | "km" | "liters" | "vehiclesId" | "driverId"
+    >,
+  ) => {
+    const { ...requestData } = data;
+
+    const validators = await prisma.category
+      .findUniqueOrThrow({
+        where: {
+          id: data.categoryId,
+        },
+        include: {
+          validators: true,
+        },
+      })
+      .then((cat) => cat.validators || []);
+
+    const request = await prisma.requestModel.create({
+      data: {
+        ...requestData,
+        period: requestData.period
+          ? JSON.parse(requestData.period as unknown as string)
+          : null,
+        benFac: requestData.benFac
+          ? JSON.parse(requestData.benFac as unknown as string)
+          : null,
+        type: data.type,
+        state: ["facilitation", "ressource_humaine", "appro"].includes(
+          data.type,
+        )
+          ? "pending"
+          : "validated",
+        validators: {
+          createMany: {
+            data: validators.map((vldr) => ({
+              userId: vldr.userId,
+              rank: vldr.rank,
+              validated: false,
+            })),
+          },
+        },
+      },
+      include: {
+        beficiaryList: true,
+        validators: true,
+      },
+    });
+
+    await CacheService.del(`payment:all`);
+
+    const refpay = "ref-" + new Date().getTime();
+    const payment = await prisma.payment.create({
+      data: {
+        title: request.label,
+        reference: refpay,
+        requestId: request.id,
+        description: request.description ?? "",
+        projectId: request.projectId ? Number(request.projectId) : null,
+        status: ["speciaux"].includes(data.type)
+          ? "validated"
+          : ["facilitation", "ressource_humaine", "appro"].includes(data.type)
+            ? "ghost"
+            : // ? "accepted"
+              "pending",
+        type: data.type,
+        priority: "medium",
+        price: data.amount!,
+      },
+    });
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    await CacheService.del(`${this.CACHE_KEY}:mine`);
+    getIO().emit("request:new");
+    return { request: request, payment: payment };
+  };
+
   specialRequestUpdate = async (
     id: number,
     data: Partial<RequestModel> & { proof?: string | null },

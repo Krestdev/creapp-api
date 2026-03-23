@@ -186,6 +186,14 @@ export default class RequestController {
     );
   }
 
+  @Post("/approvisionement")
+  approvisionementRequest(
+    @Body()
+    data: RequestModelDto,
+  ): Promise<{ request: unknown; payment: Payment }> {
+    return requestService.approvisionement(data);
+  }
+
   @Post("/special/update/{id}")
   specialRequestUpdate(
     @Path() id: number,
