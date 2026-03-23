@@ -147,4 +147,32 @@ export class InvoiceService {
       where: { id },
     });
   };
+
+  cancel = async (id: number) => {
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+
+    const invoice = await prisma.$transaction([
+      prisma.payment.updateMany({
+        where: {
+          invoiceId: id,
+          status: {
+            notIn: ["paid", "validated"],
+          },
+        },
+        data: {
+          status: "cancelled",
+        },
+      }),
+      prisma.invoice.update({
+        where: { id },
+        data: {
+          status: "CANCELLED",
+        },
+      }),
+    ]);
+
+    getIO().emit("invoice:update");
+
+    return invoice[1];
+  };
 }

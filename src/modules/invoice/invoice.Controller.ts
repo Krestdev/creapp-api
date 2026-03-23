@@ -88,4 +88,9 @@ export default class CmdRequestController {
   getAll(): Promise<Invoice[]> {
     return cmdRequestService.getAll();
   }
+
+  @Get("cancelled/")
+  cancel(@Path() id: string): Promise<Invoice> {
+    return cmdRequestService.cancel(Number(id));
+  }
 }

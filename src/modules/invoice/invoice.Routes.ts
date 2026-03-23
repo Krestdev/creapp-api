@@ -84,5 +84,17 @@ export default class InvoiceRoute {
         )
         .catch((error) => res.status(400).json({ error: error.message }));
     });
+
+    // getOne
+    this.routes.get("/cancel/:id", requireRole("USER"), (req, res) => {
+      this.invoiceController
+        .cancel(req.params.id ?? "-1")
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
   }
 }
