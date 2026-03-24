@@ -548,6 +548,7 @@ export class TransactionService {
         signers: {
           include: { user: true },
         },
+        requests: true,
       },
     });
 
