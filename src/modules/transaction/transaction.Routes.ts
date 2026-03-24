@@ -39,6 +39,21 @@ export default class TransactionRoute {
       },
     );
 
+    this.routes.post(
+      "/appro",
+      upload.fields([{ name: "proof", maxCount: 5 }]),
+      (req, res) => {
+        this.trTransactionController
+          .createApprovisionement(req.body)
+          .then((request) =>
+            res
+              .status(200)
+              .json({ message: create.success.create, data: request }),
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      },
+    );
+
     // update
     this.routes.put(
       "/:id",

@@ -296,6 +296,12 @@ export class RequestService {
       },
     });
 
+    const paytype = await prisma.payType.findFirstOrThrow({
+      where: {
+        type: request.paytype,
+      },
+    });
+
     if (["transport", "gas", "others"].includes(request.type)) {
       await prisma.payment.create({
         data: {
@@ -306,6 +312,7 @@ export class RequestService {
           price: request.amount || 0,
           status: "validated",
           reference: `PAY-${Date.now()}`,
+          methodId: paytype.id,
           requestId: request.id,
         },
       });
@@ -615,6 +622,12 @@ export class RequestService {
     file?: Express.Multer.File[] | null,
     benef?: number[],
   ) => {
+    const paytype = await prisma.payType.findFirstOrThrow({
+      where: {
+        type: data.paytype,
+      },
+    });
+
     // create request, command and payment
     const ref = "ref-" + new Date().getTime();
     const { type, proof, ...requestData } = data;
@@ -688,6 +701,7 @@ export class RequestService {
               : // ? "accepted"
                 "pending",
         type: type,
+        methodId: paytype.id,
         priority: "medium",
         price: data.amount!,
         proof: proof,
@@ -716,6 +730,14 @@ export class RequestService {
   ) => {
     const { ...requestData } = data;
 
+    const paytype = await prisma.payType.findFirstOrThrow({
+      where: {
+        type: data.paytype,
+      },
+    });
+
+    const ref = "ref-" + new Date().getTime();
+
     const validators = await prisma.category
       .findUniqueOrThrow({
         where: {
@@ -737,6 +759,8 @@ export class RequestService {
           ? JSON.parse(requestData.benFac as unknown as string)
           : null,
         type: data.type,
+        ref,
+        beneficiary: data.beneficiary ?? "",
         state: ["facilitation", "ressource_humaine", "appro"].includes(
           data.type,
         )
@@ -775,6 +799,7 @@ export class RequestService {
             : // ? "accepted"
               "pending",
         type: data.type,
+        methodId: paytype.id,
         priority: "medium",
         price: data.amount!,
       },

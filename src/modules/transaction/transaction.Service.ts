@@ -175,6 +175,169 @@ export class TransactionService {
     return transaction;
   };
 
+  // Create
+  createApprovisionement = async (
+    data: Transaction & {
+      from: Bank;
+      to?: Bank;
+      paymentId?: number;
+      methodId?: number | null;
+      status: string;
+      requests: number[];
+    },
+  ) => {
+    const { from, to, paymentId, methodId, requests, ...transak } = data;
+    let fromBank: Bank | null = null;
+
+    // create the bank if the provider bank is an inverstor
+    if (from) {
+      fromBank = await prisma.bank.create({
+        data: {
+          ...from,
+        },
+      });
+    } else {
+      transak.fromBankId = Number(transak.fromBankId);
+    }
+
+    if (paymentId) {
+      await CacheService.del(`payment:all`);
+      await prisma.payment.update({
+        where: {
+          id: paymentId,
+        },
+        data: {
+          status: data.status,
+          method: methodId
+            ? {
+                connect: {
+                  id: Number(methodId),
+                },
+              }
+            : {},
+          bank: {
+            connect: {
+              id: Number(data.fromBankId),
+            },
+          },
+        },
+      });
+    }
+
+    // Provider Back is Valid and is CAISE, then decrement directly
+    if (!!transak.fromBankId || transak.fromBankId === 0) {
+      await prisma.bank.update({
+        where: {
+          id: transak.fromBankId,
+        },
+        data: {
+          balance: {
+            decrement: transak.amount,
+          },
+        },
+      });
+    }
+
+    // destination bank is CAISE and provider bank is valid bank
+    if ((!!transak.toBankId || transak.toBankId === 0) && !transak.fromBankId) {
+      // in case of an investment
+      await prisma.bank.update({
+        where: {
+          id: transak.toBankId,
+        },
+        data: {
+          balance: {
+            increment: transak.amount,
+          },
+        },
+      });
+
+      // destination bank is caise and the operation is a transfer else we do not increment directly
+    } else if (
+      (!!transak.toBankId || transak.toBankId === 0) &&
+      transak.Type === "TRANSFER" &&
+      transak.fromBankId === 0
+    ) {
+      // in case of a transfer
+      await prisma.bank.update({
+        where: {
+          id: transak.toBankId,
+        },
+        data: {
+          balance: {
+            increment: transak.amount,
+          },
+        },
+      });
+    }
+
+    const transaction = paymentId
+      ? await prisma.transaction.create({
+          data: {
+            ...transak,
+            fromBankId: transak.fromBankId ?? fromBank?.id,
+            toBankId: transak.toBankId ?? to?.id,
+            methodId: methodId ?? null,
+            status:
+              data.Type == "TRANSFER" && transak.status
+                ? transak.status
+                : data.Type == "TRANSFER"
+                  ? "PENDING"
+                  : "APPROVED",
+            payement: {
+              connect: {
+                id: paymentId,
+              },
+            },
+            requests: {
+              connect: requests.map((id) => {
+                return { id };
+              }),
+            },
+          },
+          include: {
+            from: true,
+            to: true,
+            payement: true,
+          },
+        })
+      : await prisma.transaction.create({
+          data: {
+            ...transak,
+            fromBankId: transak.fromBankId ?? fromBank?.id,
+            toBankId: transak.toBankId ?? to?.id,
+            status:
+              data.Type == "TRANSFER" && transak.status
+                ? transak.status
+                : data.Type == "TRANSFER"
+                  ? "PENDING"
+                  : "APPROVED",
+            requests: {
+              connect: requests.map((id) => {
+                return { id };
+              }),
+            },
+          },
+          include: {
+            from: true,
+            to: true,
+            payement: true,
+          },
+        });
+
+    await prisma.requestModel.updateMany({
+      where: {
+        transactionId: transaction.id,
+      },
+      data: {
+        selected: true,
+      },
+    });
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("transaction:new");
+    return transaction;
+  };
+
   // Update
   update = async (
     id: number,

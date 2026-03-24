@@ -28,6 +28,9 @@ type RequestModelDto = {
   updatedAt: Date;
   commandRequestId: number | null;
   commandId: number | null;
+  paytype: "ESPECES" | "CHEQUE" | "VIREMENT";
+  transactionId: number | null;
+  selected: boolean;
 };
 
 @Route("request/object")

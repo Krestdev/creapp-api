@@ -155,4 +155,27 @@ export default class TransactionController {
   getAll(): Promise<Transaction[]> {
     return transactionService.getAll();
   }
+
+  @Post("/appro")
+  createApprovisionement(
+    @Body()
+    data: Omit<Transaction, "proof"> & {
+      from: Bank;
+      to?: Bank;
+      paymentId: number;
+      methodId: number | null;
+      status: string;
+      requests: number[];
+    },
+  ): Promise<Transaction> {
+    const { paymentId, status, methodId } = data;
+
+    return transactionService.createApprovisionement({
+      ...data,
+      paymentId: Number(paymentId),
+      methodId: methodId ? Number(methodId) : null,
+      status: status,
+      proof: null,
+    });
+  }
 }

@@ -98,6 +98,12 @@ model Validators {
   requestModelId Int?
 }
 
+enum RequestPayType {
+  ov
+  chq
+  cash
+}
+
 model RequestModel {
   id               Int             @id @default(autoincrement())
   ref              String
@@ -134,10 +140,14 @@ model RequestModel {
   driver   Driver? @relation(fields: [driverId], references: [id])
   driverId Int?
 
-  model      Vehicle? @relation(fields: [vehiclesId], references: [id])
-  km         String?
-  liters     String?
-  vehiclesId Int?
+  model         Vehicle?        @relation(fields: [vehiclesId], references: [id])
+  km            String?
+  liters        String?
+  vehiclesId    Int?
+  transaction   Transaction?    @relation(fields: [transactionId], references: [id], name: "TransactionRequest")
+  transactionId Int?
+  selected      Boolean         @default(false)
+  paytype       RequestPayType?
 }
 
 model RequestOld {
@@ -603,6 +613,8 @@ model Transaction {
   validatorId Int?
   payement    Payment?             @relation(name: "paymentTransaction")
   signers     TransactionSigners[]
+
+  requests RequestModel[] @relation(name: "TransactionRequest")
 }
 
 model TransactionSigners {
