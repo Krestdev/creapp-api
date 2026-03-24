@@ -1,4 +1,4 @@
-import { Payment } from "@prisma/client";
+import { Payment, RequestPayType } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { getIO } from "../../socket";
 import { RequestService } from "./request.Service";
@@ -28,7 +28,7 @@ type RequestModelDto = {
   updatedAt: Date;
   commandRequestId: number | null;
   commandId: number | null;
-  paytype: "ESPECES" | "CHEQUE" | "VIREMENT";
+  paytype: RequestPayType;
   transactionId: number | null;
   selected: boolean;
 };
