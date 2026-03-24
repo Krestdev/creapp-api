@@ -29,8 +29,6 @@ type RequestModelDto = {
   commandRequestId: number | null;
   commandId: number | null;
   paytype: RequestPayType;
-  transactionId: number | null;
-  selected: boolean;
 };
 
 @Route("request/object")

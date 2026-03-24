@@ -140,14 +140,14 @@ model RequestModel {
   driver   Driver? @relation(fields: [driverId], references: [id])
   driverId Int?
 
-  model         Vehicle?        @relation(fields: [vehiclesId], references: [id])
-  km            String?
-  liters        String?
-  vehiclesId    Int?
-  transaction   Transaction?    @relation(fields: [transactionId], references: [id], name: "TransactionRequest")
-  transactionId Int?
-  selected      Boolean         @default(false)
-  paytype       RequestPayType?
+  model      Vehicle?        @relation(fields: [vehiclesId], references: [id])
+  km         String?
+  liters     String?
+  vehiclesId Int?
+  // transaction   Transaction?    @relation(fields: [transactionId], references: [id], name: "TransactionRequest")
+  // transactionId Int?
+  // selected      Boolean         @default(false)
+  paytype    RequestPayType?
 }
 
 model RequestOld {
@@ -474,6 +474,10 @@ model Payment {
   transactionId Int?         @unique
   facture       Invoice?     @relation(fields: [invoiceId], references: [id])
   invoiceId     Int?
+
+  paymentTransaction   Transaction? @relation(fields: [paymentTransactionId], references: [id], name: "TransactionPayments")
+  paymentTransactionId Int?
+  selected             Boolean      @default(false)
 }
 
 model Accounting {
@@ -614,7 +618,8 @@ model Transaction {
   payement    Payment?             @relation(name: "paymentTransaction")
   signers     TransactionSigners[]
 
-  requests RequestModel[] @relation(name: "TransactionRequest")
+  // requests RequestModel[] @relation(name: "TransactionRequest")
+  payments Payment[] @relation(name: "TransactionPayments")
 }
 
 model TransactionSigners {

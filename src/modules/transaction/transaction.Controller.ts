@@ -165,7 +165,7 @@ export default class TransactionController {
       paymentId: number;
       methodId: number | null;
       status: string;
-      requests: number[];
+      payments: number[];
     },
   ): Promise<Transaction> {
     const { paymentId, status, methodId } = data;

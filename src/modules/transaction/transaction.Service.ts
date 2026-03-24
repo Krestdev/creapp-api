@@ -183,10 +183,10 @@ export class TransactionService {
       paymentId?: number;
       methodId?: number | null;
       status: string;
-      requests: number[];
+      payments: number[];
     },
   ) => {
-    const { from, to, paymentId, methodId, requests, ...transak } = data;
+    const { from, to, paymentId, methodId, payments, ...transak } = data;
     let fromBank: Bank | null = null;
 
     // create the bank if the provider bank is an inverstor
@@ -289,8 +289,8 @@ export class TransactionService {
                 id: paymentId,
               },
             },
-            requests: {
-              connect: requests.map((id) => {
+            payments: {
+              connect: payments.map((id) => {
                 return { id };
               }),
             },
@@ -312,8 +312,8 @@ export class TransactionService {
                 : data.Type == "TRANSFER"
                   ? "PENDING"
                   : "APPROVED",
-            requests: {
-              connect: requests.map((id) => {
+            payments: {
+              connect: payments.map((id) => {
                 return { id };
               }),
             },
@@ -325,7 +325,7 @@ export class TransactionService {
           },
         });
 
-    await prisma.requestModel.updateMany({
+    await prisma.payment.updateMany({
       where: {
         transactionId: transaction.id,
       },
@@ -548,7 +548,7 @@ export class TransactionService {
         signers: {
           include: { user: true },
         },
-        requests: true,
+        payments: true,
       },
     });
 
