@@ -327,7 +327,9 @@ export class TransactionService {
 
     await prisma.payment.updateMany({
       where: {
-        transactionId: transaction.id,
+        id: {
+          in: payments,
+        },
       },
       data: {
         selected: true,
