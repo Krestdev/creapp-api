@@ -96,8 +96,10 @@ model Validators {
   rank           Int
   userId         Int?
   requestModelId Int?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @default(now()) @updatedAt
+  // created at
+  createdAt      DateTime?     @default(now())
+  // updated at
+  updatedAt      DateTime?     @default(now()) @updatedAt
 }
 
 enum RequestPayType {
