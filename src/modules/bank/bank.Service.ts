@@ -73,11 +73,4 @@ export class BankService {
   getAll = () => {
     return prisma.bank.findMany();
   };
-
-  // Get one
-  getOne = (id: number) => {
-    return prisma.bank.findUniqueOrThrow({
-      where: { id },
-    });
-  };
 }

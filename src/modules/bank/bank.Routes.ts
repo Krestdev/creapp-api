@@ -78,17 +78,5 @@ export default class BankRoute {
         )
         .catch((error) => res.status(400).json({ error: error.message }));
     });
-
-    // getOne
-    this.routes.get("/:id", requireRole("USER"), (req, res) => {
-      this.bankController
-        .getOne(req.params.id ?? "-1")
-        .then((request) =>
-          res
-            .status(200)
-            .json({ message: create.success.create, data: request }),
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
   }
 }

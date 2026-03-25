@@ -74,7 +74,7 @@ class ApiServer {
       }),
     );
     this.app.use(express.json());
-    this.app.use(express.urlencoded());
+    this.app.use(express.urlencoded({ extended: true }));
     this.app.use(bodyParser.json());
   }
 

@@ -25,9 +25,7 @@ export class TransactionService {
     let fromBank: Bank | null = null;
     let toBank: Bank | null = null;
 
-    const bank = await prisma.bank.findUnique({
-      where: { id: transak.fromBankId },
-    });
+    let bank: Bank | null = null;
 
     // create the bank if the provider bank is an inverstor
     if (from) {
@@ -38,6 +36,10 @@ export class TransactionService {
       });
     } else {
       transak.fromBankId = Number(transak.fromBankId);
+
+      bank = await prisma.bank.findUnique({
+        where: { id: transak.fromBankId },
+      });
     }
 
     // create the bank if the destination bank is a service provider

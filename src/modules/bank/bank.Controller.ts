@@ -17,6 +17,8 @@ export default class BankController {
   ): Promise<Bank> {
     const { justification, ...restData } = data;
 
+    console.log(data);
+
     const newBank = {
       ...restData,
       balance: Number(data.balance),
@@ -40,10 +42,6 @@ export default class BankController {
   ): Promise<Bank> {
     const { justification, ...restData } = data;
 
-    const typeDetermine = (data) => {
-      return typeof data !== "string";
-    };
-
     const newBank = {
       ...restData,
       balance: Number(data.balance),
@@ -65,11 +63,6 @@ export default class BankController {
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Bank> {
     return bankService.delete(Number(id));
-  }
-
-  @Get("/{id}")
-  getOne(@Path() id: string): Promise<Bank> {
-    return bankService.getOne(Number(id));
   }
 
   @Get("/")

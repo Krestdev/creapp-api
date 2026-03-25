@@ -1,4 +1,5 @@
 @host = http://localhost:5000/health
+@token= eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFUyIsIlNBTEVTX01BTkFHRVIiLCJWT0xUIiwiVk9MVF9NQU5BR0VSIiwiUkgiLCJBQ0NPVU5UQU5UIl0sImlhdCI6MTc3NDQ0MTM1OCwiZXhwIjoxNzc0NTI3NzU4fQ._BlQxXGn_ryS8aU6iiq1Awh7vXygls1IP18RQITMYjc
 
 ### get all projects
 GET {{host}}
@@ -6,7 +7,8 @@ Accept: application/json
 # Accept:  multipart/form-data
 
 ###
-POST http://localhost:5000/api/v1.0.0/request/provider
+POST http://localhost:5001/api/v1.0.0/request/provider
+Authorization: Bearer {{token}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary123
 
 ------WebKitFormBoundary123

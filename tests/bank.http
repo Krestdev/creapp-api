@@ -1,0 +1,72 @@
+@host = http://localhost:5001/health
+@token= eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFUyIsIlNBTEVTX01BTkFHRVIiLCJWT0xUIiwiVk9MVF9NQU5BR0VSIiwiUkgiLCJBQ0NPVU5UQU5UIl0sImlhdCI6MTc3NDQ0MTM1OCwiZXhwIjoxNzc0NTI3NzU4fQ._BlQxXGn_ryS8aU6iiq1Awh7vXygls1IP18RQITMYjc
+
+### get all projects
+GET {{host}}
+Accept: application/json
+# Accept:  multipart/form-data
+
+###
+POST http://localhost:5001/api/v1.0.0/request/bank
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary123
+
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="label"
+
+WinterCode Provider
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="type"
+
+BANK
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="balance"
+
+200000
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="accountNumber"
+
+REGEM-001
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="bankCode"
+
+Douala, Bonamoussadi
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="atmCode"
+
+provider@wintercode.dev
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="key"
+
++237657071178
+------WebKitFormBoundary123
+Content-Disposition: form-data; name="justification"; filename="carte1.pdf"
+Content-Type: application/pdf
+
+< ./files/carte1.pdf
+# ------WebKitFormBoundary123
+# Content-Disposition: form-data; name="carte_contribuable"; filename="carte2.jpg"
+# Content-Type: image/jpeg
+
+# < ./files/carte2.jpg
+# ------WebKitFormBoundary123
+# Content-Disposition: form-data; name="acf"; filename="acf.pdf"
+# Content-Type: application/pdf
+
+# < ./files/acf.pdf
+# ------WebKitFormBoundary123
+# Content-Disposition: form-data; name="plan_localisation"; filename="plan.png"
+# Content-Type: image/png
+
+# < ./files/plan.png
+# ------WebKitFormBoundary123
+# Content-Disposition: form-data; name="commerce_registre"; filename="registre.pdf"
+# Content-Type: application/pdf
+
+# < ./files/registre.pdf
+# ------WebKitFormBoundary123
+# Content-Disposition: form-data; name="bank_attestation"; filename="bank.pdf"
+# Content-Type: application/pdf
+
+# < ./files/bank.pdf
+------WebKitFormBoundary123--
