@@ -25,6 +25,10 @@ export class TransactionService {
     let fromBank: Bank | null = null;
     let toBank: Bank | null = null;
 
+    const bank = await prisma.bank.findUnique({
+      where: { id: transak.fromBankId },
+    });
+
     // create the bank if the provider bank is an inverstor
     if (from) {
       fromBank = await prisma.bank.create({
@@ -103,7 +107,7 @@ export class TransactionService {
     } else if (
       (!!transak.toBankId || transak.toBankId === 0) &&
       transak.Type === "TRANSFER" &&
-      transak.fromBankId === 0
+      bank?.type === "CASH_REGISTER"
     ) {
       // in case of a transfer
       await prisma.bank.update({
