@@ -141,9 +141,6 @@ model RequestModel {
   validators       Validators[]
   requestOlds      RequestOld[]
 
-  driver   Driver? @relation(fields: [driverId], references: [id])
-  driverId Int?
-
   model      Vehicle?        @relation(fields: [vehiclesId], references: [id])
   km         String?
   liters     String?
@@ -434,12 +431,9 @@ model Payment {
   beneficiary User?  @relation(name: "paymentBenef", fields: [benefId], references: [id], onDelete: SetNull)
   benefId     Int?
 
-  driver   Driver? @relation(fields: [driverId], references: [id])
-  driverId Int?
-
   model  Vehicle? @relation(fields: [vehiclesId], references: [id])
-  km     String?
-  liters String?
+  km     Int?
+  liters Int?
 
   proof String?
 
@@ -660,12 +654,12 @@ model Vehicle {
   requestModels RequestModel[]
 }
 
-model Driver {
-  id            Int            @id @default(autoincrement())
-  firstName     String
-  lastName      String?
-  licence       String?
-  idCard        String?
-  payments      Payment[]
-  requestModels RequestModel[]
-}
+// model Driver {
+//   id            Int            @id @default(autoincrement())
+//   firstName     String
+//   lastName      String?
+//   licence       String?
+//   idCard        String?
+//   payments      Payment[]
+//   requestModels RequestModel[]
+// }

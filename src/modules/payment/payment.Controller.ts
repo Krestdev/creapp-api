@@ -142,7 +142,21 @@ export default class CmdRequestController {
       payment.requestId = Number(data.requestId);
     }
 
+    console.log(data, payment);
+
     return cmdRequestService.update(Number(id), payment);
+  }
+
+  /**
+   * @summary Update Command request
+   */
+  @Put("/gas/{id}")
+  updateGas(
+    @Path() id: string,
+    @Body()
+    data: Payment,
+  ): Promise<Payment> {
+    return cmdRequestService.updateGas(Number(id), data);
   }
 
   @Post("/payment/{id}")

@@ -135,10 +135,31 @@ export class PaymentService {
       where: { id },
       data: {
         ...data,
-        driverId: Number(data.driverId),
         isPartial: Boolean(data.isPartial),
       },
     });
+
+    getIO().emit("payment:update");
+    return payment;
+  };
+
+  // Update
+  updateGas = async (id: number, data: Payment) => {
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    const payment = await prisma.payment
+      .update({
+        where: { id },
+        data: {
+          price: data.price,
+          liters: data.liters,
+          deadline: data.deadline,
+          benefId: data.driverId,
+        },
+      })
+      .catch((e) => {
+        console.log(e);
+        throw e;
+      });
 
     getIO().emit("payment:update");
     return payment;
