@@ -76,6 +76,25 @@ export default class PaymentRoute {
 
     // update
     this.routes.put(
+      "/payment/:id",
+      upload.fields([
+        { name: "proof", maxCount: 5 },
+        { name: "justification", maxCount: 5 },
+      ]),
+      (req, res) => {
+        this.paymentController
+          .updateTransportPayment(req.params.id!, req.body)
+          .then((request) =>
+            res
+              .status(200)
+              .json({ message: create.success.create, data: request }),
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      },
+    );
+
+    // update
+    this.routes.put(
       "/:id",
       upload.fields([
         { name: "proof", maxCount: 5 },

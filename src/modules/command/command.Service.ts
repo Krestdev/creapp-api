@@ -31,7 +31,7 @@ export class CommandService {
       return value === null || value === "";
     });
 
-    if (providerNotComplete) throw Error("The Provider info is not Complete");
+    // if (providerNotComplete) throw Error("The Provider info is not Complete");
     const ref = "ref-" + new Date().getTime();
 
     if (data.deviId == null) throw Error("Devi is required");

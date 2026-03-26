@@ -145,6 +145,15 @@ export default class CmdRequestController {
     return cmdRequestService.update(Number(id), payment);
   }
 
+  @Post("/payment/{id}")
+  updateTransportPayment(
+    @Path() id: string,
+    @Body()
+    data: Omit<Payment, "proof">,
+  ): Promise<Payment> {
+    return cmdRequestService.update(Number(id), data);
+  }
+
   /**
    * @summary Update Command request
    */

@@ -10,163 +10,67 @@ const prisma = new PrismaClient();
 
 export class TransactionService {
   CACHE_KEY = "transaction";
-  // Create
-  create = async (
+  // Create payment transaction
+  createCreditTransaction = async (
     data: Transaction & {
+      toBankId: number;
       from: Bank;
-      to?: Bank;
-      paymentId?: number;
-      methodId?: number | null;
-      status: string;
     },
     file: Express.Multer.File[] | null,
   ) => {
-    const { from, to, paymentId, methodId, ...transak } = data;
-    let fromBank: Bank | null = null;
-    let toBank: Bank | null = null;
+    const {
+      from,
+      toBankId,
+      id,
+      fromBankId,
+      methodId,
+      userId,
+      validatorId,
+      ...transak
+    } = data;
 
-    let bank: Bank | null = null;
-
+    await CacheService.del(`payment:all`);
     // create the bank if the provider bank is an inverstor
-    if (from) {
-      fromBank = await prisma.bank.create({
-        data: {
-          ...from,
-        },
-      });
-    } else {
-      transak.fromBankId = Number(transak.fromBankId);
 
-      bank = await prisma.bank.findUnique({
-        where: { id: transak.fromBankId },
-      });
-    }
-
-    // create the bank if the destination bank is a service provider
-    if (to) {
-      toBank = await prisma.bank.create({
+    const [transaction] = await prisma.$transaction([
+      prisma.transaction.create({
         data: {
-          ...to,
-        },
-      });
-    } else {
-      transak.toBankId = Number(transak.toBankId);
-    }
-
-    if (paymentId) {
-      await CacheService.del(`payment:all`);
-      await prisma.payment.update({
-        where: {
-          id: paymentId,
-        },
-        data: {
-          status: data.status,
-          method: methodId
-            ? {
-                connect: {
-                  id: Number(methodId),
-                },
-              }
-            : {},
-          bank: {
+          ...transak,
+          user: {
             connect: {
-              id: Number(data.fromBankId),
+              id: Number(userId),
             },
           },
+          to: {
+            connect: {
+              id: Number(toBankId),
+            },
+          },
+          from: {
+            create: {
+              ...from,
+              balance: 0,
+            },
+          },
+          status: "APPROVED",
         },
-      });
-    }
-
-    if (!!transak.fromBankId || transak.fromBankId === 0) {
-      await prisma.bank
-        .update({
-          where: {
-            id: transak.fromBankId,
-          },
-          data: {
-            balance: {
-              decrement: transak.amount,
-            },
-          },
-        })
-        .then((res) => {
-          console.log(res);
-        });
-    }
-
-    if ((!!transak.toBankId || transak.toBankId === 0) && !transak.fromBankId) {
-      // in case of an investment
-      await prisma.bank.update({
+        include: {
+          from: true,
+          to: true,
+          payement: true,
+        },
+      }),
+      prisma.bank.update({
         where: {
-          id: transak.toBankId,
+          id: Number(toBankId),
         },
         data: {
           balance: {
-            increment: transak.amount,
+            increment: data.amount,
           },
         },
-      });
-    } else if (
-      (!!transak.toBankId || transak.toBankId === 0) &&
-      transak.Type === "TRANSFER" &&
-      bank?.type === "CASH_REGISTER"
-    ) {
-      // in case of a transfer
-      await prisma.bank.update({
-        where: {
-          id: transak.toBankId,
-        },
-        data: {
-          balance: {
-            increment: transak.amount,
-          },
-        },
-      });
-    }
-
-    const transaction = paymentId
-      ? await prisma.transaction.create({
-          data: {
-            ...transak,
-            fromBankId: transak.fromBankId ?? fromBank?.id,
-            toBankId: transak.toBankId ?? toBank?.id,
-            methodId: methodId ?? null,
-            status:
-              data.Type == "TRANSFER" && transak.status
-                ? transak.status
-                : data.Type == "TRANSFER"
-                  ? "PENDING"
-                  : "APPROVED",
-            payement: {
-              connect: {
-                id: paymentId,
-              },
-            },
-          },
-          include: {
-            from: true,
-            to: true,
-            payement: true,
-          },
-        })
-      : await prisma.transaction.create({
-          data: {
-            ...transak,
-            fromBankId: transak.fromBankId ?? fromBank?.id,
-            toBankId: transak.toBankId ?? toBank?.id,
-            status:
-              data.Type == "TRANSFER" && transak.status
-                ? transak.status
-                : data.Type == "TRANSFER"
-                  ? "PENDING"
-                  : "APPROVED",
-          },
-          include: {
-            from: true,
-            to: true,
-            payement: true,
-          },
-        });
+      }),
+    ]);
 
     if (file) {
       await storeDocumentsBulk(file, {
@@ -175,6 +79,214 @@ export class TransactionService {
         ownerType: "TRANSACTION",
       });
     }
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("transaction:new");
+    return transaction;
+  };
+
+  // Create payment transaction
+  createDebitTransaction = async (
+    data: Transaction & {
+      fromBankId: number;
+      to: Bank;
+    },
+    file: Express.Multer.File[] | null,
+  ) => {
+    const {
+      to,
+      toBankId,
+      id,
+      fromBankId,
+      methodId,
+      userId,
+      validatorId,
+      ...transak
+    } = data;
+
+    await CacheService.del(`payment:all`);
+    // create the bank if the provider bank is an inverstor
+
+    const [transaction] = await prisma.$transaction([
+      prisma.transaction.create({
+        data: {
+          ...transak,
+          user: {
+            connect: {
+              id: Number(userId),
+            },
+          },
+          from: {
+            connect: {
+              id: fromBankId,
+            },
+          },
+          to: {
+            create: {
+              ...to,
+              balance: data.amount,
+            },
+          },
+          status: "APPROVED",
+        },
+        include: {
+          from: true,
+          to: true,
+          payement: true,
+        },
+      }),
+      prisma.bank.update({
+        where: {
+          id: fromBankId,
+        },
+        data: {
+          balance: {
+            decrement: data.amount,
+          },
+        },
+      }),
+    ]);
+
+    if (file) {
+      await storeDocumentsBulk(file, {
+        role: "PROOF",
+        ownerId: transaction.id.toString(),
+        ownerType: "TRANSACTION",
+      });
+    }
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("transaction:new");
+    return transaction;
+  };
+
+  // Create payment transaction
+  createPaymentTransaction = async (
+    data: Transaction & {
+      to: Bank;
+      paymentId: number;
+    },
+    file: Express.Multer.File[] | null,
+  ) => {
+    const {
+      to,
+      paymentId,
+      methodId,
+      toBankId,
+      id,
+      fromBankId,
+      userId,
+      validatorId,
+      ...transak
+    } = data;
+
+    await CacheService.del(`payment:all`);
+    // create the bank if the provider bank is an inverstor
+
+    const [_, transaction] = await prisma
+      .$transaction([
+        prisma.payment.update({
+          where: {
+            id: Number(paymentId) ?? -1,
+          },
+          data: {
+            status: data.status!,
+            method: methodId
+              ? {
+                  connect: {
+                    id: Number(methodId),
+                  },
+                }
+              : {},
+            bank: {
+              connect: {
+                id: Number(fromBankId),
+              },
+            },
+          },
+        }),
+        prisma.transaction.create({
+          data: {
+            ...transak,
+            user: {
+              connect: {
+                id: Number(userId),
+              },
+            },
+            from: {
+              connect: {
+                id: Number(fromBankId),
+              },
+            },
+            to: {
+              create: {
+                ...to,
+              },
+            },
+            payement: {
+              connect: {
+                id: Number(paymentId),
+              },
+            },
+            status: "PENDING",
+          },
+          include: {
+            from: true,
+            to: true,
+            payement: true,
+          },
+        }),
+      ])
+      .catch((e) => {
+        console.log(e);
+        throw e;
+      });
+
+    if (file) {
+      await storeDocumentsBulk(file, {
+        role: "PROOF",
+        ownerId: transaction.id.toString(),
+        ownerType: "TRANSACTION",
+      });
+    }
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("transaction:new");
+    return transaction;
+  };
+
+  // Create Transfer
+  createTransfer = async (data: Transaction) => {
+    const [_, __, transaction] = await prisma.$transaction([
+      prisma.bank.update({
+        where: {
+          id: data.fromBankId,
+        },
+        data: {
+          balance: {
+            decrement: data.status === "APPROVED" ? data.amount : 0,
+          },
+        },
+      }),
+      prisma.bank.update({
+        where: {
+          id: data.toBankId,
+        },
+        data: {
+          balance: {
+            increment: data.status === "APPROVED" ? data.amount : 0,
+          },
+        },
+      }),
+      prisma.transaction.create({
+        data,
+        include: {
+          from: true,
+          to: true,
+          payement: true,
+        },
+      }),
+    ]);
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     getIO().emit("transaction:new");
@@ -346,28 +458,12 @@ export class TransactionService {
     return transaction;
   };
 
-  // Update
-  update = async (
+  // Update transfer
+  updateTransfer = async (
     id: number,
     data: Partial<Transaction>,
-    paymentId: number | null,
     file: Express.Multer.File[] | null,
   ) => {
-    if (data.amount) {
-      data.amount = Number(data.amount);
-    }
-
-    if (paymentId && data.proof) {
-      await CacheService.del(`payment:all`);
-      await prisma.payment.update({
-        where: { id: paymentId },
-        data: {
-          status: "paid",
-          proof: data.proof,
-        },
-      });
-    }
-
     const transaction = await prisma.transaction.update({
       where: { id },
       data: {
@@ -379,17 +475,66 @@ export class TransactionService {
       },
     });
 
-    if (data.status === "APPROVED")
-      await prisma.bank.update({
-        where: {
-          id: transaction.toBankId,
-        },
+    if (file) {
+      await storeDocumentsBulk(file, {
+        role: "PROOF",
+        ownerId: transaction.id.toString(),
+        ownerType: "TRANSACTION",
+      });
+    }
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("transaction:update");
+    getIO().emit("bank:update");
+    return transaction;
+  };
+
+  // Update
+  updatePayment = async (
+    id: number,
+    proof: string | null,
+    paymentId: number,
+    file: Express.Multer.File[] | null,
+  ) => {
+    const payment = await prisma.payment.findFirstOrThrow({
+      where: { id: paymentId },
+    });
+
+    const [_, transaction] = await prisma.$transaction([
+      prisma.payment.update({
+        where: { id: paymentId },
         data: {
-          balance: {
-            increment: transaction.amount,
+          status: "paid",
+        },
+      }),
+      prisma.transaction.update({
+        where: { id },
+        data: {
+          proof,
+          status: "APPROVED",
+          from: {
+            update: {
+              balance: {
+                decrement: payment.price,
+              },
+            },
+          },
+          to: {
+            update: {
+              balance: {
+                increment: payment.price,
+              },
+            },
           },
         },
-      });
+        include: {
+          from: true,
+          to: true,
+        },
+      }),
+    ]);
+
+    await CacheService.del(`payment:all`);
 
     if (file) {
       await storeDocumentsBulk(file, {
@@ -398,6 +543,79 @@ export class TransactionService {
         ownerType: "TRANSACTION",
       });
     }
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("transaction:update");
+    getIO().emit("bank:update");
+    return transaction;
+  };
+
+  // Update
+  completeTransfer = async (
+    id: number,
+    proof: string | null,
+    date: string,
+    file: Express.Multer.File[] | null,
+  ) => {
+    const tragetTransaction = await prisma.transaction.findFirstOrThrow({
+      where: { id },
+    });
+
+    const transaction = await prisma.transaction.update({
+      where: { id },
+      data: {
+        proof,
+        status: "APPROVED",
+        updatedAt: date,
+        from: {
+          update: {
+            balance: {
+              decrement: tragetTransaction.amount,
+            },
+          },
+        },
+        to: {
+          update: {
+            balance: {
+              increment: tragetTransaction.amount,
+            },
+          },
+        },
+      },
+      include: {
+        from: true,
+        to: true,
+      },
+    });
+
+    await CacheService.del(`payment:all`);
+
+    if (file) {
+      await storeDocumentsBulk(file, {
+        role: "PROOF",
+        ownerId: transaction.id.toString(),
+        ownerType: "TRANSACTION",
+      });
+    }
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("transaction:update");
+    getIO().emit("bank:update");
+    return transaction;
+  };
+
+  // Update
+  updateSign = async (id: number, data: Partial<Transaction>) => {
+    const transaction = await prisma.transaction.update({
+      where: { id },
+      data: {
+        ...data,
+      },
+      include: {
+        from: true,
+        to: true,
+      },
+    });
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     getIO().emit("transaction:update");

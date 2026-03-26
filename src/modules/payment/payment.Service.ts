@@ -135,16 +135,26 @@ export class PaymentService {
       where: { id },
       data: {
         ...data,
+        driverId: Number(data.driverId),
         isPartial: Boolean(data.isPartial),
       },
     });
 
-    if (
-      prevPayment?.status !== "paid" &&
-      payment.status === "paid" &&
-      payment.bankId
-    )
-      this.decrementFromBank(payment);
+    getIO().emit("payment:update");
+    return payment;
+  };
+
+  updateTransportPayment = async (id: number, data: Omit<Payment, "proof">) => {
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+
+    const prevPayment = await prisma.payment.findUnique({ where: { id } });
+
+    if (!prevPayment) throw new Error("Provide a valid payment Id");
+
+    const payment = await prisma.payment.update({
+      where: { id },
+      data,
+    });
 
     getIO().emit("payment:update");
     return payment;
@@ -267,20 +277,20 @@ export class PaymentService {
   };
 
   // decrement from bank
-  private decrementFromBank = async (payment: Payment) => {
-    const { bankId } = payment;
-    if (!bankId) throw Error("BankId Should Not Null");
-    const bank = await prisma.bank.update({
-      where: { id: bankId },
-      data: {
-        balance: {
-          decrement: payment.price,
-        },
-      },
-    });
+  // private decrementFromBank = async (payment: Payment) => {
+  //   const { bankId } = payment;
+  //   if (!bankId) throw Error("BankId Should Not Null");
+  //   const bank = await prisma.bank.update({
+  //     where: { id: bankId },
+  //     data: {
+  //       balance: {
+  //         decrement: payment.price,
+  //       },
+  //     },
+  //   });
 
-    return bank;
-  };
+  //   return bank;
+  // };
 
   // Increment in bank
   // private incrementFromBank = async (payment: Payment) => {

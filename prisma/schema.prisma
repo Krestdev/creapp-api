@@ -243,7 +243,7 @@ model DeviElement {
   status         String        @default("NOT_SELECTED")
   isDelivered    Boolean       @default(false)
   delivered      Int           @default(0)
-  priceProposed  Int
+  priceProposed  Float
   devi           Devi          @relation(fields: [deviId], references: [id], onDelete: Cascade)
   deviId         Int
   reception      Reception?    @relation(fields: [receptionId], references: [id])
