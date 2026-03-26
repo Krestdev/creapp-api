@@ -71,10 +71,6 @@ export default class CmdRequestController {
       payment.benefId = Number(paymentData.benefId);
     }
 
-    if (paymentData.driverId) {
-      payment.driverId = Number(paymentData.driverId);
-    }
-
     if (proof) {
       payment.proof = normalizeFile(proof);
     }
