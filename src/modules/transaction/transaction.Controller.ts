@@ -150,7 +150,7 @@ export default class TransactionController {
   /**
    * @summary Update Command request
    */
-  @Put("/{id}")
+  @Put("/updateTransfer/{id}")
   updateTransfer(
     @Path() id: string,
     @Body()
@@ -195,7 +195,7 @@ export default class TransactionController {
     return transactionService.updateTransfer(Number(id), newTransaction, proof);
   }
 
-  @Put("/{id}")
+  @Put("/updatePayment/{id}")
   updatePayment(
     @Path() id: string,
     @Body()
@@ -214,7 +214,7 @@ export default class TransactionController {
     );
   }
 
-  @Put("/{id}")
+  @Put("/completerTransfer/{id}")
   completeTransfer(
     @Path() id: string,
     @Body()

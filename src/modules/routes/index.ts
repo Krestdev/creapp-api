@@ -20,7 +20,6 @@ import RequestTypeRoute from "../requesttype/requestType.Routes";
 import PayTypeRoute from "../payType/payType.Routes";
 import SignatairRoute from "../signatair/signatair.Routes";
 import AuthRoute from "../auth/auth.routes";
-import DriverRoute from "../driver/driver.Routes";
 import CommandConditionsRoute from "../commandCondition/condition.Routes";
 import FactureRoute from "../invoice/invoice.Routes";
 
@@ -77,7 +76,6 @@ export function connectRequestRoutes() {
   const requestType = new RequestTypeRoute();
   const payTypeRoute = new PayTypeRoute();
   const signatairRoute = new SignatairRoute();
-  const driverRoute = new DriverRoute();
   const commandConditionRoutes = new CommandConditionsRoute();
   const factureRoute = new FactureRoute();
 
@@ -140,9 +138,6 @@ export function connectRequestRoutes() {
 
   // PayType request connection
   router.use("/payType", payTypeRoute.routes);
-
-  // Chauffeur request connection
-  router.use("/driver", driverRoute.routes);
 
   // base module connection
   router.use("/", (req, res) => {
