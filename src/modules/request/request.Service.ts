@@ -296,13 +296,12 @@ export class RequestService {
       },
     });
 
-    const paytype = await prisma.payType.findFirstOrThrow({
-      where: {
-        type: request.paytype,
-      },
-    });
-
     if (["transport", "gas", "others"].includes(request.type)) {
+      const paytype = await prisma.payType.findFirstOrThrow({
+        where: {
+          type: "cash",
+        },
+      });
       await prisma.payment.create({
         data: {
           type: request.type,
