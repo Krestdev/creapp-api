@@ -566,7 +566,7 @@ export class TransactionService {
       data: {
         proof,
         status: "APPROVED",
-        updatedAt: date,
+        date: date,
         from: {
           update: {
             balance: {
