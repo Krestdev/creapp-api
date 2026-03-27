@@ -183,30 +183,26 @@ export class TransactionService {
     await CacheService.del(`payment:all`);
     // create the bank if the provider bank is an inverstor
 
-    const [_, transaction] = await prisma
-      .$transaction([
-        prisma.payment.update({
-          where: {
-            id: Number(paymentId) ?? -1,
-          },
-          data: {
-            status: data.status!,
-            method: methodId
-              ? {
-                  connect: {
-                    id: Number(methodId),
-                  },
-                }
-              : {},
-            bank: {
+    const payement = await prisma.payment.update({
+      where: {
+        id: Number(paymentId) ?? -1,
+      },
+      data: {
+        status: data.status!,
+        method: methodId
+          ? {
               connect: {
-                id: Number(fromBankId),
+                id: Number(methodId),
               },
-            },
+            }
+          : {},
+        bank: {
+          connect: {
+            id: Number(fromBankId),
           },
-        }),
-        prisma.transaction.create({
-          data: {
+        },
+        transaction: {
+          create: {
             ...transak,
             user: {
               connect: {
@@ -223,36 +219,26 @@ export class TransactionService {
                 ...to,
               },
             },
-            payement: {
-              connect: {
-                id: Number(paymentId),
-              },
-            },
             status: "PENDING",
           },
-          include: {
-            from: true,
-            to: true,
-            payement: true,
-          },
-        }),
-      ])
-      .catch((e) => {
-        console.log(e);
-        throw e;
-      });
+        },
+      },
+      include: {
+        transaction: true,
+      },
+    });
 
     if (file) {
       await storeDocumentsBulk(file, {
         role: "PROOF",
-        ownerId: transaction.id.toString(),
+        ownerId: payement.transactionId!.toString(),
         ownerType: "TRANSACTION",
       });
     }
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     getIO().emit("transaction:new");
-    return transaction;
+    return payement.transaction!;
   };
 
   // Create Transfer
