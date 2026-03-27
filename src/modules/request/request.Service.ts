@@ -1,4 +1,4 @@
-import { PrismaClient, RequestModel } from "@prisma/client";
+import { PayType, PrismaClient, RequestModel } from "@prisma/client";
 import {
   deleteDocumentsByOwner,
   storeDocumentsBulk,
@@ -296,13 +296,10 @@ export class RequestService {
       },
     });
 
-    const paytype = await prisma.payType.findFirstOrThrow({
-      where: {
-        type: request.paytype,
-      },
-    });
+    const paymentTypes = await prisma.payType.findMany();
 
     if (["transport", "gas", "others"].includes(request.type)) {
+      const paytype = paymentTypes.filter((x) => x.type === paytype);
       await prisma.payment.create({
         data: {
           type: request.type,
@@ -818,7 +815,23 @@ export class RequestService {
     benef?: number[],
   ) => {
     // create request, command and payment
-    const { proof, ...requestData } = data;
+    const { proof, type, paytype, ...requestData } = data;
+
+    let myPaytype: PayType | null = null;
+
+    if (paytype) {
+      const paymentTypes = await prisma.payType.findMany();
+      myPaytype = paymentTypes.find((x) => x.type === paytype)!;
+
+      await prisma.payment.updateMany({
+        where: {
+          requestId: id,
+        },
+        data: {
+          methodId: myPaytype.id,
+        },
+      });
+    }
 
     await CacheService.del(`payment:all`);
 

@@ -219,6 +219,8 @@ export default class RequestController {
       projectId: reqData.projectId ? Number(reqData.projectId) : null,
       categoryId: Number(reqData.categoryId),
       userId: Number(reqData.userId),
+      type: data.type,
+      paytype: data.paytype,
     };
 
     let file;
