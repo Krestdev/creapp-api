@@ -85,6 +85,15 @@ export class TransactionService {
     return transaction;
   };
 
+  private shouldDecrement = async (id: number, amount: number) => {
+    const bank = await prisma.bank.findUnique({ where: { id } });
+    if (!bank || !bank.balance || bank.balance - amount < 0) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   // Create payment transaction
   createDebitTransaction = async (
     data: Transaction & {
@@ -106,6 +115,11 @@ export class TransactionService {
 
     await CacheService.del(`payment:all`);
     // create the bank if the provider bank is an inverstor
+
+    // verify the available amount befor decementing
+
+    if (!this.shouldDecrement(fromBankId, data.amount))
+      throw Error("Fond insufisant");
 
     const [transaction] = await prisma.$transaction([
       prisma.transaction.create({
@@ -243,6 +257,9 @@ export class TransactionService {
 
   // Create Transfer
   createTransfer = async (data: Transaction) => {
+    if (!this.shouldDecrement(data.fromBankId, data.amount))
+      throw Error("Fond insufisant");
+
     const [_, __, transaction] = await prisma.$transaction([
       prisma.bank.update({
         where: {
@@ -302,6 +319,8 @@ export class TransactionService {
       });
     } else {
       transak.fromBankId = Number(transak.fromBankId);
+      if (!this.shouldDecrement(transak.fromBankId, data.amount))
+        throw Error("Fond insufisant");
     }
 
     if (paymentId) {
@@ -484,7 +503,13 @@ export class TransactionService {
   ) => {
     const payment = await prisma.payment.findFirstOrThrow({
       where: { id: paymentId },
+      include: {
+        transaction: true,
+      },
     });
+
+    if (!this.shouldDecrement(payment.transaction!.fromBankId, payment.price))
+      throw Error("Fond insufisant");
 
     const [_, transaction] = await prisma.$transaction([
       prisma.payment.update({
@@ -546,6 +571,14 @@ export class TransactionService {
     const tragetTransaction = await prisma.transaction.findFirstOrThrow({
       where: { id },
     });
+
+    if (
+      !this.shouldDecrement(
+        tragetTransaction.fromBankId,
+        tragetTransaction.amount,
+      )
+    )
+      throw Error("Fond insufisant");
 
     const transaction = await prisma.transaction.update({
       where: { id },
