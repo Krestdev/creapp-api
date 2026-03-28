@@ -243,7 +243,9 @@ export class TransactionService {
         },
       },
       include: {
-        transaction: true,
+        transaction: {
+          include: { payement: true },
+        },
       },
     });
 
