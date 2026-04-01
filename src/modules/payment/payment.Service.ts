@@ -38,7 +38,7 @@ export class PaymentService {
     }
 
     if (remainingAmount === 0) {
-      prisma.invoice.update({
+      await prisma.invoice.update({
         where: { id: data.invoiceId },
         data: {
           status: "PAID",
@@ -60,13 +60,13 @@ export class PaymentService {
       },
     });
 
-    if (data.price + totalPaid === invoice.amount) {
-      // update invoice status to paid
-      await prisma.invoice.update({
-        where: { id: data.invoiceId },
-        data: { status: "PAID" },
-      });
-    }
+    // if (data.price + totalPaid === invoice.amount) {
+    //   // update invoice status to paid
+    //   await prisma.invoice.update({
+    //     where: { id: data.invoiceId },
+    //     data: { status: "PAID" },
+    //   });
+    // }
 
     if (file) {
       await storeDocumentsBulk(file, {
@@ -138,6 +138,37 @@ export class PaymentService {
         isPartial: Boolean(data.isPartial),
       },
     });
+
+    // reject payment and invoice
+
+    if (payment.invoiceId) {
+      const invoicePayments = await prisma.payment.findMany({
+        where: { invoiceId: payment.invoiceId },
+      });
+
+      const totalPaid = invoicePayments
+        .filter(
+          (elm) => !["pending", "cancelled", "rejected"].includes(elm.status),
+        )
+        .reduce((sum, payment) => sum + payment.price, 0);
+
+      const invoice = await prisma.invoice.update({
+        where: {
+          id: payment.invoiceId,
+        },
+        data: {
+          status: "UNPAID",
+        },
+      });
+
+      if (totalPaid === invoice.amount) {
+        // update invoice status to paid
+        await prisma.invoice.update({
+          where: { id: payment.invoiceId },
+          data: { status: "PAID" },
+        });
+      }
+    }
 
     getIO().emit("payment:update");
     return payment;

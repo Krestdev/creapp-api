@@ -138,8 +138,6 @@ export default class CmdRequestController {
       payment.requestId = Number(data.requestId);
     }
 
-    console.log(data, payment);
-
     return cmdRequestService.update(Number(id), payment);
   }
 
