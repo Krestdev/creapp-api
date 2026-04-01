@@ -53,6 +53,7 @@ export default class RequestController {
     @Path() id: string,
     @Body() data: RequestModelDto & { benef?: number[]; authUserId: number },
   ): Promise<unknown> {
+    console.log(data);
     const { benef, authUserId, ...ndata } = data;
     return requestService.update(Number(id), ndata, authUserId, benef);
   }

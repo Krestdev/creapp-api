@@ -89,6 +89,7 @@ export class RequestService {
     return request;
   };
 
+  // updated with paytype
   update = async (
     id: number,
     data: Partial<Omit<RequestModel, "createdAt" | "updatedAt">>,
@@ -274,10 +275,12 @@ export class RequestService {
           requestId: id,
         },
         data: {
-          status:
-            requestModel.type === "facilitation" ||
-            requestModel.type === "ressource_humaine"
-              ? "accepted"
+          status: ["ressource_humaine", "facilitation"].includes(
+            requestModel.type,
+          )
+            ? "accepted"
+            : ["appro"].includes(requestModel.type)
+              ? "validated"
               : "pending",
         },
       });
@@ -299,7 +302,7 @@ export class RequestService {
     if (["transport", "gas", "others"].includes(request.type)) {
       const paytype = await prisma.payType.findFirstOrThrow({
         where: {
-          type: "cash",
+          type: request.paytype ?? "cash",
         },
       });
       await prisma.payment.create({
