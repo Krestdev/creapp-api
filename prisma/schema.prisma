@@ -246,9 +246,11 @@ model DeviElement {
   reception      Reception?    @relation(fields: [receptionId], references: [id])
   receptionId    Int?
 
-  hasIs     Boolean @default(false)
-  tva       Float   @default(0.1925)
-  reduction Float   @default(0)
+  hasIs     Boolean  @default(false)
+  tva       Float    @default(0.1925)
+  reduction Float    @default(0)
+  ceatedAt  DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Command {
