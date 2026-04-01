@@ -769,7 +769,7 @@ export class TransactionService {
       },
     });
 
-    if (transaction.status === "REJECTED")
+    if (transaction.status === "REJECTED") {
       await prisma.bank.update({
         where: {
           id: transaction.fromBankId,
@@ -781,6 +781,15 @@ export class TransactionService {
         },
       });
 
+      await prisma.payment.updateMany({
+        where: {
+          transactionId: id,
+        },
+        data: {
+          selected: false,
+        },
+      });
+    }
     getIO().emit("transaction:update");
     return transaction;
   };
