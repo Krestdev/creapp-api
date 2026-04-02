@@ -185,7 +185,7 @@ export default class UserController {
   }
 
   //getRolePages
-  @Get("/createSignature")
+  @Post("/createSignature")
   createSignature(
     @Body() data: { userId: number; signature: Express.Multer.File[] | null },
   ): Promise<User> {
@@ -193,5 +193,10 @@ export default class UserController {
       ...data,
       path: normalizeFile(data.signature),
     });
+  }
+
+  @Get("/getSignature/:id")
+  getSignature(@Path() id: string): Promise<Document | null> {
+    return userService.getSignature(id);
   }
 }

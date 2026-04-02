@@ -313,7 +313,28 @@ export default class UserRouter {
       requireRole("USER"),
       (req, res) => {
         this.userController
-          .getRolePages(req.params.roleId!)
+          .createSignature({
+            ...req.body,
+            signature: req.files,
+            userId: req.user?.userId,
+          })
+          .then((pages) =>
+            res.status(200).json({
+              message: "Role pages fetched successfully",
+              data: pages,
+            }),
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      },
+    );
+
+    this.routes.get(
+      "/getSignature/:id",
+      authenticate,
+      requireRole("USER"),
+      (req, res) => {
+        this.userController
+          .getSignature(req.params.id!)
           .then((pages) =>
             res.status(200).json({
               message: "Role pages fetched successfully",

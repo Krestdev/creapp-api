@@ -445,4 +445,8 @@ export class UserService {
       },
     });
   }
+
+  async getSignature(id: string) {
+    return prisma.document.findUnique({ where: { id: id } });
+  }
 }
