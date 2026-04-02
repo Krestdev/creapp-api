@@ -8,7 +8,7 @@ const cmdRequestService = new PaymentService();
 
 @Route("request/payment")
 @Tags("Payment Routes")
-export default class CmdRequestController {
+export default class PaymentController {
   @Post("/")
   create(
     @Body()
@@ -188,7 +188,7 @@ export default class CmdRequestController {
     return cmdRequestService.getOne(Number(id));
   }
 
-  @Get("/paymentProof/{id}")
+  @Post("/paymentProof/{id}")
   paymentProof(
     @Path() id: string,
     @Body() proof: Express.Multer.File[] | null,

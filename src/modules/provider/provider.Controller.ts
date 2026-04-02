@@ -7,7 +7,7 @@ const cmdRequestService = new ProviderService();
 
 @Route("request/provider")
 @Tags("Provider Routes")
-export default class CmdRequestController {
+export default class ProviderController {
   @Post("/")
   create(
     @Body()
