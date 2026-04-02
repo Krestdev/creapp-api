@@ -407,4 +407,42 @@ export class UserService {
       where: { authorized: { some: { id: roleId } } },
     });
   }
+
+  async createSignature(data: {
+    userId: number;
+    path: string | null;
+    signature: Express.Multer.File[] | null;
+  }) {
+    const signature = data.signature?.[0];
+    if (!signature) {
+      throw Error("Provide a valid signature");
+    }
+
+    return await prisma.user.update({
+      where: {
+        id: data.userId,
+      },
+      data: {
+        signature: {
+          create: {
+            fieldname: signature.fieldname,
+            originalname: signature.originalname,
+            encoding: signature.encoding,
+            mimetype: signature.mimetype,
+            destination: signature.destination,
+            filename: signature.filename,
+            path: signature.path,
+            size: signature.size,
+            role: "SIGNATURE",
+            userId: data.userId,
+            ownerType: "USER",
+            ownerId: data.userId.toString(),
+          },
+        },
+      },
+      include: {
+        signature: true,
+      },
+    });
+  }
 }

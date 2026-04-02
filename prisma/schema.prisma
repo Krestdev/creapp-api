@@ -53,6 +53,10 @@ model User {
   requestOlds           RequestOld[]
   transactionSigners    TransactionSigners[]
   factures              Invoice[]
+
+  // user signature
+  signature   Document? @relation(name: "signature", fields: [signatureId], references: [id])
+  signatureId String?   @unique()
 }
 
 model Role {
@@ -344,6 +348,7 @@ enum DocumentCategory {
   IDENTITY
   PROOF
   JUSTIFICATION
+  SIGNATURE
 }
 
 enum DocumentOwnerType {
@@ -357,6 +362,7 @@ enum DocumentOwnerType {
   DRIVER
   VEHICLE
   COMMAND
+  USER
 }
 
 model Document {
@@ -377,6 +383,9 @@ model Document {
   ownerType DocumentOwnerType
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user      User?    @relation(name: "signature")
+  userId    Int?
 
   @@index([ownerId, ownerType])
 }
