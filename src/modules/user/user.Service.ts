@@ -418,6 +418,8 @@ export class UserService {
       throw Error("Provide a valid signature");
     }
 
+    getIO().emit("user:update", { userId: data.userId, action: "data" });
+
     return await prisma.user.update({
       where: {
         id: data.userId,
