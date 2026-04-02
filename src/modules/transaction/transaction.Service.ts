@@ -535,6 +535,7 @@ export class TransactionService {
         where: { id: paymentId },
         data: {
           status: "paid",
+          proof,
         },
       }),
       prisma.transaction.update({

@@ -299,7 +299,7 @@ export class RequestService {
       },
     });
 
-    if (["transport", "gas", "others"].includes(request.type)) {
+    if (["transport", "taxes", "gas", "others"].includes(request.type)) {
       const paytype = await prisma.payType.findFirstOrThrow({
         where: {
           type: request.paytype ?? "cash",
@@ -656,11 +656,11 @@ export class RequestService {
           : null,
         ref,
         type: data.type,
-        state:
-          data.type == "FACILITATION".toLocaleLowerCase() ||
-          data.type == "ressource_humaine"
-            ? "pending"
-            : "validated",
+        state: ["ressource_humaine", "facilitation", "taxes"].includes(
+          data.type,
+        )
+          ? "pending"
+          : "validated",
         beficiaryList: {
           connect: benef
             ? benef.map((beId) => {
