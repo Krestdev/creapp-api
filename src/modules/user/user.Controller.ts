@@ -190,8 +190,9 @@ export default class UserController {
     @Body() data: { userId: number; signature: Express.Multer.File[] | null },
   ): Promise<User> {
     return userService.createSignature({
-      ...data,
+      userId: data.userId,
       path: normalizeFile(data.signature),
+      signature: data.signature,
     });
   }
 

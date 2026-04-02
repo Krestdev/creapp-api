@@ -315,7 +315,7 @@ export default class UserRouter {
         this.userController
           .createSignature({
             ...req.body,
-            signature: req.files,
+            ...req.files,
             userId: req.user?.userId,
           })
           .then((pages) =>
