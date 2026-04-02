@@ -328,6 +328,25 @@ export class PaymentService {
     });
   };
 
+  // Get one
+  paymentProof = async (
+    id: number,
+    path: string | null,
+    file: Express.Multer.File[] | null,
+  ) => {
+    await storeDocumentsBulk(file, {
+      role: "PROOF",
+      ownerId: id.toString(),
+      ownerType: "COMMANDREQUEST",
+    });
+    return prisma.payment.update({
+      where: { id },
+      data: {
+        paymentProof: path,
+      },
+    });
+  };
+
   // decrement from bank
   // private decrementFromBank = async (payment: Payment) => {
   //   const { bankId } = payment;

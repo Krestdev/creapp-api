@@ -188,6 +188,18 @@ export default class CmdRequestController {
     return cmdRequestService.getOne(Number(id));
   }
 
+  @Get("/paymentProof/{id}")
+  paymentProof(
+    @Path() id: string,
+    @Body() proof: Express.Multer.File[] | null,
+  ): Promise<Payment> {
+    return cmdRequestService.paymentProof(
+      Number(id),
+      normalizeFile(proof),
+      proof,
+    );
+  }
+
   @Get("/")
   getAll(): Promise<Payment[]> {
     return cmdRequestService.getAll();

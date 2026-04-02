@@ -162,5 +162,17 @@ export default class PaymentRoute {
         )
         .catch((error) => res.status(400).json({ error: error.message }));
     });
+
+    // getOne
+    this.routes.post("/paymentProof/:id", requireRole("USER"), (req, res) => {
+      this.paymentController
+        .paymentProof(req.params.id ?? "-1", req.body)
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
   }
 }

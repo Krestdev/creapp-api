@@ -487,6 +487,8 @@ model Payment {
   paymentTransaction   Transaction? @relation(fields: [paymentTransactionId], references: [id], name: "TransactionPayments")
   paymentTransactionId Int?
   selected             Boolean      @default(false)
+
+  paymentProof String?
 }
 
 model Accounting {
