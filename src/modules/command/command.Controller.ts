@@ -32,10 +32,9 @@ export default class CommandController {
   @Put("/{id}")
   update(
     @Path() id: string,
-    @Body() data: Command & { conditions: number[] },
-    @Body() userId?: number,
+    @Body() data: Command & { conditions: number[]; userId?: number },
   ): Promise<Command> {
-    const { conditions, ...command } = data;
+    const { conditions, userId, ...command } = data;
     return commandService.update(Number(id), command, conditions, userId);
   }
 

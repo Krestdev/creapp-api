@@ -38,7 +38,7 @@ export default class CommandRoute {
     // update
     this.routes.put("/:id", requireRole("USER"), (req, res) => {
       this.commandController
-        .update(req.params.id!, req.body, req.user?.userId)
+        .update(req.params.id!, { ...req.body, userId: req.user?.userId })
         .then((request) =>
           res
             .status(200)
