@@ -306,7 +306,16 @@ export class RequestService {
         },
       });
 
-      if (!["taxes"].includes(request.type))
+      if (["taxes"].includes(request.type)) {
+        await prisma.payment.updateMany({
+          where: {
+            requestId: request.id,
+          },
+          data: {
+            status: "validated",
+          },
+        });
+      } else {
         await prisma.payment.create({
           data: {
             type: request.type,
@@ -320,6 +329,7 @@ export class RequestService {
             requestId: request.id,
           },
         });
+      }
     }
 
     try {
