@@ -181,6 +181,7 @@ export class CommandService {
             element: true,
           },
         },
+        validators: true,
         commandConditions: true,
       },
     });
