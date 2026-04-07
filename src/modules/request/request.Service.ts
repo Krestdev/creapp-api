@@ -305,19 +305,21 @@ export class RequestService {
           type: request.paytype ?? "cash",
         },
       });
-      await prisma.payment.create({
-        data: {
-          type: request.type,
-          title: request.label,
-          description: request.description || "",
-          deadline: request.dueDate,
-          price: request.amount || 0,
-          status: "validated",
-          reference: `PAY-${Date.now()}`,
-          methodId: paytype.id,
-          requestId: request.id,
-        },
-      });
+
+      if (!["taxes"].includes(request.type))
+        await prisma.payment.create({
+          data: {
+            type: request.type,
+            title: request.label,
+            description: request.description || "",
+            deadline: request.dueDate,
+            price: request.amount || 0,
+            status: "validated",
+            reference: `PAY-${Date.now()}`,
+            methodId: paytype.id,
+            requestId: request.id,
+          },
+        });
     }
 
     try {
