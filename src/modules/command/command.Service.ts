@@ -96,7 +96,15 @@ export class CommandService {
   };
 
   // Update
-  update = async (id: number, data: Command, conditions: number[]) => {
+  update = async (
+    id: number,
+    data: Command,
+    conditions: number[],
+    userId?: number,
+  ) => {
+    if (!userId) {
+      throw Error("User not logged in");
+    }
     if (data.providerId !== null && data.providerId !== undefined) {
       const provider = await prisma.provider.findFirst({
         where: {
@@ -146,10 +154,21 @@ export class CommandService {
       }
     }
 
+    const validators = await prisma.commandValidator.create({
+      data: {
+        user: {
+          connect: { id: userId },
+        },
+        validated: true,
+        decision: "APPROVED",
+      },
+    });
+
     const command = await prisma.command.update({
       where: { id },
       data: {
         ...data,
+        validatorId: validators.id,
         commandConditions: {
           set: conditions.map((id) => {
             return { id };

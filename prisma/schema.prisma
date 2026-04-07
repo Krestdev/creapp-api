@@ -55,8 +55,9 @@ model User {
   factures              Invoice[]
 
   // user signature
-  signature   Document? @relation(name: "signature", fields: [signatureId], references: [id])
-  signatureId String?   @unique()
+  signature         Document?          @relation(name: "signature", fields: [signatureId], references: [id])
+  signatureId       String?            @unique()
+  commandValidators commandValidator[]
 }
 
 model Role {
@@ -296,7 +297,26 @@ model Command {
   commandFile       String?
   // payments          Payment[]
 
-  hasPrecompt Boolean @default(false)
+  hasPrecompt Boolean           @default(false)
+  validators  commandValidator? @relation(name: "aboveCommandValidator", fields: [validatorId], references: [id])
+  validatorId Int?              @unique()
+}
+
+enum ValidatorDecision {
+  APPROVED
+  REJECTED
+  PENDING
+}
+
+model commandValidator {
+  id        Int               @id @default(autoincrement())
+  validated Boolean           @default(false)
+  decision  ValidatorDecision @default(PENDING)
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @default(now()) @updatedAt
+  commands  Command?          @relation(name: "aboveCommandValidator")
 }
 
 enum InvoiceStatus {

@@ -33,9 +33,10 @@ export default class CommandController {
   update(
     @Path() id: string,
     @Body() data: Command & { conditions: number[] },
+    @Body() userId?: number,
   ): Promise<Command> {
     const { conditions, ...command } = data;
-    return commandService.update(Number(id), command, conditions);
+    return commandService.update(Number(id), command, conditions, userId);
   }
 
   @Put("addFile/{id}")
