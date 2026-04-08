@@ -698,7 +698,7 @@ export class RequestService {
 
     await CacheService.del(`payment:all`);
 
-    const refpay = "ref-" + new Date().getTime();
+    const refpay = "PAY-" + new Date().getTime();
     const payment = await prisma.payment.create({
       data: {
         title: request.label,
