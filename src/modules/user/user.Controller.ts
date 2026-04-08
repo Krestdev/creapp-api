@@ -198,6 +198,6 @@ export default class UserController {
 
   @Get("/getSignature/:id")
   getSignature(@Path() id: string): Promise<Document | null> {
-    return userService.getSignature(id);
+    return userService.getSignature(+id);
   }
 }
