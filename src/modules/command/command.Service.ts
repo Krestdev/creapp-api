@@ -271,6 +271,7 @@ export class CommandService {
         commandConditions: true,
         instalments: true,
         provider: true,
+        validators: true,
       },
     });
 
