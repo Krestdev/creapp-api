@@ -127,6 +127,18 @@ export default class PaymentRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    // update
+    this.routes.put("/settle/:id", (req, res) => {
+      this.paymentController
+        .updateSettle(req.params.id!, req.body)
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // delete
     this.routes.delete("/:id", requireRole("USER"), (req, res) => {
       this.paymentController

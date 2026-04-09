@@ -177,20 +177,31 @@ export class PaymentService {
   // Update
   updateGas = async (id: number, data: Payment) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    const payment = await prisma.payment
-      .update({
-        where: { id },
-        data: {
-          price: data.price,
-          liters: data.liters,
-          deadline: data.deadline,
-          benefId: data.benefId,
-        },
-      })
-      .catch((e) => {
-        console.log(e);
-        throw e;
-      });
+    const payment = await prisma.payment.update({
+      where: { id },
+      data: {
+        price: data.price,
+        liters: data.liters,
+        deadline: data.deadline,
+        benefId: data.benefId,
+      },
+    });
+
+    getIO().emit("payment:update");
+    return payment;
+  };
+
+  // Update
+  updateSettle = async (id: number, data: Payment) => {
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    const payment = await prisma.payment.update({
+      where: { id },
+      data: {
+        price: data.price,
+        deadline: data.deadline,
+        benefId: data.benefId,
+      },
+    });
 
     getIO().emit("payment:update");
     return payment;

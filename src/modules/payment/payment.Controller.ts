@@ -153,6 +153,18 @@ export default class PaymentController {
     return cmdRequestService.updateGas(Number(id), data);
   }
 
+  /**
+   * @summary Update Command request
+   */
+  @Put("/gas/{id}")
+  updateSettle(
+    @Path() id: string,
+    @Body()
+    data: Payment,
+  ): Promise<Payment> {
+    return cmdRequestService.updateSettle(Number(id), data);
+  }
+
   @Post("/payment/{id}")
   updateTransportPayment(
     @Path() id: string,
