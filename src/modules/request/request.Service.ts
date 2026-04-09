@@ -279,7 +279,7 @@ export class RequestService {
             requestModel.type,
           )
             ? "accepted"
-            : ["appro"].includes(requestModel.type)
+            : ["appro", "settle"].includes(requestModel.type)
               ? "validated"
               : "pending",
         },
@@ -306,7 +306,7 @@ export class RequestService {
         },
       });
 
-      if (["taxes"].includes(request.type)) {
+      if (["taxes", "settle"].includes(request.type)) {
         await prisma.payment.updateMany({
           where: {
             requestId: request.id,
@@ -668,9 +668,12 @@ export class RequestService {
           : null,
         ref,
         type: data.type,
-        state: ["ressource_humaine", "facilitation", "taxes"].includes(
-          data.type,
-        )
+        state: [
+          "ressource_humaine",
+          "facilitation",
+          "taxes",
+          "settle",
+        ].includes(data.type)
           ? "pending"
           : "validated",
         beficiaryList: {
@@ -707,13 +710,13 @@ export class RequestService {
         description: request.description ?? "",
         projectId: request.projectId ? Number(request.projectId) : null,
         status:
-          data.type == "SPECIAUX".toLowerCase()
+          data.type == "speciaux"
             ? "validated"
-            : data.type == "FACILITATION".toLowerCase() ||
-                data.type == "ressource_humaine"
+            : ["facilitation", "ressource_humaine", "settle"].includes(
+                  data.type,
+                )
               ? "ghost"
-              : // ? "accepted"
-                "pending",
+              : "pending",
         type: type,
         methodId: paytype.id,
         priority: "medium",
@@ -832,7 +835,9 @@ export class RequestService {
     benef?: number[],
   ) => {
     // create request, command and payment
-    const { proof, type, paytype, ...requestData } = data;
+    const { proof, type, paytype, id: nid, ...requestData } = data;
+
+    console.log("Special", data);
 
     let myPaytype: PayType | null = null;
 
