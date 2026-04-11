@@ -105,54 +105,52 @@ export class CommandService {
     if (!userId) {
       throw Error("User not logged in");
     }
-    if (data.providerId !== null && data.providerId !== undefined) {
-      const provider = await prisma.provider.findFirst({
-        where: {
-          id: data.providerId,
-        },
-      });
+    // if (data.providerId !== null && data.providerId !== undefined) {
+    //   const provider = await prisma.provider.findFirst({
+    //     where: {
+    //       id: data.providerId,
+    //     },
+    //   });
 
-      if (provider == null) throw Error("provider does not exist");
-      const providerNotComplete = Object.entries(provider).some(([, value]) => {
-        return value === null || value === "";
-      });
+    //   if (provider == null) throw Error("provider does not exist");
+    //   const providerNotComplete = Object.entries(provider).some(([, value]) => {
+    //     return value === null || value === "";
+    //   });
 
-      if (providerNotComplete) throw Error("The Provider info is not Complete");
+    //   if (providerNotComplete) throw Error("The Provider info is not Complete");
 
-      if (data.deviId == null) throw Error("Devi is required");
-      await CacheService.del(`${this.CACHE_KEY}:all`);
-      const devi = await prisma.devi.findUnique({
-        where: { id: data.deviId },
-        include: {
-          element: true,
-        },
-      });
+    //   if (data.deviId == null) throw Error("Devi is required");
+    //   await CacheService.del(`${this.CACHE_KEY}:all`);
+    //   const devi = await prisma.devi.findUnique({
+    //     where: { id: data.deviId },
+    //     include: {
+    //       element: true,
+    //     },
+    //   });
 
-      const isReel = provider.regem === "Réel";
-      const amountHt =
-        devi?.element?.reduce(
-          (acc, req) => acc + (req.priceProposed || 0) * req.quantity,
-          0,
-        ) || 0;
+    //   const isReel = provider.regem === "Réel";
+    //   const amountHt =
+    //     devi?.element?.reduce(
+    //       (acc, req) => acc + (req.priceProposed || 0) * req.quantity,
+    //       0,
+    //     ) || 0;
 
-      const netCommercial =
-        amountHt -
-        (((data.rabaisAmount || 0) +
-          (data.remiseAmount || 0) +
-          (data.ristourneAmount || 0)) *
-          amountHt) /
-          100;
+    //   const netCommercial =
+    //     amountHt -
+    //     (((data.rabaisAmount || 0) +
+    //       (data.remiseAmount || 0) +
+    //       (data.ristourneAmount || 0)) *
+    //       amountHt) /
+    //       100;
 
-      if (isReel) {
-        // TVA + IR + IS
-        data.netToPay =
-          netCommercial < 0
-            ? 0
-            : netCommercial * (1 + 0.1925 + 0.05 + 0.022 + 0.02);
-      } else {
-        data.netToPay = netCommercial < 0 ? 0 : netCommercial;
-      }
-    }
+    //   if (isReel) {
+    //     // TVA + IR + IS
+    //     data.netToPay =
+    //       netCommercial < 0 ? 0 : netCommercial * (1 + 0.1925 + 0.022 + 0.02);
+    //   } else {
+    //     data.netToPay = netCommercial < 0 ? 0 : netCommercial * (1 + 0.05);
+    //   }
+    // }
 
     const validators = await prisma.commandValidator.create({
       data: {

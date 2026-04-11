@@ -215,6 +215,7 @@ export default class RequestController {
       proof?: string | null;
     } = {
       ...reqData,
+      id: Number(reqData.id),
       quantity: reqData.quantity ? Number(reqData.quantity) : 0,
       amount: reqData.amount ? Number(reqData.amount) : 0,
       projectId: reqData.projectId ? Number(reqData.projectId) : null,

@@ -856,7 +856,6 @@ export class RequestService {
     }
 
     await CacheService.del(`payment:all`);
-
     if (requestData.amount || requestData.label || requestData.dueDate) {
       await prisma.payment.updateMany({
         where: {
@@ -872,6 +871,7 @@ export class RequestService {
     } else throw Error("Lack information Can not update");
 
     if (proof) {
+      console.log("hello 3");
       await prisma.payment.updateMany({
         where: {
           requestId: id,
@@ -885,30 +885,35 @@ export class RequestService {
       });
     }
 
-    const request = await prisma.requestModel.update({
-      where: {
-        id,
-      },
-      data: {
-        ...requestData,
-        period: requestData.period
-          ? JSON.parse(requestData.period as unknown as string)
-          : null,
-        benFac: requestData.benFac
-          ? JSON.parse(requestData.benFac as unknown as string)
-          : null,
-        beficiaryList: {
-          set: benef
-            ? benef.map((beId) => {
-                return { id: beId };
-              })
-            : [],
+    const request = await prisma.requestModel
+      .update({
+        where: {
+          id,
         },
-      },
-      include: {
-        beficiaryList: true,
-      },
-    });
+        data: {
+          ...requestData,
+          period: requestData.period
+            ? JSON.parse(requestData.period as unknown as string)
+            : null,
+          benFac: requestData.benFac
+            ? JSON.parse(requestData.benFac as unknown as string)
+            : null,
+          beficiaryList: {
+            set: benef
+              ? benef.map((beId) => {
+                  return { id: beId };
+                })
+              : [],
+          },
+        },
+        include: {
+          beficiaryList: true,
+        },
+      })
+      .catch((e) => {
+        console.log(e);
+        throw e;
+      });
 
     if (file) {
       await storeDocumentsBulk(file, {
