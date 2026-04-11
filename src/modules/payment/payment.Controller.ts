@@ -156,7 +156,7 @@ export default class PaymentController {
   /**
    * @summary Update Command request
    */
-  @Put("/gas/{id}")
+  @Put("/settle/{id}")
   updateSettle(
     @Path() id: string,
     @Body()
