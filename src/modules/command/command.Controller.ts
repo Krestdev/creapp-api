@@ -47,7 +47,12 @@ export default class CommandController {
     @Body() data: Command & { conditions: number[]; userId?: number },
   ): Promise<Command> {
     const { conditions, userId, ...command } = data;
-    return commandService.update(Number(id), command, conditions, userId);
+    return commandService.commandVerdict(
+      Number(id),
+      command,
+      conditions,
+      userId,
+    );
   }
 
   @Put("addFile/{id}")
