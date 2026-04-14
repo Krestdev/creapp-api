@@ -48,7 +48,7 @@ export default class CommandRoute {
     });
 
     // commandVerdict
-    this.routes.put("commandVerdict/:id", requireRole("USER"), (req, res) => {
+    this.routes.put("/commandVerdict/:id", requireRole("USER"), (req, res) => {
       this.commandController
         .commandVerdict(req.params.id!, {
           ...req.body,
