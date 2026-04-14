@@ -38,6 +38,18 @@ export default class CommandController {
     return commandService.update(Number(id), command, conditions, userId);
   }
 
+  /**
+   * @summary Update Command request
+   */
+  @Put("commandVerdict/{id}")
+  commandVerdict(
+    @Path() id: string,
+    @Body() data: Command & { conditions: number[]; userId?: number },
+  ): Promise<Command> {
+    const { conditions, userId, ...command } = data;
+    return commandService.update(Number(id), command, conditions, userId);
+  }
+
   @Put("addFile/{id}")
   signedFile(
     @Path() id: string,

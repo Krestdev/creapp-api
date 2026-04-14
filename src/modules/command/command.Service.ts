@@ -96,6 +96,85 @@ export class CommandService {
   };
 
   // Update
+  commandVerdict = async (
+    id: number,
+    data: Command,
+    conditions: number[],
+    userId?: number,
+  ) => {
+    if (!userId) {
+      throw Error("User not logged in");
+    }
+
+    const validator = await prisma.command.findFirst({ where: { id } });
+    const isCommandAprroved =
+      validator !== null
+        ? validator.validatorId !== null && validator.validatorId !== undefined
+        : false;
+
+    if (isCommandAprroved) {
+      throw Error("Cannot approve twice");
+    }
+
+    const validators = await prisma.commandValidator.create({
+      data: {
+        user: {
+          connect: { id: userId },
+        },
+        validated: true,
+        decision: "APPROVED",
+      },
+    });
+
+    const command = await prisma.command.update({
+      where: { id },
+      data: {
+        ...data,
+        validatorId: validators.id,
+        commandConditions: {
+          set: conditions.map((id) => {
+            return { id };
+          }),
+        },
+      },
+      include: {
+        devi: {
+          include: {
+            element: true,
+          },
+        },
+        validators: true,
+        commandConditions: true,
+      },
+    });
+
+    if (data.status === "APPROVED") {
+      await prisma.reception.create({
+        data: {
+          Reference: "ref-" + new Date().getTime(),
+          Status: "PENDING",
+          Deliverables: {
+            connect: command.devi
+              ? command.devi.element
+                  .filter((el) => el.status === "SELECTED")
+                  .map((el) => ({ id: el.id }))
+              : [],
+          },
+          Proof: null,
+          CommandId: command.id,
+          ProviderId: command.providerId,
+          userId: command.devi ? command.devi.userId : null,
+          Deadline: new Date(),
+        },
+      });
+    }
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("purchaseOrder:update");
+    return command;
+  };
+
+  // Update
   update = async (
     id: number,
     data: Command,

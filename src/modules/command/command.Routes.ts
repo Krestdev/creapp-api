@@ -47,6 +47,21 @@ export default class CommandRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    // commandVerdict
+    this.routes.put("commandVerdict/:id", requireRole("USER"), (req, res) => {
+      this.commandController
+        .commandVerdict(req.params.id!, {
+          ...req.body,
+          userId: req.user?.userId,
+        })
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // update
     this.routes.put(
       "/addFile/:id",
