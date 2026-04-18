@@ -227,8 +227,8 @@ model Devi {
   element          DeviElement[]
   dueDate          DateTime?
   // one to one relation with Command
-  command          Command?        @relation(fields: [commandId], references: [id], onDelete: SetNull)
-  commandId        Int?            @unique()
+  command          Command[]
+  commandId        Int?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
@@ -286,7 +286,7 @@ model Command {
   facture     Invoice[]
   reference   String         @default("none")
   // one to one relation with Devi
-  devi        Devi?
+  devi        Devi?          @relation(fields: [deviId], references: [id], onDelete: SetNull)
   deviId      Int?           @unique()
   status      String?        @default("PENDING")
   createdAt   DateTime       @default(now())
