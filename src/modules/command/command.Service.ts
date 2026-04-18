@@ -9,7 +9,7 @@ export class CommandService {
   CACHE_KEY = "command";
   // Create
   create = async (
-    data: Command & {
+    data: Omit<Command, "id"> & {
       instalments: {
         percentage: number;
         deadLine?: string;
@@ -19,6 +19,7 @@ export class CommandService {
     requestIds: number[],
     conditions: number[],
   ) => {
+    const { providerId, validatorId, deviId, ...ndata } = data;
     if (data.providerId == null) throw Error("A provider is required");
     const provider = await prisma.provider.findFirst({
       where: {
@@ -61,18 +62,32 @@ export class CommandService {
 
     const command = await prisma.command.create({
       data: {
-        ...data,
+        ...ndata,
+        validators: validatorId
+          ? {
+              connect: {
+                id: validatorId,
+              },
+            }
+          : {},
+        provider: {
+          connect: {
+            id: providerId,
+          },
+        },
         reference: ref,
         requests: {
           connect: requestIds.map((id) => {
             return { id };
           }),
         },
-        devi: {
-          connect: {
-            id: data.deviId,
-          },
-        },
+        devi: deviId
+          ? {
+              connect: {
+                id: deviId,
+              },
+            }
+          : {},
         commandConditions: {
           connect: conditions.map((id) => {
             return { id };
