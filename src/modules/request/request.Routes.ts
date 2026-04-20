@@ -126,6 +126,7 @@ export default class RequestRoute {
           .specialRequestUpdate(Number(req.params.id), {
             ...req.body,
             ...req.files,
+            userId: req.user?.userId,
           })
           .then((request) =>
             res
