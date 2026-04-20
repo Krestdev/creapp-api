@@ -835,7 +835,17 @@ export class RequestService {
     benef?: number[],
   ) => {
     // create request, command and payment
-    const { proof, type, paytype, id: nid, ...requestData } = data;
+    const {
+      proof,
+      type,
+      paytype,
+      id: nid,
+      userId,
+      projectId,
+      categoryId,
+      commandId,
+      ...requestData
+    } = data;
 
     console.log("Special", data);
 
