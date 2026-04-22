@@ -9,7 +9,7 @@ export class CommandService {
   CACHE_KEY = "command";
   // Create
   create = async (
-    data: Command & {
+    data: Omit<Command, "id"> & {
       instalments: {
         percentage: number;
         deadLine?: string;
@@ -19,6 +19,7 @@ export class CommandService {
     requestIds: number[],
     conditions: number[],
   ) => {
+    const { providerId, validatorId, deviId, ...ndata } = data;
     if (data.providerId == null) throw Error("A provider is required");
     const provider = await prisma.provider.findFirst({
       where: {
@@ -61,18 +62,32 @@ export class CommandService {
 
     const command = await prisma.command.create({
       data: {
-        ...data,
+        ...ndata,
+        validators: validatorId
+          ? {
+              connect: {
+                id: validatorId,
+              },
+            }
+          : {},
+        provider: {
+          connect: {
+            id: providerId,
+          },
+        },
         reference: ref,
         requests: {
           connect: requestIds.map((id) => {
             return { id };
           }),
         },
-        devi: {
-          connect: {
-            id: data.deviId,
-          },
-        },
+        devi: deviId
+          ? {
+              connect: {
+                id: deviId,
+              },
+            }
+          : {},
         commandConditions: {
           connect: conditions.map((id) => {
             return { id };
@@ -96,60 +111,41 @@ export class CommandService {
   };
 
   // Update
-  update = async (id: number, data: Command, conditions: number[]) => {
-    if (data.providerId !== null && data.providerId !== undefined) {
-      const provider = await prisma.provider.findFirst({
-        where: {
-          id: data.providerId,
-        },
-      });
-
-      if (provider == null) throw Error("provider does not exist");
-      const providerNotComplete = Object.entries(provider).some(([, value]) => {
-        return value === null || value === "";
-      });
-
-      if (providerNotComplete) throw Error("The Provider info is not Complete");
-
-      if (data.deviId == null) throw Error("Devi is required");
-      await CacheService.del(`${this.CACHE_KEY}:all`);
-      const devi = await prisma.devi.findUnique({
-        where: { id: data.deviId },
-        include: {
-          element: true,
-        },
-      });
-
-      const isReel = provider.regem === "Réel";
-      const amountHt =
-        devi?.element?.reduce(
-          (acc, req) => acc + (req.priceProposed || 0) * req.quantity,
-          0,
-        ) || 0;
-
-      const netCommercial =
-        amountHt -
-        (((data.rabaisAmount || 0) +
-          (data.remiseAmount || 0) +
-          (data.ristourneAmount || 0)) *
-          amountHt) /
-          100;
-
-      if (isReel) {
-        // TVA + IR + IS
-        data.netToPay =
-          netCommercial < 0
-            ? 0
-            : netCommercial * (1 + 0.1925 + 0.05 + 0.022 + 0.02);
-      } else {
-        data.netToPay = netCommercial < 0 ? 0 : netCommercial;
-      }
+  commandVerdict = async (
+    id: number,
+    data: Command,
+    conditions: number[],
+    userId?: number,
+  ) => {
+    if (!userId) {
+      throw Error("User not logged in");
     }
+
+    const validator = await prisma.command.findFirst({ where: { id } });
+    const isCommandAprroved =
+      validator !== null
+        ? validator.validatorId !== null && validator.validatorId !== undefined
+        : false;
+
+    if (isCommandAprroved) {
+      throw Error("Cannot approve twice");
+    }
+
+    const validators = await prisma.commandValidator.create({
+      data: {
+        user: {
+          connect: { id: userId },
+        },
+        validated: true,
+        decision: "APPROVED",
+      },
+    });
 
     const command = await prisma.command.update({
       where: { id },
       data: {
         ...data,
+        validatorId: validators.id,
         commandConditions: {
           set: conditions.map((id) => {
             return { id };
@@ -162,6 +158,122 @@ export class CommandService {
             element: true,
           },
         },
+        validators: true,
+        commandConditions: true,
+      },
+    });
+
+    if (data.status === "APPROVED") {
+      await prisma.reception.create({
+        data: {
+          Reference: "ref-" + new Date().getTime(),
+          Status: "PENDING",
+          Deliverables: {
+            connect: command.devi
+              ? command.devi.element
+                  .filter((el) => el.status === "SELECTED")
+                  .map((el) => ({ id: el.id }))
+              : [],
+          },
+          Proof: null,
+          CommandId: command.id,
+          ProviderId: command.providerId,
+          userId: command.devi ? command.devi.userId : null,
+          Deadline: new Date(),
+        },
+      });
+    }
+
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("purchaseOrder:update");
+    return command;
+  };
+
+  // Update
+  update = async (
+    id: number,
+    data: Command,
+    conditions: number[],
+    userId?: number,
+  ) => {
+    if (!userId) {
+      throw Error("User not logged in");
+    }
+    // if (data.providerId !== null && data.providerId !== undefined) {
+    //   const provider = await prisma.provider.findFirst({
+    //     where: {
+    //       id: data.providerId,
+    //     },
+    //   });
+
+    //   if (provider == null) throw Error("provider does not exist");
+    //   const providerNotComplete = Object.entries(provider).some(([, value]) => {
+    //     return value === null || value === "";
+    //   });
+
+    //   if (providerNotComplete) throw Error("The Provider info is not Complete");
+
+    //   if (data.deviId == null) throw Error("Devi is required");
+    //   await CacheService.del(`${this.CACHE_KEY}:all`);
+    //   const devi = await prisma.devi.findUnique({
+    //     where: { id: data.deviId },
+    //     include: {
+    //       element: true,
+    //     },
+    //   });
+
+    //   const isReel = provider.regem === "Réel";
+    //   const amountHt =
+    //     devi?.element?.reduce(
+    //       (acc, req) => acc + (req.priceProposed || 0) * req.quantity,
+    //       0,
+    //     ) || 0;
+
+    //   const netCommercial =
+    //     amountHt -
+    //     (((data.rabaisAmount || 0) +
+    //       (data.remiseAmount || 0) +
+    //       (data.ristourneAmount || 0)) *
+    //       amountHt) /
+    //       100;
+
+    //   if (isReel) {
+    //     // TVA + IR + IS
+    //     data.netToPay =
+    //       netCommercial < 0 ? 0 : netCommercial * (1 + 0.1925 + 0.022 + 0.02);
+    //   } else {
+    //     data.netToPay = netCommercial < 0 ? 0 : netCommercial * (1 + 0.05);
+    //   }
+    // }
+
+    const validators = await prisma.commandValidator.create({
+      data: {
+        user: {
+          connect: { id: userId },
+        },
+        validated: true,
+        decision: "APPROVED",
+      },
+    });
+
+    const command = await prisma.command.update({
+      where: { id },
+      data: {
+        ...data,
+        validatorId: validators.id,
+        commandConditions: {
+          set: conditions.map((id) => {
+            return { id };
+          }),
+        },
+      },
+      include: {
+        devi: {
+          include: {
+            element: true,
+          },
+        },
+        validators: true,
         commandConditions: true,
       },
     });
@@ -251,6 +363,7 @@ export class CommandService {
         commandConditions: true,
         instalments: true,
         provider: true,
+        validators: true,
       },
     });
 

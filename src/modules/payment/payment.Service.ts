@@ -38,7 +38,7 @@ export class PaymentService {
     }
 
     if (remainingAmount === 0) {
-      prisma.invoice.update({
+      await prisma.invoice.update({
         where: { id: data.invoiceId },
         data: {
           status: "PAID",
@@ -60,13 +60,13 @@ export class PaymentService {
       },
     });
 
-    if (data.price + totalPaid === invoice.amount) {
-      // update invoice status to paid
-      await prisma.invoice.update({
-        where: { id: data.invoiceId },
-        data: { status: "PAID" },
-      });
-    }
+    // if (data.price + totalPaid === invoice.amount) {
+    //   // update invoice status to paid
+    //   await prisma.invoice.update({
+    //     where: { id: data.invoiceId },
+    //     data: { status: "PAID" },
+    //   });
+    // }
 
     if (file) {
       await storeDocumentsBulk(file, {
@@ -139,6 +139,37 @@ export class PaymentService {
       },
     });
 
+    // reject payment and invoice
+
+    if (payment.invoiceId) {
+      const invoicePayments = await prisma.payment.findMany({
+        where: { invoiceId: payment.invoiceId },
+      });
+
+      const totalPaid = invoicePayments
+        .filter(
+          (elm) => !["pending", "cancelled", "rejected"].includes(elm.status),
+        )
+        .reduce((sum, payment) => sum + payment.price, 0);
+
+      const invoice = await prisma.invoice.update({
+        where: {
+          id: payment.invoiceId,
+        },
+        data: {
+          status: "UNPAID",
+        },
+      });
+
+      if (totalPaid === invoice.amount) {
+        // update invoice status to paid
+        await prisma.invoice.update({
+          where: { id: payment.invoiceId },
+          data: { status: "PAID" },
+        });
+      }
+    }
+
     getIO().emit("payment:update");
     return payment;
   };
@@ -146,20 +177,31 @@ export class PaymentService {
   // Update
   updateGas = async (id: number, data: Payment) => {
     await CacheService.del(`${this.CACHE_KEY}:all`);
-    const payment = await prisma.payment
-      .update({
-        where: { id },
-        data: {
-          price: data.price,
-          liters: data.liters,
-          deadline: data.deadline,
-          benefId: data.benefId,
-        },
-      })
-      .catch((e) => {
-        console.log(e);
-        throw e;
-      });
+    const payment = await prisma.payment.update({
+      where: { id },
+      data: {
+        price: data.price,
+        liters: data.liters,
+        deadline: data.deadline,
+        benefId: data.benefId,
+      },
+    });
+
+    getIO().emit("payment:update");
+    return payment;
+  };
+
+  // Update
+  updateSettle = async (id: number, data: Payment) => {
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    const payment = await prisma.payment.update({
+      where: { id },
+      data: {
+        price: data.price,
+        deadline: data.deadline,
+        benefId: data.benefId,
+      },
+    });
 
     getIO().emit("payment:update");
     return payment;
@@ -294,6 +336,25 @@ export class PaymentService {
   getOne = (id: number) => {
     return prisma.payment.findUniqueOrThrow({
       where: { id },
+    });
+  };
+
+  // Get one
+  paymentProof = async (
+    id: number,
+    path: string | null,
+    file: Express.Multer.File[] | null,
+  ) => {
+    await storeDocumentsBulk(file, {
+      role: "PROOF",
+      ownerId: id.toString(),
+      ownerType: "COMMANDREQUEST",
+    });
+    return prisma.payment.update({
+      where: { id },
+      data: {
+        paymentProof: path,
+      },
     });
   };
 

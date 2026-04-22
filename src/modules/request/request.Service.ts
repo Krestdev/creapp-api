@@ -89,6 +89,7 @@ export class RequestService {
     return request;
   };
 
+  // updated with paytype
   update = async (
     id: number,
     data: Partial<Omit<RequestModel, "createdAt" | "updatedAt">>,
@@ -274,10 +275,12 @@ export class RequestService {
           requestId: id,
         },
         data: {
-          status:
-            requestModel.type === "facilitation" ||
-            requestModel.type === "ressource_humaine"
-              ? "accepted"
+          status: ["ressource_humaine", "facilitation"].includes(
+            requestModel.type,
+          )
+            ? "accepted"
+            : ["appro", "settle"].includes(requestModel.type)
+              ? "validated"
               : "pending",
         },
       });
@@ -296,23 +299,37 @@ export class RequestService {
       },
     });
 
-    const paymentTypes = await prisma.payType.findMany();
-
-    if (["transport", "gas", "others"].includes(request.type)) {
-      const paytype = paymentTypes.filter((x) => x.type === paytype);
-      await prisma.payment.create({
-        data: {
-          type: request.type,
-          title: request.label,
-          description: request.description || "",
-          deadline: request.dueDate,
-          price: request.amount || 0,
-          status: "validated",
-          reference: `PAY-${Date.now()}`,
-          methodId: paytype.id,
-          requestId: request.id,
+    if (["transport", "taxes", "gas", "others"].includes(request.type)) {
+      const paytype = await prisma.payType.findFirstOrThrow({
+        where: {
+          type: request.paytype ?? "cash",
         },
       });
+
+      if (["taxes", "settle"].includes(request.type)) {
+        await prisma.payment.updateMany({
+          where: {
+            requestId: request.id,
+          },
+          data: {
+            status: "validated",
+          },
+        });
+      } else {
+        await prisma.payment.create({
+          data: {
+            type: request.type,
+            title: request.label,
+            description: request.description || "",
+            deadline: request.dueDate,
+            price: request.amount || 0,
+            status: "validated",
+            reference: `PAY-${Date.now()}`,
+            methodId: paytype.id,
+            requestId: request.id,
+          },
+        });
+      }
     }
 
     try {
@@ -651,11 +668,14 @@ export class RequestService {
           : null,
         ref,
         type: data.type,
-        state:
-          data.type == "FACILITATION".toLocaleLowerCase() ||
-          data.type == "ressource_humaine"
-            ? "pending"
-            : "validated",
+        state: [
+          "ressource_humaine",
+          "facilitation",
+          "taxes",
+          "settle",
+        ].includes(data.type)
+          ? "pending"
+          : "validated",
         beficiaryList: {
           connect: benef
             ? benef.map((beId) => {
@@ -681,7 +701,7 @@ export class RequestService {
 
     await CacheService.del(`payment:all`);
 
-    const refpay = "ref-" + new Date().getTime();
+    const refpay = "PAY-" + new Date().getTime();
     const payment = await prisma.payment.create({
       data: {
         title: request.label,
@@ -690,13 +710,13 @@ export class RequestService {
         description: request.description ?? "",
         projectId: request.projectId ? Number(request.projectId) : null,
         status:
-          data.type == "SPECIAUX".toLowerCase()
+          data.type == "speciaux"
             ? "validated"
-            : data.type == "FACILITATION".toLowerCase() ||
-                data.type == "ressource_humaine"
+            : ["facilitation", "ressource_humaine", "settle"].includes(
+                  data.type,
+                )
               ? "ghost"
-              : // ? "accepted"
-                "pending",
+              : "pending",
         type: type,
         methodId: paytype.id,
         priority: "medium",
@@ -815,7 +835,19 @@ export class RequestService {
     benef?: number[],
   ) => {
     // create request, command and payment
-    const { proof, type, paytype, ...requestData } = data;
+    const {
+      proof,
+      type,
+      paytype,
+      id: nid,
+      userId,
+      projectId,
+      categoryId,
+      commandId,
+      ...requestData
+    } = data;
+
+    console.log("Special", data);
 
     let myPaytype: PayType | null = null;
 
@@ -834,7 +866,6 @@ export class RequestService {
     }
 
     await CacheService.del(`payment:all`);
-
     if (requestData.amount || requestData.label || requestData.dueDate) {
       await prisma.payment.updateMany({
         where: {
@@ -850,6 +881,7 @@ export class RequestService {
     } else throw Error("Lack information Can not update");
 
     if (proof) {
+      console.log("hello 3");
       await prisma.payment.updateMany({
         where: {
           requestId: id,
@@ -863,30 +895,35 @@ export class RequestService {
       });
     }
 
-    const request = await prisma.requestModel.update({
-      where: {
-        id,
-      },
-      data: {
-        ...requestData,
-        period: requestData.period
-          ? JSON.parse(requestData.period as unknown as string)
-          : null,
-        benFac: requestData.benFac
-          ? JSON.parse(requestData.benFac as unknown as string)
-          : null,
-        beficiaryList: {
-          set: benef
-            ? benef.map((beId) => {
-                return { id: beId };
-              })
-            : [],
+    const request = await prisma.requestModel
+      .update({
+        where: {
+          id,
         },
-      },
-      include: {
-        beficiaryList: true,
-      },
-    });
+        data: {
+          ...requestData,
+          period: requestData.period
+            ? JSON.parse(requestData.period as unknown as string)
+            : null,
+          benFac: requestData.benFac
+            ? JSON.parse(requestData.benFac as unknown as string)
+            : null,
+          beficiaryList: {
+            set: benef
+              ? benef.map((beId) => {
+                  return { id: beId };
+                })
+              : [],
+          },
+        },
+        include: {
+          beficiaryList: true,
+        },
+      })
+      .catch((e) => {
+        console.log(e);
+        throw e;
+      });
 
     if (file) {
       await storeDocumentsBulk(file, {

@@ -70,7 +70,7 @@ export default class VehicleController {
   }
 
   @Get("/{id}")
-  getOne(@Path() id: string): Promise<Vehicle> {
+  getOne(@Path() id: string): Promise<Vehicle | null> {
     return vehicleService.getOne(Number(id));
   }
 

@@ -53,6 +53,7 @@ export default class RequestController {
     @Path() id: string,
     @Body() data: RequestModelDto & { benef?: number[]; authUserId: number },
   ): Promise<unknown> {
+    console.log(data);
     const { benef, authUserId, ...ndata } = data;
     return requestService.update(Number(id), ndata, authUserId, benef);
   }
@@ -214,6 +215,7 @@ export default class RequestController {
       proof?: string | null;
     } = {
       ...reqData,
+      id: Number(reqData.id),
       quantity: reqData.quantity ? Number(reqData.quantity) : 0,
       amount: reqData.amount ? Number(reqData.amount) : 0,
       projectId: reqData.projectId ? Number(reqData.projectId) : null,

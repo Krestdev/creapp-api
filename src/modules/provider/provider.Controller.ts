@@ -7,7 +7,7 @@ const cmdRequestService = new ProviderService();
 
 @Route("request/provider")
 @Tags("Provider Routes")
-export default class CmdRequestController {
+export default class ProviderController {
   @Post("/")
   create(
     @Body()
@@ -25,6 +25,7 @@ export default class CmdRequestController {
       banck_attestation: Express.Multer.File[] | null;
     },
   ): Promise<Provider> {
+    console.log(data);
     const {
       expireAtbanck_attestation,
       expireAtcarte_contribuable,

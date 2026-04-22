@@ -4,6 +4,7 @@ import { validateData } from "../../middlewares/userValidation";
 import { user } from "../../../assets/messages/userMessages.json";
 import { requireRole } from "../../middlewares/rbac.middleware";
 import { authenticate } from "../../middlewares/auth.middleware";
+import upload from "../../utils/upload";
 
 const {
   register,
@@ -295,6 +296,45 @@ export default class UserRouter {
       (req, res) => {
         this.userController
           .getRolePages(req.params.roleId!)
+          .then((pages) =>
+            res.status(200).json({
+              message: "Role pages fetched successfully",
+              data: pages,
+            }),
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      },
+    );
+
+    this.routes.post(
+      "/createSignature",
+      upload.fields([{ name: "signature", maxCount: 1 }]),
+      authenticate,
+      requireRole("USER"),
+      (req, res) => {
+        this.userController
+          .createSignature({
+            ...req.body,
+            ...req.files,
+            userId: req.user?.userId,
+          })
+          .then((pages) =>
+            res.status(200).json({
+              message: "Role pages fetched successfully",
+              data: pages,
+            }),
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      },
+    );
+
+    this.routes.get(
+      "/getSignature/:id",
+      authenticate,
+      requireRole("USER"),
+      (req, res) => {
+        this.userController
+          .getSignature(req.params.id!)
           .then((pages) =>
             res.status(200).json({
               message: "Role pages fetched successfully",

@@ -52,7 +52,7 @@ export class VehicleService {
 
   // Get one
   getOne = (id: number) => {
-    return prisma.vehicle.findUniqueOrThrow({
+    return prisma.vehicle.findFirst({
       where: { id },
     });
   };

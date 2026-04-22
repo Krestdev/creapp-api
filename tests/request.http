@@ -1,5 +1,5 @@
 # base module tests
-@host = http://localhost:5000/api/v1.0.0/request
+@host = http://localhost:5001/api/v1.0.0/request
 
 ### all requests
 GET {{host}}/
@@ -62,3 +62,6 @@ Content-Type: application/json
 ### validate Request
 PUT {{host}}/submit/3
 Content-Type: application/json
+
+### command verdict
+PUT {{host}}/command/commandVerdict/89

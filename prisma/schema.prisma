@@ -53,6 +53,11 @@ model User {
   requestOlds           RequestOld[]
   transactionSigners    TransactionSigners[]
   factures              Invoice[]
+
+  // user signature
+  signature         Document?          @relation(name: "signature", fields: [signatureId], references: [id])
+  signatureId       String?            @unique()
+  commandValidators commandValidator[]
 }
 
 model Role {
@@ -222,8 +227,8 @@ model Devi {
   element          DeviElement[]
   dueDate          DateTime?
   // one to one relation with Command
-  command          Command?        @relation(fields: [commandId], references: [id], onDelete: SetNull)
-  commandId        Int?            @unique()
+  command          Command[]
+  commandId        Int?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
@@ -246,9 +251,11 @@ model DeviElement {
   reception      Reception?    @relation(fields: [receptionId], references: [id])
   receptionId    Int?
 
-  hasIs     Boolean @default(false)
-  tva       Float   @default(0.1925)
-  reduction Float   @default(0)
+  hasIs     Boolean  @default(false)
+  tva       Float    @default(0.1925)
+  reduction Float    @default(0)
+  ceatedAt  DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Command {
@@ -279,7 +286,7 @@ model Command {
   facture     Invoice[]
   reference   String         @default("none")
   // one to one relation with Devi
-  devi        Devi?
+  devi        Devi?          @relation(fields: [deviId], references: [id], onDelete: SetNull)
   deviId      Int?
   status      String?        @default("PENDING")
   createdAt   DateTime       @default(now())
@@ -290,7 +297,26 @@ model Command {
   commandFile       String?
   // payments          Payment[]
 
-  hasPrecompt Boolean @default(false)
+  hasPrecompt Boolean           @default(false)
+  validators  commandValidator? @relation(name: "aboveCommandValidator", fields: [validatorId], references: [id])
+  validatorId Int?              @unique()
+}
+
+enum ValidatorDecision {
+  APPROVED
+  REJECTED
+  PENDING
+}
+
+model commandValidator {
+  id        Int               @id @default(autoincrement())
+  validated Boolean           @default(false)
+  decision  ValidatorDecision @default(PENDING)
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @default(now()) @updatedAt
+  commands  Command?          @relation(name: "aboveCommandValidator")
 }
 
 enum InvoiceStatus {
@@ -342,6 +368,7 @@ enum DocumentCategory {
   IDENTITY
   PROOF
   JUSTIFICATION
+  SIGNATURE
 }
 
 enum DocumentOwnerType {
@@ -355,6 +382,7 @@ enum DocumentOwnerType {
   DRIVER
   VEHICLE
   COMMAND
+  USER
 }
 
 model Document {
@@ -375,6 +403,9 @@ model Document {
   ownerType DocumentOwnerType
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user      User?    @relation(name: "signature")
+  userId    Int?
 
   @@index([ownerId, ownerType])
 }
@@ -476,6 +507,8 @@ model Payment {
   paymentTransaction   Transaction? @relation(fields: [paymentTransactionId], references: [id], name: "TransactionPayments")
   paymentTransactionId Int?
   selected             Boolean      @default(false)
+
+  paymentProof String?
 }
 
 model Accounting {

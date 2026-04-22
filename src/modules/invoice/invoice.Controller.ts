@@ -8,7 +8,7 @@ const cmdRequestService = new InvoiceService();
 
 @Route("request/invoice")
 @Tags("Invoice Routes")
-export default class CmdRequestController {
+export default class InvoiceController {
   @Post("/")
   create(
     @Body()

@@ -8,7 +8,7 @@ const cmdRequestService = new PaymentService();
 
 @Route("request/payment")
 @Tags("Payment Routes")
-export default class CmdRequestController {
+export default class PaymentController {
   @Post("/")
   create(
     @Body()
@@ -138,8 +138,6 @@ export default class CmdRequestController {
       payment.requestId = Number(data.requestId);
     }
 
-    console.log(data, payment);
-
     return cmdRequestService.update(Number(id), payment);
   }
 
@@ -153,6 +151,18 @@ export default class CmdRequestController {
     data: Payment,
   ): Promise<Payment> {
     return cmdRequestService.updateGas(Number(id), data);
+  }
+
+  /**
+   * @summary Update Command request
+   */
+  @Put("/settle/{id}")
+  updateSettle(
+    @Path() id: string,
+    @Body()
+    data: Payment,
+  ): Promise<Payment> {
+    return cmdRequestService.updateSettle(Number(id), data);
   }
 
   @Post("/payment/{id}")
@@ -188,6 +198,18 @@ export default class CmdRequestController {
   @Get("/{id}")
   getOne(@Path() id: string): Promise<Payment> {
     return cmdRequestService.getOne(Number(id));
+  }
+
+  @Post("/paymentProof/{id}")
+  paymentProof(
+    @Path() id: string,
+    @Body() proof: Express.Multer.File[] | null,
+  ): Promise<Payment> {
+    return cmdRequestService.paymentProof(
+      Number(id),
+      normalizeFile(proof),
+      proof,
+    );
   }
 
   @Get("/")

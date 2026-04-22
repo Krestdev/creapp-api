@@ -1,4 +1,4 @@
-import { Role, RolePages, User } from "@prisma/client";
+import { Document, Role, RolePages, User } from "@prisma/client";
 import {
   Body,
   Delete,
@@ -13,6 +13,7 @@ import {
 } from "tsoa";
 import { UserService } from "./user.Service";
 import { getIO } from "../../socket";
+import { normalizeFile } from "../../utils/serverUtils";
 
 const userService = new UserService();
 
@@ -181,5 +182,22 @@ export default class UserController {
   @Get("/rolePages/{roleId}")
   getRolePages(@Path() roleId: string): Promise<RolePages[]> {
     return userService.getRolePages(Number(roleId));
+  }
+
+  //getRolePages
+  @Post("/createSignature")
+  createSignature(
+    @Body() data: { userId: number; signature: Express.Multer.File[] | null },
+  ): Promise<User> {
+    return userService.createSignature({
+      userId: data.userId,
+      path: normalizeFile(data.signature),
+      signature: data.signature,
+    });
+  }
+
+  @Get("/getSignature/:id")
+  getSignature(@Path() id: string): Promise<Document | null> {
+    return userService.getSignature(+id);
   }
 }
