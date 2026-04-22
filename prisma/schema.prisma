@@ -280,7 +280,7 @@ model Command {
   reference   String         @default("none")
   // one to one relation with Devi
   devi        Devi?
-  deviId      Int?           @unique()
+  deviId      Int?
   status      String?        @default("PENDING")
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @default(now()) @updatedAt
