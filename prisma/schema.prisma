@@ -287,7 +287,7 @@ model Command {
   reference   String         @default("none")
   // one to one relation with Devi
   devi        Devi?          @relation(fields: [deviId], references: [id], onDelete: SetNull)
-  deviId      Int?           @unique()
+  deviId      Int?
   status      String?        @default("PENDING")
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @default(now()) @updatedAt
