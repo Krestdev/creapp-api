@@ -297,6 +297,8 @@ model Command {
   commandFile       String?
   // payments          Payment[]
 
+  object String?
+
   hasPrecompt Boolean           @default(false)
   validators  commandValidator? @relation(name: "aboveCommandValidator", fields: [validatorId], references: [id])
   validatorId Int?              @unique()
