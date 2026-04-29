@@ -651,6 +651,8 @@ model Transaction {
   payement    Payment?             @relation(name: "paymentTransaction")
   signers     TransactionSigners[]
 
+  comment String?
+
   // requests RequestModel[] @relation(name: "TransactionRequest")
   payments Payment[] @relation(name: "TransactionPayments")
 }

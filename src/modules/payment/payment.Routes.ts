@@ -82,6 +82,7 @@ export default class PaymentRoute {
         { name: "justification", maxCount: 5 },
       ]),
       (req, res) => {
+        console.log("hello wrong route");
         this.paymentController
           .updateTransportPayment(req.params.id!, req.body)
           .then((request) =>
