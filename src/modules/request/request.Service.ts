@@ -126,7 +126,7 @@ export class RequestService {
         decision === "REJETED"
           ? {
               decision: decision as RequestState,
-              status: "rejected",
+              state: "rejected",
             }
           : {
               decision: decision as RequestState,
