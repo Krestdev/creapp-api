@@ -28,7 +28,7 @@ model User {
   post                  String               @default("Employee")
   role                  Role[]
   benefits              RequestModel[]       @relation(name: "userbeneficiary")
-  requests              RequestModel[]
+  requests              RequestModel[]       @relation(name: "service_head")
   spending              Spending[]
   project               Project[]            @relation("ProjectChief")
   status                String               @default("active")
@@ -58,6 +58,12 @@ model User {
   signature         Document?          @relation(name: "signature", fields: [signatureId], references: [id])
   signatureId       String?            @unique()
   commandValidators commandValidator[]
+  servicehead       Services?          @relation(name: "service_head")
+  serviceId         Int?
+  service           Services?          @relation(name: "service_users", fields: [serviceUserId], references: [id])
+  serviceUserId     Int?
+  requestModels     RequestModel[]
+  shouldValidate    Boolean            @default(false)
 }
 
 model Role {
@@ -89,6 +95,17 @@ model Project {
   payments    Payment[]
   user        User           @relation("ProjectOwner", fields: [userId], references: [id])
   userId      Int            @default(1)
+}
+
+model Services {
+  id          Int      @id @default(autoincrement())
+  label       String
+  description String?
+  users       User[]   @relation(name: "service_users")
+  head        User?    @relation(name: "service_head", fields: [headId], references: [id], onDelete: SetNull)
+  headId      Int?     @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // users attached to a spesific user
@@ -146,6 +163,11 @@ model RequestModel {
   validators       Validators[]
   requestOlds      RequestOld[]
 
+  servicechief   User? @relation(name: "service_head", fields: [serviceChiefId], references: [id], onDelete: SetNull)
+  serviceChiefId Int?
+
+  decision RequestState?
+
   model      Vehicle?        @relation(fields: [vehiclesId], references: [id])
   km         String?
   liters     String?
@@ -154,6 +176,12 @@ model RequestModel {
   // transactionId Int?
   // selected      Boolean         @default(false)
   paytype    RequestPayType?
+}
+
+enum RequestState {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 model RequestOld {

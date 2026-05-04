@@ -22,6 +22,7 @@ import SignatairRoute from "../signatair/signatair.Routes";
 import AuthRoute from "../auth/auth.routes";
 import CommandConditionsRoute from "../commandCondition/condition.Routes";
 import FactureRoute from "../invoice/invoice.Routes";
+import ServiceRoute from "../service/service.Routes";
 
 export function connectBaseRoutes() {
   const router = Router();
@@ -59,6 +60,7 @@ export function connectProjectRoutes() {
 export function connectRequestRoutes() {
   const router = Router();
   const request = new RequestRoute();
+  const service = new ServiceRoute();
   const cmdRequest = new CmdRequestRoute();
   const providerRequest = new ProviderRoute();
   const paymentRoute = new PaymentRoute();
@@ -81,6 +83,9 @@ export function connectRequestRoutes() {
 
   // request routes connection
   router.use("/object", request.routes);
+
+  // request routes connection
+  router.use("/service", service.routes);
 
   // category routes connection
   router.use("/category", categoryRoute.routes);

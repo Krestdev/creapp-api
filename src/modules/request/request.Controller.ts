@@ -48,12 +48,25 @@ export default class RequestController {
     return requestService.create(ndata, benef);
   }
 
+  @Put("/takeaction/{id}")
+  takeAction(
+    @Path() id: string,
+    @Body() data: { authUserId: string; decision: string },
+  ): Promise<unknown> {
+    const { decision } = data;
+    return requestService.takeAction(+id, decision, +data.authUserId);
+  }
+
+  @Get("/chief/{id}")
+  chiefrequest(@Path() id: number): Promise<unknown> {
+    return requestService.chiefrequests(id);
+  }
+
   @Put("/{id}")
   update(
     @Path() id: string,
     @Body() data: RequestModelDto & { benef?: number[]; authUserId: number },
   ): Promise<unknown> {
-    console.log(data);
     const { benef, authUserId, ...ndata } = data;
     return requestService.update(Number(id), ndata, authUserId, benef);
   }

@@ -1,10 +1,16 @@
-import { PayType, PrismaClient, RequestModel } from "@prisma/client";
+import {
+  PayType,
+  PrismaClient,
+  RequestModel,
+  RequestState,
+} from "@prisma/client";
 import {
   deleteDocumentsByOwner,
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
 import { getIO } from "../../socket";
+import { number } from "joi";
 
 const prisma = new PrismaClient();
 
@@ -14,11 +20,29 @@ export class RequestService {
   create = async (
     data: Omit<
       RequestModel,
-      "createdAt" | "updatedAt" | "driverId" | "km" | "liters" | "vehiclesId"
+      | "createdAt"
+      | "updatedAt"
+      | "driverId"
+      | "km"
+      | "liters"
+      | "vehiclesId"
+      | "serviceChiefId"
+      | "decision"
     >,
     benList?: number[],
   ) => {
     const ref = "ref-" + new Date().getTime();
+
+    const user = await prisma.user.findUnique({
+      where: { id: data.userId! },
+      include: {
+        service: {
+          include: {
+            head: true,
+          },
+        },
+      },
+    });
 
     const category = await prisma.category.findUniqueOrThrow({
       where: {
@@ -37,6 +61,8 @@ export class RequestService {
       .create({
         data: {
           ...data,
+          serviceChiefId: user?.service?.head?.id ?? null,
+          decision: "PENDING",
           period: data.period
             ? JSON.parse(data.period as unknown as string)
             : null,
@@ -87,6 +113,59 @@ export class RequestService {
 
     getIO().emit("request:new", { userId: request.userId });
     return request;
+  };
+
+  // updated with paytype
+  takeAction = async (id: number, decision: string, userId: number) => {
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    await CacheService.del(`${this.CACHE_KEY}:mine`);
+
+    const request = await prisma.requestModel.update({
+      where: { id },
+      data: {
+        decision: decision as RequestState,
+        // state: pre => decision as RequestState === "REJECTED" ? "rejected" : pre
+      },
+    });
+
+    const shouldValidate = await prisma.requestModel.findMany({
+      where: {
+        serviceChiefId: userId,
+        decision: {
+          notIn: ["APPROVED", "REJECTED"],
+        },
+        servicechief: {
+          is: null,
+        },
+      },
+    });
+
+    if (shouldValidate.length <= 0) {
+      await prisma.user.updateMany({
+        where: { id: userId },
+        data: {
+          shouldValidate: true,
+        },
+      });
+    }
+
+    getIO().emit("request:update");
+    return prisma.requestModel.findUnique({
+      where: { id: request.id },
+      include: { requestOlds: true },
+    });
+  };
+
+  // add use to service
+  chiefrequests = (chiefId: number) => {
+    return prisma.requestModel.findMany({
+      where: {
+        serviceChiefId: chiefId,
+      },
+      include: {
+        validators: true,
+      },
+    });
   };
 
   // updated with paytype
@@ -631,7 +710,13 @@ export class RequestService {
   specialRequest = async (
     data: Omit<
       RequestModel,
-      "driverI" | "km" | "liters" | "vehiclesId" | "driverId"
+      | "driverI"
+      | "km"
+      | "liters"
+      | "vehiclesId"
+      | "driverId"
+      | "decision"
+      | "serviceChiefId"
     > & { type: string; proof: string | null },
     file?: Express.Multer.File[] | null,
     benef?: number[],
@@ -742,7 +827,13 @@ export class RequestService {
   approvisionement = async (
     data: Omit<
       RequestModel,
-      "driverI" | "km" | "liters" | "vehiclesId" | "driverId"
+      | "driverI"
+      | "km"
+      | "liters"
+      | "vehiclesId"
+      | "driverId"
+      | "decision"
+      | "serviceChiefId"
     >,
   ) => {
     const { ...requestData } = data;
