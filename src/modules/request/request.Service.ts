@@ -122,10 +122,15 @@ export class RequestService {
 
     const request = await prisma.requestModel.update({
       where: { id },
-      data: {
-        decision: decision as RequestState,
-        // state: pre => decision as RequestState === "REJECTED" ? "rejected" : pre
-      },
+      data:
+        decision === "REJETED"
+          ? {
+              decision: decision as RequestState,
+              status: "rejected",
+            }
+          : {
+              decision: decision as RequestState,
+            },
     });
 
     const shouldValidate = await prisma.requestModel.findMany({
