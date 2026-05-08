@@ -23,6 +23,7 @@ export default class CategoryRoute {
 
   private config() {
     this.routes.use(authenticate);
+
     this.routes.delete("/:id", requireRole("USER"), (req, res) => {
       this.categoryController
         .deleteCategory(req.params.id ?? "-1")
@@ -48,6 +49,17 @@ export default class CategoryRoute {
     this.routes.get("/:id", requireRole("USER"), (req, res) => {
       this.categoryController
         .getOneCategory(req.params.id ?? "-1")
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.get("/request/:id", requireRole("USER"), (req, res) => {
+      this.categoryController
+        .getOneCategoryForRequest(req.params.id ?? "-1")
         .then((request) =>
           res
             .status(200)

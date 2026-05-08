@@ -10,7 +10,8 @@ import {
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
 import { getIO } from "../../socket";
-import { number } from "joi";
+import { date, number } from "joi";
+import { QueryString } from "./request.Controller";
 
 const prisma = new PrismaClient();
 
@@ -88,8 +89,8 @@ export class RequestService {
           beficiaryList: {
             connect: benList
               ? benList.map((beId) => {
-                  return { id: beId };
-                })
+                return { id: beId };
+              })
               : [],
           },
           validators: {
@@ -125,12 +126,12 @@ export class RequestService {
       data:
         decision === "REJETED"
           ? {
-              decision: decision as RequestState,
-              state: "rejected",
-            }
+            decision: decision as RequestState,
+            state: "rejected",
+          }
           : {
-              decision: decision as RequestState,
-            },
+            decision: decision as RequestState,
+          },
     });
 
     const shouldValidate = await prisma.requestModel.findMany({
@@ -171,6 +172,47 @@ export class RequestService {
         validators: true,
       },
     });
+  };
+
+  getPendingRequests = async ({ userId }: { userId: number }) => {
+    const requests = await prisma.requestModel.findMany({
+      include: {
+        validators: true,
+      },
+      where: {
+        state: "pending",
+        validators: {
+          some: {
+            userId,
+            validated: false,
+          },
+        },
+      },
+    });
+
+    const pendingRequests = requests.filter((request) => {
+      const currentValidator = request.validators.find(
+        (v) => v.userId === userId
+      );
+
+      if (!currentValidator) return false;
+
+      // Rank 1 can validate immediately
+      if (currentValidator.rank === 1) {
+        return true;
+      }
+
+      // Previous validator must already validate
+      const previousValidator = request.validators.find(
+        (v) => v.rank === currentValidator.rank - 1
+      );
+
+      return previousValidator?.validated === true;
+    });
+
+    console.log(pendingRequests.map((r) => r.label));
+
+    return pendingRequests.length;
   };
 
   // updated with paytype
@@ -214,8 +256,8 @@ export class RequestService {
         beficiaryList: {
           connect: benList
             ? benList.map((beId) => {
-                return { id: beId };
-              })
+              return { id: beId };
+            })
             : [],
         },
       },
@@ -246,13 +288,46 @@ export class RequestService {
     });
   };
 
-  getAll = async () => {
-    const cached = await CacheService.get<RequestModel[]>(
-      `${this.CACHE_KEY}:all`,
-    );
-    if (cached) return cached;
+  getAll = async (query?: QueryString) => {
+    const { pageIndex, pageSize, header, section, reviewer, search, user, category, project, status, type, from, to, date } = query || {};
 
-    const requests = await prisma.requestModel.findMany({
+    const allRequests = await prisma.requestModel.findMany({
+      where: {
+        label: search ? {
+          contains: search
+        } : {},
+        user: user ? {
+          id: +user
+        } : {},
+        category: category ? {
+          id: +category
+        } : {},
+        project: project ? {
+          id: +project
+        } : {},
+        state: status ? {
+          equals: status
+        } : {},
+        type: type ? {
+          equals: type
+        } : {},
+        createdAt: date === "custom" && from && to ? {
+          gte: new Date(from),
+          lte: new Date(to)
+        } : date === "today" ? {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+          lte: new Date(new Date().setHours(23, 59, 59, 999))
+        } : date === "week" ? {
+          gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+          lte: new Date(new Date().setHours(23, 59, 59, 999))
+        } : date === "month" ? {
+          gte: new Date(new Date().setDate(new Date().getDate() - 30)),
+          lte: new Date(new Date().setHours(23, 59, 59, 999))
+        } : date === "year" ? {
+          gte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)),
+          lte: new Date(new Date().setHours(23, 59, 59, 999))
+        } : {},
+      },
       include: {
         beficiaryList: {
           omit: {
@@ -266,17 +341,209 @@ export class RequestService {
         },
         requestOlds: true,
         validators: true,
+        category: {
+          select: {
+            label: true
+          }
+        },
+        project: {
+          select: {
+            label: true
+          }
+        },
+        // payments: true,
+        user: {
+          select: {
+            firstName: true
+          }
+        },
+      },
+      // take: filters?.pageSize || 10,
+      skip: (pageIndex || 0) * (pageSize || 10),
+    });
+
+    return {
+      data: allRequests.slice(0, (pageSize || 10)),
+      total: allRequests.length
+    };
+  };
+
+  getStats = async (query?: QueryString) => {
+    const { pageIndex, pageSize, header, section, reviewer, search, user, category, project, status, type, from, to, date } = query || {};
+
+    const allRequests = await prisma.requestModel.findMany({
+      where: {
+        label: search ? {
+          contains: search
+        } : {},
+        user: user ? {
+          id: +user
+        } : {},
+        category: category ? {
+          id: +category
+        } : {},
+        project: project ? {
+          id: +project
+        } : {},
+        state: status ? {
+          equals: status
+        } : {},
+        type: type ? {
+          equals: type
+        } : {},
+        createdAt: date === "custom" && from && to ? {
+          gte: new Date(from),
+          lte: new Date(to)
+        } : date === "today" ? {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+          lte: new Date(new Date().setHours(23, 59, 59, 999))
+        } : date === "week" ? {
+          gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+          lte: new Date(new Date().setHours(23, 59, 59, 999))
+        } : date === "month" ? {
+          gte: new Date(new Date().setDate(new Date().getDate() - 30)),
+          lte: new Date(new Date().setHours(23, 59, 59, 999))
+        } : date === "year" ? {
+          gte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)),
+          lte: new Date(new Date().setHours(23, 59, 59, 999))
+        } : {},
+      },
+      include: {
+        beficiaryList: {
+          omit: {
+            password: true,
+            verified: true,
+            createdAt: true,
+            updatedAt: true,
+            phone: true,
+            verificationOtp: true,
+          },
+        },
+        requestOlds: true,
+        validators: true,
+        category: {
+          select: {
+            label: true
+          }
+        },
+        project: {
+          select: {
+            label: true
+          }
+        },
+        user: {
+          select: {
+            firstName: true,
+            lastName: true
+          }
+        },
+      },
+      // take: filters?.pageSize || 10,
+      skip: (pageIndex || 0) * (pageSize || 10),
+    });
+
+    const totalSent = await prisma.requestModel.count()
+
+    const stats = {
+      awaiting: allRequests.filter(r => r.state === "pending").length,
+      rejected: allRequests.filter((r) => r.state === "rejected").length,
+      validated: allRequests.filter((r) => r.state === "validated").length,
+      fromStore: allRequests.filter((r) => r.state === "store").length,
+      cancelled: allRequests.filter((r) => r.state === "cancel").length,
+      sent: totalSent,
+    }
+
+    return stats;
+  };
+
+  getAllRequestsHavingPayment = async () => {
+    // get all requests with at list one payment and that payment is in the validated state
+    const allRequests = await prisma.requestModel.findMany({
+      where: {
+        payments: {
+          some: {
+            status: "validated",
+          },
+        },
+      }
+    });
+    return allRequests;
+  }
+
+  getChiefRequests = async ({ userId }: { userId: number }) => {
+    const requests = await prisma.requestModel.findMany({
+      include: {
+        validators: true,
+      },
+      where: {
+        state: "pending",
+        decision: "PENDING",
+        validators: {
+          some: {
+            userId,
+            validated: false,
+          },
+        },
       },
     });
 
-    await CacheService.set(`${this.CACHE_KEY}:all`, requests, 90);
+    const pendingRequests = requests.filter((request) => {
+      const currentValidator = request.validators.find(
+        (v) => v.userId === userId
+      );
 
-    return requests;
+      if (!currentValidator) return false;
+
+      // Rank 1 can validate immediately
+      if (currentValidator.rank === 1) {
+        return true;
+      }
+
+      // Previous validator must already validate
+      const previousValidator = request.validators.find(
+        (v) => v.rank === currentValidator.rank - 1
+      );
+
+      return previousValidator?.validated === true;
+    });
+
+    return pendingRequests.length;
   };
+
+  getUsableRequests = async () => {
+    return await prisma.requestModel.count({
+      where: {
+        state: "validated",
+        type: "achat",
+        commandRequestId: null,
+      },
+    });
+  }
 
   getOne = (id: number) => {
     return prisma.requestModel.findUnique({
       where: { id },
+      include: {
+        requestOlds: {
+          include: {
+            user: {
+              select: { firstName: true, lastName: true }
+            },
+          },
+        },
+        validators: true,
+        user: { select: { firstName: true, lastName: true } }
+      },
+    });
+  };
+
+  getForQuotation = async () => {
+    return prisma.requestModel.findMany({
+      where: {
+        type: "achat",
+        state: "validated",
+        commandRequestId: null
+      },
     });
   };
 
@@ -769,8 +1036,8 @@ export class RequestService {
         beficiaryList: {
           connect: benef
             ? benef.map((beId) => {
-                return { id: beId };
-              })
+              return { id: beId };
+            })
             : [],
         },
         validators: {
@@ -803,8 +1070,8 @@ export class RequestService {
           data.type == "speciaux"
             ? "validated"
             : ["facilitation", "ressource_humaine", "settle"].includes(
-                  data.type,
-                )
+              data.type,
+            )
               ? "ghost"
               : "pending",
         type: type,
@@ -910,7 +1177,7 @@ export class RequestService {
           : ["facilitation", "ressource_humaine", "appro"].includes(data.type)
             ? "ghost"
             : // ? "accepted"
-              "pending",
+            "pending",
         type: data.type,
         methodId: paytype.id,
         priority: "medium",
@@ -1007,8 +1274,8 @@ export class RequestService {
           beficiaryList: {
             set: benef
               ? benef.map((beId) => {
-                  return { id: beId };
-                })
+                return { id: beId };
+              })
               : [],
           },
         },

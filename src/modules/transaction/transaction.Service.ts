@@ -210,10 +210,10 @@ export class TransactionService {
         status: data.status!,
         method: methodId
           ? {
-              connect: {
-                id: Number(methodId),
-              },
-            }
+            connect: {
+              id: Number(methodId),
+            },
+          }
           : {},
         bank: {
           connect: {
@@ -347,10 +347,10 @@ export class TransactionService {
           status: data.status,
           method: methodId
             ? {
-                connect: {
-                  id: Number(methodId),
-                },
-              }
+              connect: {
+                id: Number(methodId),
+              },
+            }
             : {},
           bank: {
             connect: {
@@ -410,57 +410,57 @@ export class TransactionService {
 
     const transaction = paymentId
       ? await prisma.transaction.create({
-          data: {
-            ...transak,
-            fromBankId: transak.fromBankId ?? fromBank?.id,
-            toBankId: transak.toBankId ?? to?.id,
-            methodId: methodId ?? null,
-            status:
-              data.Type == "TRANSFER" && transak.status
-                ? transak.status
-                : data.Type == "TRANSFER"
-                  ? "PENDING"
-                  : "APPROVED",
-            payement: {
-              connect: {
-                id: paymentId,
-              },
-            },
-            payments: {
-              connect: payments.map((id) => {
-                return { id };
-              }),
+        data: {
+          ...transak,
+          fromBankId: transak.fromBankId ?? fromBank?.id,
+          toBankId: transak.toBankId ?? to?.id,
+          methodId: methodId ?? null,
+          status:
+            data.Type == "TRANSFER" && transak.status
+              ? transak.status
+              : data.Type == "TRANSFER"
+                ? "PENDING"
+                : "APPROVED",
+          payement: {
+            connect: {
+              id: paymentId,
             },
           },
-          include: {
-            from: true,
-            to: true,
-            payement: true,
+          payments: {
+            connect: payments.map((id) => {
+              return { id };
+            }),
           },
-        })
+        },
+        include: {
+          from: true,
+          to: true,
+          payement: true,
+        },
+      })
       : await prisma.transaction.create({
-          data: {
-            ...transak,
-            fromBankId: transak.fromBankId ?? fromBank?.id,
-            toBankId: transak.toBankId ?? to?.id,
-            status:
-              data.Type == "TRANSFER" && transak.status
-                ? transak.status
-                : data.Type == "TRANSFER"
-                  ? "PENDING"
-                  : "APPROVED",
-            payments: {
-              connect: payments.map((id) => {
-                return { id };
-              }),
-            },
+        data: {
+          ...transak,
+          fromBankId: transak.fromBankId ?? fromBank?.id,
+          toBankId: transak.toBankId ?? to?.id,
+          status:
+            data.Type == "TRANSFER" && transak.status
+              ? transak.status
+              : data.Type == "TRANSFER"
+                ? "PENDING"
+                : "APPROVED",
+          payments: {
+            connect: payments.map((id) => {
+              return { id };
+            }),
           },
-          include: {
-            from: true,
-            to: true,
-            payement: true,
-          },
-        });
+        },
+        include: {
+          from: true,
+          to: true,
+          payement: true,
+        },
+      });
 
     await prisma.payment.updateMany({
       where: {
@@ -839,6 +839,15 @@ export class TransactionService {
         to: true,
         method: true,
         signers: true,
+      },
+    });
+  };
+
+  approvisionement = async () => {
+    return prisma.transaction.count({
+      where: {
+        Type: "TRANSFER",
+        status: "PENDING"
       },
     });
   };

@@ -82,7 +82,7 @@ export default class UserController {
   }
 
   @Get("/")
-  getAll(): Promise<
+  getAll(beneficiary?: number): Promise<
     ({
       role: {
         id: number;
@@ -90,7 +90,12 @@ export default class UserController {
       }[];
     } & Omit<User, "password">)[]
   > {
-    return userService.getAll();
+    return userService.getAll(beneficiary);
+  }
+
+  @Get("/userInitiatedRequest/{id}")
+  getUserInitiatedRequest(@Path() id: string): Promise<User | null> {
+    return userService.getUserInitiatedRequest(Number(id));
   }
 
   @Get("/{id}")

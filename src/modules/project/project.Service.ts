@@ -111,6 +111,18 @@ export class ProjectService {
     });
   }
 
+  async getRequest(id: number) {
+    return prisma.project.findMany({
+      where: {
+        requests: {
+          some: {
+            id,
+          },
+        },
+      },
+    });
+  }
+
   async getChief(id: number) {
     return prisma.project.findUnique({
       where: { id },

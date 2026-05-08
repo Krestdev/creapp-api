@@ -156,6 +156,26 @@ export class CategoryService {
   getOneCategory = (id: number) => {
     return prisma.category.findUnique({
       where: { id },
+      include: {
+        validators: true,
+        type: true,
+      },
+    });
+  };
+
+  getOneCategoryForRequest = (id: number) => {
+    return prisma.category.findFirst({
+      where: {
+        requests: {
+          some: {
+            id,
+          },
+        },
+      },
+      include: {
+        validators: true,
+        type: true,
+      },
     });
   };
 

@@ -309,4 +309,9 @@ export default class TransactionController {
       proof: null,
     });
   }
+
+  @Get("appro/count")
+  getApprovisionementCount(): Promise<number> {
+    return transactionService.approvisionement();
+  }
 }

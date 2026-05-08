@@ -112,7 +112,18 @@ export default class UserRouter {
 
     this.routes.get("/", requireRole("USER"), (req, res) =>
       this.userController
-        .getAll()
+        .getAll(req.query.beneficiary ? Number(req.query.beneficiary) : undefined)
+        .then((users) =>
+          res
+            .status(200)
+            .json({ message: all_users.success.list, data: users }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message })),
+    );
+
+    this.routes.get("/userInitiatedRequest/:id", requireRole("USER"), (req, res) =>
+      this.userController
+        .getUserInitiatedRequest(req.params.id!)
         .then((users) =>
           res
             .status(200)

@@ -91,6 +91,15 @@ export default class CommandRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    this.routes.get("/pending/count", requireRole("USER"), (req, res) => {
+      this.commandController
+        .getPendingCount()
+        .then((count) =>
+          res.status(200).json({ message: create.success.create, data: count }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // getAll
     this.routes.get("/", requireRole("USER"), (req, res) => {
       this.commandController

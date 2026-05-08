@@ -32,6 +32,11 @@ export default class ProjectController {
     return projectService.getOne(Number(id));
   }
 
+  @Get("/request/{id}")
+  getRequest(@Path() id: string) {
+    return projectService.getRequest(Number(id));
+  }
+
   @Get("/{id}/chief")
   getChief(@Path() id: string) {
     return projectService.getChief(Number(id));

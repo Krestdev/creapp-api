@@ -38,6 +38,18 @@ export default class ProjectRouter {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    // get a single project by id
+    this.routes.get("/request/:id", requireRole("USER"), (req, res) => {
+      this.projectController
+        .getRequest(req.params.id ?? "-1")
+        .then((project) =>
+          res
+            .status(200)
+            .json({ message: get_one.success.fetch, data: project }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // create a new project
     this.routes.post("/", requireRole("USER"), (req, res) => {
       this.projectController

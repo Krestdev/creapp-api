@@ -75,4 +75,18 @@ export class CommandRequestService {
       where: { id },
     });
   };
+
+  getCommandRequestToTreat = async () => {
+    return await prisma.commandRequest.count({
+      where: {
+        devi: {
+          some: {
+            status: {
+              notIn: ["APPROVED", "REJECTED"]
+            }
+          }
+        }
+      },
+    });
+  }
 }

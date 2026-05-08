@@ -41,4 +41,9 @@ export default class CmdRequestController {
   getAll(): Promise<CommandRequest[]> {
     return cmdRequestService.getAll();
   }
+
+  @Get("/to-treat")
+  getCommandRequestToTreat(): Promise<number> {
+    return cmdRequestService.getCommandRequestToTreat();
+  }
 }

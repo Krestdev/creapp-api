@@ -106,6 +106,18 @@ export default class DeviRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    // getUntreated
+    this.routes.get("/to-assign/count", requireRole("USER"), (req, res) => {
+      this.deviController
+        .getUntreated()
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // getAll
     this.routes.get("/", requireRole("USER"), (req, res) => {
       this.deviController

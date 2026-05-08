@@ -5,6 +5,7 @@ import {
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
+import { PaymentQueryOptions } from "./payment.Controller";
 
 const prisma = new PrismaClient();
 
@@ -310,32 +311,84 @@ export class PaymentService {
   };
 
   // Get all
-  getAll = async () => {
-    const cached = await CacheService.get<Payment[]>(`${this.CACHE_KEY}:all`);
-    if (cached) return cached;
-
+  getAll = async ({ startDate, endDate, mount, provider, type, excludeType, priority, paymentMethod, matchBeneficiary, selected, date, state, paymentType, requestId, userId, limit, page }: PaymentQueryOptions) => {
     const payment = await prisma.payment.findMany({
+      where: {
+        ...(state && { status: state }),
+        ...(paymentType && { paymentType }),
+        ...(excludeType && { paymentType: { not: excludeType } }),
+        ...(requestId && { requestId: +requestId }),
+        ...(userId && { userId: +userId }),
+        ...(mount && { price: { gte: mount } }),
+        ...(provider && { provider }),
+        ...(type && { paymentType: type }),
+        ...(priority && { priority }),
+        ...(paymentMethod && { methodId: Number(paymentMethod) }),
+        ...(matchBeneficiary && {
+          OR: [
+            { benefId: Number(matchBeneficiary) },
+            {
+              request: {
+                beficiaryList: {
+                  some: {
+                    id: Number(matchBeneficiary),
+                  },
+                },
+              },
+            },
+          ]
+        }),
+        ...(selected && { id: Number(selected) }),
+        ...(date && { createdAt: new Date(date) }),
+        ...(startDate && { createdAt: { gte: startDate } }),
+        ...(endDate && { createdAt: { lte: endDate } }),
+      },
       include: {
         signer: true,
         method: true,
         bank: true,
+        request: true,
         facture: {
           include: {
             command: true,
           },
         },
       },
+      ...(limit && { take: Number(limit) }),
+      ...(limit && { skip: ((+page || 1) - 1) * Number(limit) }),
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
-    await CacheService.set(`${this.CACHE_KEY}:all`, payment, 90);
+    const count = await prisma.payment.count({
+      where: {
+        ...(state && { status: state }),
+        ...(paymentType && { paymentType }),
+        ...(requestId && { requestId: +requestId }),
+        ...(userId && { userId: +userId }),
+      },
+    });
 
-    return payment;
+    const response = {
+      payments: payment as Payment[],
+      total: count,
+    };
+
+    return response;
   };
 
   // Get one
   getOne = (id: number) => {
     return prisma.payment.findUniqueOrThrow({
       where: { id },
+    });
+  };
+
+  // Get one
+  getOneByRequestId = (requestId: number) => {
+    return prisma.payment.findFirst({
+      where: { requestId },
     });
   };
 
@@ -358,35 +411,50 @@ export class PaymentService {
     });
   };
 
-  // decrement from bank
-  // private decrementFromBank = async (payment: Payment) => {
-  //   const { bankId } = payment;
-  //   if (!bankId) throw Error("BankId Should Not Null");
-  //   const bank = await prisma.bank.update({
-  //     where: { id: bankId },
-  //     data: {
-  //       balance: {
-  //         decrement: payment.price,
-  //       },
-  //     },
-  //   });
+  getTicketsPendingCount = async () => {
+    const payment = await prisma.payment.count({
+      where: {
+        type: {
+          notIn: ["transport", "others", "gas"]
+        },
+        status: {
+          in: ["pending", "accepted"]
+        },
+      },
+    });
+    return payment;
+  };
 
-  //   return bank;
-  // };
+  getPaymentToTreatCount = async () => {
+    const payment = await prisma.payment.count({
+      where: {
+        status: {
+          in: ["validate", "unsigned"]
+        },
+        type: "appro"
+      },
+    });
+    return payment;
+  };
 
-  // Increment in bank
-  // private incrementFromBank = async (payment: Payment) => {
-  //   const { bankId } = payment;
-  //   if (!bankId) throw Error("BankId Should Not Null");
-  //   const bank = await prisma.bank.update({
-  //     where: { id: bankId },
-  //     data: {
-  //       balance: {
-  //         increment: payment.price,
-  //       },
-  //     },
-  //   });
-
-  //   return bank;
-  // };
+  getPaymentToSignCount = async (userId: number) => {
+    const payment = await prisma.payment.count({
+      where: {
+        method: {
+          signatairs: {
+            some: {
+              user: {
+                some: {
+                  id: userId,
+                }
+              },
+            },
+          }
+        },
+        status: "unsigned",
+        type: "appro"
+      },
+    });
+    return payment;
+  };
 }

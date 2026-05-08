@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { request } from "../../../assets/messages/requestMessages.json";
-import PaymentController from "./payment.Controller";
+import PaymentController, { PaymentQueryOptions } from "./payment.Controller";
 import upload from "../../utils/upload";
 import { requireRole } from "../../middlewares/rbac.middleware";
 import { authenticate } from "../../middlewares/auth.middleware";
@@ -152,10 +152,59 @@ export default class PaymentRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    this.routes.get("/tickets-pending/count", requireRole("USER"), (req, res) => {
+      this.paymentController
+        .getTicketsPendingCount()
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.get("/paymentToTreat/count", requireRole("USER"), (req, res) => {
+      this.paymentController
+        .getPaymentToTreatCount()
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.get("/paymentToSign/count", requireRole("USER"), (req, res) => {
+      this.paymentController
+        .getPaymentToSignCount(req.user?.userId!)
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // getAll
     this.routes.get("/", requireRole("USER"), (req, res) => {
       this.paymentController
-        .getAll()
+        .getAll(req.query as unknown as PaymentQueryOptions)
+        .then((response) =>
+          res
+            .status(200)
+            .json({
+              message: create.success.create,
+              data: response
+            }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    // getOne
+    this.routes.get("/:id", requireRole("USER"), (req, res) => {
+      console.log("id", req.params.id);
+      this.paymentController
+        .getOne(req.params.id ?? "-1")
         .then((request) =>
           res
             .status(200)
@@ -165,9 +214,9 @@ export default class PaymentRoute {
     });
 
     // getOne
-    this.routes.get("/:id", requireRole("USER"), (req, res) => {
+    this.routes.get("/request/:requestId", requireRole("USER"), (req, res) => {
       this.paymentController
-        .getOne(req.params.id ?? "-1")
+        .getOneByRequestId(req.params.requestId ?? "-1")
         .then((request) =>
           res
             .status(200)

@@ -49,15 +49,15 @@ export class CommandService {
 
     data.netToPay = devi
       ? devi.element?.reduce((acc, req) => {
-          const totalPrice = req.priceProposed * req.quantity;
-          const iSiR = !req.hasIs ? 0 : isReel ? 0.022 : 0.055;
-          const tva = req.tva / 100;
-          const precompt = data.hasPrecompt ? 0.02 : 0;
+        const totalPrice = req.priceProposed * req.quantity;
+        const iSiR = !req.hasIs ? 0 : isReel ? 0.022 : 0.055;
+        const tva = req.tva / 100;
+        const precompt = data.hasPrecompt ? 0.02 : 0;
 
-          return (
-            acc + totalPrice * (1 - req.reduction) * (1 - iSiR + tva + precompt)
-          );
-        }, 0)
+        return (
+          acc + totalPrice * (1 - req.reduction) * (1 - iSiR + tva + precompt)
+        );
+      }, 0)
       : 0;
 
     const command = await prisma.command.create({
@@ -65,10 +65,10 @@ export class CommandService {
         ...ndata,
         validators: validatorId
           ? {
-              connect: {
-                id: validatorId,
-              },
-            }
+            connect: {
+              id: validatorId,
+            },
+          }
           : {},
         provider: {
           connect: {
@@ -83,10 +83,10 @@ export class CommandService {
         },
         devi: deviId
           ? {
-              connect: {
-                id: deviId,
-              },
-            }
+            connect: {
+              id: deviId,
+            },
+          }
           : {},
         commandConditions: {
           connect: conditions.map((id) => {
@@ -171,8 +171,8 @@ export class CommandService {
           Deliverables: {
             connect: command.devi
               ? command.devi.element
-                  .filter((el) => el.status === "SELECTED")
-                  .map((el) => ({ id: el.id }))
+                .filter((el) => el.status === "SELECTED")
+                .map((el) => ({ id: el.id }))
               : [],
           },
           Proof: null,
@@ -286,8 +286,8 @@ export class CommandService {
           Deliverables: {
             connect: command.devi
               ? command.devi.element
-                  .filter((el) => el.status === "SELECTED")
-                  .map((el) => ({ id: el.id }))
+                .filter((el) => el.status === "SELECTED")
+                .map((el) => ({ id: el.id }))
               : [],
           },
           Proof: null,
@@ -383,6 +383,14 @@ export class CommandService {
           },
         },
         provider: true,
+      },
+    });
+  };
+
+  getPendingCount = async () => {
+    return prisma.command.count({
+      where: {
+        status: "PENDING",
       },
     });
   };

@@ -274,7 +274,21 @@ export class UserService {
     });
   }
 
-  getAll() {
+  getAll(beneficiary?: number) {
+    if (beneficiary) {
+      return prisma.user.findMany({
+        where: {
+          id: beneficiary,
+          status: "active",
+        },
+        include: {
+          role: true,
+          validators: true,
+          signatairs: true,
+        },
+        omit: { password: true },
+      });
+    }
     return prisma.user.findMany({
       include: {
         role: true,
@@ -282,6 +296,18 @@ export class UserService {
         signatairs: true,
       },
       omit: { password: true },
+    });
+  }
+
+  getUserInitiatedRequest(id: number) {
+    return prisma.user.findFirst({
+      where: {
+        requests: {
+          some: {
+            id
+          }
+        }
+      }
     });
   }
 

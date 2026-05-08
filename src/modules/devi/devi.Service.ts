@@ -270,12 +270,30 @@ export class DeviService {
     return prisma.devi.findUniqueOrThrow({
       where: { id },
       include: {
-        element: true,
+        element: {
+          include: {
+            request: {
+              select: {
+                id: true,
+                label: true,
+              },
+            },
+          },
+        },
         commandRequest: {
           include: {
             besoins: true,
           },
         },
+      },
+    });
+  };
+
+  getUntreated = async () => {
+    return prisma.devi.count({
+      where: {
+        status: "APPROVED",
+        commandId: null
       },
     });
   };

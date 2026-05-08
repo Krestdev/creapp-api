@@ -84,4 +84,9 @@ export default class CommandController {
   getAll(): Promise<Command[]> {
     return commandService.getAll();
   }
+
+  @Get("/pending/count")
+  getPendingCount(): Promise<number> {
+    return commandService.getPendingCount();
+  }
 }

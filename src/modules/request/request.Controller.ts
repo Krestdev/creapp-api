@@ -1,8 +1,9 @@
-import { Payment, RequestPayType } from "@prisma/client";
-import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
+import { Payment, RequestModel, RequestPayType } from "@prisma/client";
+import { Body, Delete, Get, Path, Post, Put, Query, Route, Tags } from "tsoa";
 import { getIO } from "../../socket";
 import { RequestService } from "./request.Service";
 import { normalizeFile } from "../../utils/serverUtils";
+import { Request } from 'express'
 
 const requestService = new RequestService();
 
@@ -30,6 +31,23 @@ type RequestModelDto = {
   commandId: number | null;
   paytype: RequestPayType;
 };
+
+export type QueryString = {
+  pageIndex: number;
+  pageSize: number;
+  header?: string;
+  section?: string;
+  reviewer?: number;
+  search?: string,
+  user?: number,
+  category?: number,
+  project?: number,
+  status?: string,
+  type?: "all" | "facilitation" | "ressource_humaine" | "speciaux" | "achat" | "CURRENT" | "others" | "transport" | "gas" | "appro" | "taxes" | "settle",
+  from?: Date,
+  to?: Date,
+  date?: "today" | "week" | "month" | "year" | "custom",
+}
 
 @Route("request/object")
 @Tags("Request Routes")
@@ -72,13 +90,52 @@ export default class RequestController {
   }
 
   @Get("/")
-  getAll(): Promise<unknown[]> {
-    return requestService.getAll();
+  getAll(@Query() query?: QueryString): Promise<{
+    data: unknown[], total: number;
+  }> {
+    return requestService.getAll(query);
+  }
+
+  @Get("/stats")
+  getStats(@Query() query?: QueryString): Promise<{
+    awaiting: number;
+    rejected: number;
+    validated: number;
+    fromStore: number;
+    cancelled: number;
+    sent: number;
+  }> {
+    return requestService.getStats(query);
   }
 
   @Get("/{id}")
   getOne(@Path() id: string): Promise<unknown | null> {
     return requestService.getOne(Number(id));
+  }
+
+  @Get("/quotation")
+  getForQuotation(): Promise<unknown[]> {
+    return requestService.getForQuotation();
+  }
+
+  @Get("/requestsWithPayment")
+  getAllRequestsHavingPayment(): Promise<RequestModel[]> {
+    return requestService.getAllRequestsHavingPayment();
+  }
+
+  @Get("/pendingRequests/count")
+  getPendingRequests(@Query() request: { userId: number }): Promise<number> {
+    return requestService.getPendingRequests(request);
+  }
+
+  @Get("/chief/requests")
+  getChiefRequests(@Query() request: { userId: number }): Promise<number> {
+    return requestService.getChiefRequests(request);
+  }
+
+  @Get("/usableRequests/count")
+  getUsableRequests(): Promise<number> {
+    return requestService.getUsableRequests();
   }
 
   @Get("/validator/{id}")

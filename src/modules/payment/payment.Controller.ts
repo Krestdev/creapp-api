@@ -1,10 +1,30 @@
 import { Payment } from "@prisma/client";
-import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
+import { Body, Delete, Get, Path, Post, Put, Query, Route, Tags } from "tsoa";
 import { PaymentService } from "./payment.Service";
 import { getIO } from "../../socket";
 import { normalizeFile } from "../../utils/serverUtils";
 
 const cmdRequestService = new PaymentService();
+
+export type PaymentQueryOptions = {
+  startDate: Date;
+  endDate: Date;
+  mount: number;
+  provider: string;
+  type: "deposit" | "expense" | "transport" | "gas" | "";
+  excludeType: "deposit" | "expense" | "transport" | "gas" | "";
+  priority: string;
+  paymentMethod: string;
+  matchBeneficiary: string;
+  selected: string;
+  date: string;
+  state: "validated" | "pending" | "rejected" | "";
+  paymentType: "deposit" | "expense" | "transport" | "gas" | "";
+  requestId: string;
+  userId: string;
+  limit: string;
+  page: string;
+}
 
 @Route("request/payment")
 @Tags("Payment Routes")
@@ -200,6 +220,11 @@ export default class PaymentController {
     return cmdRequestService.getOne(Number(id));
   }
 
+  @Get("/request/:requestId")
+  getOneByRequestId(@Path() requestId: string): Promise<Payment | null> {
+    return cmdRequestService.getOneByRequestId(Number(requestId));
+  }
+
   @Post("/paymentProof/{id}")
   paymentProof(
     @Path() id: string,
@@ -213,7 +238,25 @@ export default class PaymentController {
   }
 
   @Get("/")
-  getAll(): Promise<Payment[]> {
-    return cmdRequestService.getAll();
+  getAll(@Query() query: PaymentQueryOptions): Promise<{
+    payments: Payment[],
+    total: number,
+  }> {
+    return cmdRequestService.getAll(query);
+  }
+
+  @Get("/tickets-pending/count")
+  getTicketsPendingCount(): Promise<number> {
+    return cmdRequestService.getTicketsPendingCount();
+  }
+
+  @Get("/paymentToTreat/count")
+  getPaymentToTreatCount(): Promise<number> {
+    return cmdRequestService.getPaymentToTreatCount();
+  }
+
+  @Get("/to-sign/count")
+  getPaymentToSignCount(@Query() userId: number): Promise<number> {
+    return cmdRequestService.getPaymentToSignCount(userId)
   }
 }

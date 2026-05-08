@@ -17,6 +17,11 @@ export default class CategoryController {
     return categoryService.getOneCategory(Number(id));
   }
 
+  @Get("/category/request/{id}")
+  getOneCategoryForRequest(@Path() id: string): Promise<Category | null> {
+    return categoryService.getOneCategoryForRequest(Number(id));
+  }
+
   @Put("/category/{id}")
   updateOneCategory(
     @Path() id: string,

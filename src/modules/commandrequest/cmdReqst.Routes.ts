@@ -58,6 +58,18 @@ export default class CmdRequestRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    // getCommandRequestToTreat
+    this.routes.get("/to-treat", requireRole("USER"), (req, res) => {
+      this.cmdRequestController
+        .getCommandRequestToTreat()
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // getAll
     this.routes.get("/", requireRole("USER"), (req, res) => {
       this.cmdRequestController

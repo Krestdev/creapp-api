@@ -133,4 +133,9 @@ export default class DeviController {
   getAll(): Promise<Devi[]> {
     return deviService.getAll();
   }
+
+  @Get("/to-assign/count")
+  getUntreated(): Promise<number> {
+    return deviService.getUntreated();
+  }
 }
