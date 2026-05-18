@@ -517,15 +517,28 @@ export class PaymentService {
         status: "validated",
         selected: false
       },
-      // skip: (pageIndex || 0) * (pageSize || 10),
+      skip: (pageIndex || 0) * (pageSize || 10),
       orderBy: {
         createdAt: "desc",
       },
     })
 
+    const paymentCount = await prisma.payment.count({
+      where: {
+        method: {
+          type: "cash"
+        },
+        type: {
+          notIn: ["transaport", "gas", "settle"]
+        },
+        status: "validated",
+        selected: false
+      }
+    })
+
     return {
       data: payment.slice(0, pageSize || 15),
-      count: payment.length,
+      count: paymentCount,
     };
   }
 
