@@ -11,9 +11,9 @@ import {
   Route,
   Tags,
 } from "tsoa";
-import { UserService } from "./user.Service";
 import { getIO } from "../../socket";
 import { normalizeFile } from "../../utils/serverUtils";
+import { UserService } from "./user.Service";
 
 const userService = new UserService();
 
@@ -81,7 +81,7 @@ export default class UserController {
     return userService.delete(Number(id));
   }
 
-  @Get("/")
+  // @Get("/{beneficiary}")
   getAll(beneficiary?: number): Promise<
     ({
       role: {

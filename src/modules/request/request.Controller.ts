@@ -89,15 +89,15 @@ export default class RequestController {
     return requestService.update(Number(id), ndata, authUserId, benef);
   }
 
-  @Get("/")
-  getAll(@Query() query?: QueryString): Promise<{
+  // @Get("/")
+  getAll(query?: QueryString): Promise<{
     data: unknown[], total: number;
   }> {
     return requestService.getAll(query);
   }
 
-  @Get("/stats")
-  getStats(@Query() query?: QueryString): Promise<{
+  // @Get("/stats")
+  getStats(query?: QueryString): Promise<{
     awaiting: number;
     rejected: number;
     validated: number;
@@ -119,17 +119,17 @@ export default class RequestController {
   }
 
   @Get("/requestsWithPayment")
-  getAllRequestsHavingPayment(): Promise<RequestModel[]> {
+  getAllRequestsHavingPayment(): Promise<unknown[]> {
     return requestService.getAllRequestsHavingPayment();
   }
 
-  @Get("/pendingRequests/count")
-  getPendingRequests(@Query() request: { userId: number }): Promise<number> {
+  // @Get("/pendingRequests/count")
+  getPendingRequests(request: { userId: number }): Promise<number> {
     return requestService.getPendingRequests(request);
   }
 
-  @Get("/chief/requests")
-  getChiefRequests(@Query() request: { userId: number }): Promise<number> {
+  // @Get("/chief/requests")
+  getChiefRequests(request: { userId: number }): Promise<number> {
     return requestService.getChiefRequests(request);
   }
 

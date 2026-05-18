@@ -291,8 +291,8 @@ export default class PaymentController {
     );
   }
 
-  @Get("/")
-  getAll(@Query() query: PaymentQueryOptions): Promise<{
+  // @Get("/")
+  getAll(query: PaymentQueryOptions): Promise<{
     payments: Payment[],
     total: number,
   }> {
@@ -309,18 +309,18 @@ export default class PaymentController {
     return cmdRequestService.getPaymentToTreatCount();
   }
 
-  @Get("/to-sign/count")
-  getPaymentToSignCount(@Query() userId: number): Promise<number> {
+  // @Get("/to-sign/count")
+  getPaymentToSignCount(userId: number): Promise<number> {
     return cmdRequestService.getPaymentToSignCount(userId)
   }
 
-  @Get("/to-sign/all")
-  getPaymentToSign(@Query() userId: number, @Path() queryParams: PaymentSignQueryParameter): Promise<{ data: Payment[], count: number }> {
+  // @Get("/to-sign/all")
+  getPaymentToSign(userId: number, queryParams: PaymentSignQueryParameter): Promise<{ data: Payment[], count: number }> {
     return cmdRequestService.getPaymentToSign(userId, queryParams)
   }
 
-  @Get("/to-sign/stats")
-  getPaymentToSignStats(@Query() userId: number, @Path() queryParams: PaymentSignQueryParameter): Promise<{
+  // @Get("/to-sign/stats")
+  getPaymentToSignStats(userId: number, queryParams: PaymentSignQueryParameter): Promise<{
     pending: {
       count: number;
       sum: number;
@@ -337,13 +337,13 @@ export default class PaymentController {
     return cmdRequestService.getPaymentToSignStat(userId, queryParams)
   }
 
-  @Get("/expenses/all")
-  getExpenses(@Query() query: PaymentQueryParameter): Promise<{ data: Payment[], count: number } | null> {
+  // @Get("/expenses/all")
+  getExpenses(query: PaymentQueryParameter): Promise<{ data: Payment[], count: number } | null> {
     return cmdRequestService.getAllExpensesPayment(query)
   }
 
-  @Get("/expenses/stats")
-  getExpensesStats(@Query() query: PaymentQueryParameter): Promise<{
+  // @Get("/expenses/stats")
+  getExpensesStats(query: PaymentQueryParameter): Promise<{
     validated: {
       count: number;
       sum: number;
@@ -364,13 +364,13 @@ export default class PaymentController {
     return cmdRequestService.getAllExpensesStats(query)
   }
 
-  @Get("/expenses/accountant")
-  getExpensesAccountant(@Query() query: AccountantPaymentQueryParameter): Promise<{ data: Payment[], count: number } | null> {
+  // @Get("/expenses/accountant")
+  getExpensesAccountant(query: AccountantPaymentQueryParameter): Promise<{ data: Payment[], count: number } | null> {
     return cmdRequestService.getAllExpensesAccountantPayment(query)
   }
 
-  @Get("/expenses/accountant/stats")
-  getExpensesAccountantStats(@Query() query: AccountantPaymentQueryParameter): Promise<{
+  // @Get("/expenses/accountant/stats")
+  getExpensesAccountantStats(query: AccountantPaymentQueryParameter): Promise<{
     pending: {
       count: number;
       sum: number;
@@ -391,13 +391,13 @@ export default class PaymentController {
     return cmdRequestService.getAllExpensesAccountantPaymentStats(query)
   }
 
-  @Get("/expenses/dg")
-  getExpensesDG(@Query() query: DGPaymentQueryParameter): Promise<{ data: Payment[], count: number } | null> {
+  // @Get("/expenses/dg")
+  getExpensesDG(query: DGPaymentQueryParameter): Promise<{ data: Payment[], count: number } | null> {
     return cmdRequestService.getAllExpensesDGPayment(query)
   }
 
-  @Get("/expenses/dg/stats")
-  getExpensesDGStats(@Query() query: DGPaymentQueryParameter): Promise<{
+  // @Get("/expenses/dg/stats")
+  getExpensesDGStats(query: DGPaymentQueryParameter): Promise<{
     pending: {
       count: number;
       sum: number;
