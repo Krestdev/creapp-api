@@ -572,7 +572,7 @@ export class PaymentService {
       where: {
         ...(search ? { title: { contains: search } } : {}),
         ...(beneficiary ? { beneficiary: { id: beneficiary } } : {}),
-        ...(type ? { paymentType: type } : {}),
+        ...(type ? { type: type } : {}),
         price: {
           ...(amountType === "greater" && amount
             ? { gte: Number(amount) }
