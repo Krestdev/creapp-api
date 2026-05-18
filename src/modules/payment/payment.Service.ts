@@ -517,14 +517,14 @@ export class PaymentService {
         status: "validated",
         selected: false
       },
-      skip: (pageIndex || 0) * (pageSize || 10),
+      // skip: (pageIndex || 0) * (pageSize || 10),
       orderBy: {
         createdAt: "desc",
       },
     })
 
     return {
-      data: payment.slice(0, pageSize || 0),
+      data: payment.slice(0, pageSize || 15),
       count: payment.length,
     };
   }
