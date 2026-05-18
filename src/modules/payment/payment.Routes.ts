@@ -290,6 +290,20 @@ export default class PaymentRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    this.routes.get("/approdata/all", requireRole("USER"), (req, res) => {
+      this.paymentController
+        .getAllAppro(req.query as unknown as DGPaymentQueryParameter)
+        .then((response) =>
+          res
+            .status(200)
+            .json({
+              message: create.success.create,
+              data: response
+            }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     this.routes.get("/board/payments/chart", requireRole("USER"), (req, res) => {
       this.paymentController
         .getBoardPaymentChart()

@@ -8,6 +8,7 @@ import { CacheService } from "../../utils/redis";
 import {
   AccountantPaymentQueryParameter,
   DGPaymentQueryParameter,
+  PaymentApproQueryParameter,
   PaymentQueryOptions,
   PaymentQueryParameter,
   PaymentSignQueryParameter,
@@ -502,6 +503,31 @@ export class PaymentService {
     });
     return payment;
   };
+
+  getAllAppro = async (queryParams: PaymentApproQueryParameter) => {
+    const { pageIndex, pageSize } = queryParams
+    const payment = await prisma.payment.findMany({
+      where: {
+        method: {
+          type: "cash"
+        },
+        type: {
+          notIn: ["transaport", "gas", "settle"]
+        },
+        status: "validated",
+        selected: false
+      },
+      skip: (pageIndex || 0) * (pageSize || 10),
+      orderBy: {
+        createdAt: "desc",
+      },
+    })
+
+    return {
+      data: payment.slice(0, pageSize || 0),
+      count: payment.length,
+    };
+  }
 
   getPaymentToSignCount = async (userId: number) => {
     const payment = await prisma.payment.count({

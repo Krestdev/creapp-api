@@ -44,6 +44,11 @@ export type PaymentQueryParameter = {
   pageSize: number;
 }
 
+export type PaymentApproQueryParameter = {
+  pageIndex: number;
+  pageSize: number;
+}
+
 export type AccountantPaymentQueryParameter = {
   amountType?: "greater" | "less" | "equal";
   amount?: number;
@@ -425,5 +430,9 @@ export default class PaymentController {
     }[];
   }> {
     return cmdRequestService.getAllPaidPayments()
+  }
+
+  getAllAppro(query: PaymentApproQueryParameter): Promise<{ data: Payment[], count: number } | null> {
+    return cmdRequestService.getAllAppro(query)
   }
 }
