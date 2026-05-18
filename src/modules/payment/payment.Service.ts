@@ -1269,4 +1269,47 @@ export class PaymentService {
 
     return stats;
   };
+
+  // tableaux de board
+  getAllPaidPayments = async () => {
+    const allPayments = await prisma.payment.findMany({
+      where: {
+        status: "paid",
+      },
+      include: {
+        project: {
+          select: {
+            label: true
+          },
+        },
+        facture: {
+          select: {
+            command: {
+              select: {
+                provider: {
+                  select: {
+                    name: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    return {
+      total: allPayments.reduce((sum, payment) => sum + payment.price, 0),
+      payments: allPayments.map(pay => {
+        const { price, type, title, project, facture } = pay
+        return {
+          price,
+          type,
+          title,
+          project: project?.label,
+          provider: facture?.command.provider.name
+        }
+      })
+    }
+  };
 }

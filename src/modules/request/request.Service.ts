@@ -474,6 +474,47 @@ export class RequestService {
     return pendingRequests.length;
   };
 
+  // tableaux de board
+  getAllRequestStats = async ({ userId }: { userId: number }) => {
+    const allRequests = await prisma.requestModel.findMany({
+      where: {
+        state: { not: 'cancel' },
+        userId,
+      },
+      include: {
+        validators: true
+      }
+    });
+
+    return {
+      awaiting: allRequests.filter(r => r.state === "pending" && r.decision === "PENDING" && r.validators.some(v => v.userId === userId && !v.validated)).length,
+      rejected: allRequests.filter((r) => r.state === "rejected" && r.decision === "REJECTED" && r.validators.some(v => v.userId === userId && !v.validated)).length,
+      submited: allRequests.filter((r) => r.state !== "cancel" && r.userId === userId).length,
+      approved: allRequests.filter((r) => ["store", "validated"].includes(r.state) && r.userId === userId).length,
+      approvedTotal: allRequests.filter((r) => ["store", "validated"].includes(r.state)).length,
+      total: allRequests.filter((r) => r.state !== "cancel").length,
+    };
+  };
+
+  // tableaux de board
+  getAllRequestGraphs = async ({ userId }: { userId: number }) => {
+    const allRequests = await prisma.requestModel.findMany({
+      where: {
+        state: { not: 'cancel' },
+        userId,
+      },
+      include: {
+        validators: true
+      }
+    });
+
+    return {
+      submited: allRequests.filter((r) => r.state !== "cancel" && r.userId === userId).map(req => { return { state: req.state, createdAt: req.createdAt, updatedAt: req.updatedAt } }),
+      validator: allRequests.filter(r => r.state !== "cancel" && r.validators.some(v => v.userId === userId && !v.validated)).map(req => { return { state: req.state, createdAt: req.createdAt, updatedAt: req.updatedAt } }),
+      all: allRequests.filter((r) => r.state !== "cancel").map(req => { return { state: req.state, createdAt: req.createdAt, updatedAt: req.updatedAt } }),
+    };
+  };
+
   getUsableRequests = async () => {
     return await prisma.requestModel.count({
       where: {
@@ -1281,4 +1322,6 @@ export class RequestService {
       console.error(`Could not create notification ${e}`);
     }
   };
+
+
 }

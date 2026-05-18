@@ -133,6 +133,37 @@ export default class RequestController {
     return requestService.getChiefRequests(request);
   }
 
+  getBoardRequestStats(request: { userId: number }): Promise<{
+    awaiting: number;
+    rejected: number;
+    submited: number;
+    approved: number;
+    approvedTotal: number;
+    total: number;
+  }> {
+    return requestService.getAllRequestStats(request);
+  }
+
+  getBoardRequestGraph(request: { userId: number }): Promise<{
+    submited: {
+      state: string;
+      createdAt: Date;
+      updatedAt: Date;
+    }[];
+    validator: {
+      state: string;
+      createdAt: Date;
+      updatedAt: Date;
+    }[];
+    all: {
+      state: string;
+      createdAt: Date;
+      updatedAt: Date;
+    }[];
+  }> {
+    return requestService.getAllRequestGraphs(request);
+  }
+
   @Get("/usableRequests/count")
   getUsableRequests(): Promise<number> {
     return requestService.getUsableRequests();
@@ -314,4 +345,6 @@ export default class RequestController {
   specialGet(): Promise<unknown[]> {
     return requestService.specialGet();
   }
+
+
 }

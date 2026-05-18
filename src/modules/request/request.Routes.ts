@@ -95,6 +95,22 @@ export default class RequestRoute {
       )
     })
 
+    this.routes.get("/board/requests/stats", requireRole("USER"), (req, res) => {
+      this.requestController.getBoardRequestStats({ userId: req.user?.userId! }).then((request) =>
+        res
+          .status(200)
+          .json({ message: create.success.create, data: request }),
+      )
+    })
+
+    this.routes.get("/board/requests/graph", requireRole("USER"), (req, res) => {
+      this.requestController.getBoardRequestGraph({ userId: req.user?.userId! }).then((request) =>
+        res
+          .status(200)
+          .json({ message: create.success.create, data: request }),
+      )
+    })
+
     this.routes.get("/usableRequests/count", requireRole("USER"), (req, res) => {
       this.requestController.getUsableRequests().then((request) =>
         res

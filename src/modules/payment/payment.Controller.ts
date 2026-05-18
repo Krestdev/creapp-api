@@ -413,4 +413,17 @@ export default class PaymentController {
   }> {
     return cmdRequestService.getAllExpensesDGPaymentStats(query)
   }
+
+  getBoardPaymentChart(): Promise<{
+    total: number;
+    payments: {
+      price: number;
+      type: string;
+      title: string;
+      project: string | undefined;
+      provider: string | undefined;
+    }[];
+  }> {
+    return cmdRequestService.getAllPaidPayments()
+  }
 }
