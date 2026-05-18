@@ -23,16 +23,21 @@ import AuthRoute from "../auth/auth.routes";
 import CommandConditionsRoute from "../commandCondition/condition.Routes";
 import FactureRoute from "../invoice/invoice.Routes";
 import ServiceRoute from "../service/service.Routes";
+import ModificationRoute from "../modification/modification.Routes";
 
 export function connectBaseRoutes() {
   const router = Router();
   const userRouter = new UserRouter();
   const authRoute = new AuthRoute();
+  const modificationRoute = new ModificationRoute();
 
   // user routes connection
   router.use("/user", userRouter.routes);
 
   router.use("/auth", authRoute.routes);
+
+  // PayType request connection
+  router.use("/modification", modificationRoute.routes);
 
   // base module connection
   router.use("/", (req, res) => {
@@ -49,10 +54,12 @@ export function connectProjectRoutes() {
   // project routes connection
   router.use("/management", project.routes);
 
+
   // base module connection
   router.use("/", (req, res) => {
     res.json({ message: "Project Module" });
   });
+
 
   return router;
 }

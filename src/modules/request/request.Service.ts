@@ -107,10 +107,6 @@ export class RequestService {
           validators: true,
         },
       })
-      .catch((r) => {
-        console.log(r);
-        throw r;
-      });
 
     getIO().emit("request:new", { userId: request.userId });
     return request;
@@ -209,8 +205,6 @@ export class RequestService {
 
       return previousValidator?.validated === true;
     });
-
-    console.log(pendingRequests.map((r) => r.label));
 
     return pendingRequests.length;
   };
@@ -407,36 +401,6 @@ export class RequestService {
           gte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)),
           lte: new Date(new Date().setHours(23, 59, 59, 999))
         } : {},
-      },
-      include: {
-        beficiaryList: {
-          omit: {
-            password: true,
-            verified: true,
-            createdAt: true,
-            updatedAt: true,
-            phone: true,
-            verificationOtp: true,
-          },
-        },
-        requestOlds: true,
-        validators: true,
-        category: {
-          select: {
-            label: true
-          }
-        },
-        project: {
-          select: {
-            label: true
-          }
-        },
-        user: {
-          select: {
-            firstName: true,
-            lastName: true
-          }
-        },
       },
       // take: filters?.pageSize || 10,
       skip: (pageIndex || 0) * (pageSize || 10),
@@ -1210,8 +1174,6 @@ export class RequestService {
       ...requestData
     } = data;
 
-    console.log("Special", data);
-
     let myPaytype: PayType | null = null;
 
     if (paytype) {
@@ -1244,7 +1206,6 @@ export class RequestService {
     } else throw Error("Lack information Can not update");
 
     if (proof) {
-      console.log("hello 3");
       await prisma.payment.updateMany({
         where: {
           requestId: id,
@@ -1283,10 +1244,6 @@ export class RequestService {
           beficiaryList: true,
         },
       })
-      .catch((e) => {
-        console.log(e);
-        throw e;
-      });
 
     if (file) {
       await storeDocumentsBulk(file, {

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { request } from "../../../assets/messages/requestMessages.json";
-import PaymentController, { PaymentQueryOptions } from "./payment.Controller";
+import PaymentController, { AccountantPaymentQueryParameter, DGPaymentQueryParameter, PaymentQueryOptions, PaymentQueryParameter, PaymentSignQueryParameter } from "./payment.Controller";
 import upload from "../../utils/upload";
 import { requireRole } from "../../middlewares/rbac.middleware";
 import { authenticate } from "../../middlewares/auth.middleware";
@@ -82,7 +82,6 @@ export default class PaymentRoute {
         { name: "justification", maxCount: 5 },
       ]),
       (req, res) => {
-        console.log("hello wrong route");
         this.paymentController
           .updateTransportPayment(req.params.id!, req.body)
           .then((request) =>
@@ -185,6 +184,112 @@ export default class PaymentRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    this.routes.get("/paymentToSign/all", requireRole("USER"), (req, res) => {
+      this.paymentController
+        .getPaymentToSign(req.user?.userId!, req.query as unknown as PaymentSignQueryParameter)
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.get("/paymentToSign/stats", requireRole("USER"), (req, res) => {
+      this.paymentController
+        .getPaymentToSignStats(req.user?.userId!, req.query as unknown as PaymentSignQueryParameter)
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.get("/expenses/all", requireRole("USER"), (req, res) => {
+      this.paymentController
+        .getExpenses(req.query as unknown as PaymentQueryParameter)
+        .then((response) =>
+          res
+            .status(200)
+            .json({
+              message: create.success.create,
+              data: response
+            }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.get("/expenses/stats", requireRole("USER"), (req, res) => {
+      this.paymentController
+        .getExpensesStats(req.query as unknown as PaymentQueryParameter)
+        .then((response) =>
+          res
+            .status(200)
+            .json({
+              message: create.success.create,
+              data: response
+            }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.get("/expenses/accountant", requireRole("USER"), (req, res) => {
+      this.paymentController
+        .getExpensesAccountant(req.query as unknown as AccountantPaymentQueryParameter)
+        .then((response) =>
+          res
+            .status(200)
+            .json({
+              message: create.success.create,
+              data: response
+            }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.get("/expenses/accountant/stats", requireRole("USER"), (req, res) => {
+      this.paymentController
+        .getExpensesAccountantStats(req.query as unknown as AccountantPaymentQueryParameter)
+        .then((response) =>
+          res
+            .status(200)
+            .json({
+              message: create.success.create,
+              data: response
+            }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.get("/expenses/dg", requireRole("USER"), (req, res) => {
+      this.paymentController
+        .getExpensesDG(req.query as unknown as DGPaymentQueryParameter)
+        .then((response) =>
+          res
+            .status(200)
+            .json({
+              message: create.success.create,
+              data: response
+            }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.get("/expenses/dg/stats", requireRole("USER"), (req, res) => {
+      this.paymentController
+        .getExpensesDGStats(req.query as unknown as DGPaymentQueryParameter)
+        .then((response) =>
+          res
+            .status(200)
+            .json({
+              message: create.success.create,
+              data: response
+            }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // getAll
     this.routes.get("/", requireRole("USER"), (req, res) => {
       this.paymentController
@@ -202,7 +307,6 @@ export default class PaymentRoute {
 
     // getOne
     this.routes.get("/:id", requireRole("USER"), (req, res) => {
-      console.log("id", req.params.id);
       this.paymentController
         .getOne(req.params.id ?? "-1")
         .then((request) =>

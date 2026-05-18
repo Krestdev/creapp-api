@@ -25,7 +25,6 @@ export default class ProviderController {
       banck_attestation: Express.Multer.File[] | null;
     },
   ): Promise<Provider> {
-    console.log(data);
     const {
       expireAtbanck_attestation,
       expireAtcarte_contribuable,

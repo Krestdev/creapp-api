@@ -190,8 +190,6 @@ export default class TransactionController {
       newTransaction.toBankId = Number(data.toBankId);
     }
 
-    console.log(data, newTransaction);
-
     return transactionService.updateTransfer(Number(id), newTransaction, proof);
   }
 
@@ -313,5 +311,17 @@ export default class TransactionController {
   @Get("appro/count")
   getApprovisionementCount(): Promise<number> {
     return transactionService.approvisionement();
+  }
+
+  @Get("approby/{userId}")
+  getApprovisionementCountBy(
+    @Path() userId: number,
+  ): Promise<number> {
+    return transactionService.approvisionementBy(userId);
+  }
+
+  @Get("accepted/count")
+  getAcceptedTransaction(): Promise<number> {
+    return transactionService.getAcceptedTransaction();
   }
 }

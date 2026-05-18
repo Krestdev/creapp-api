@@ -851,4 +851,48 @@ export class TransactionService {
       },
     });
   };
+
+
+  // transaction && transaction.type === "TRANSFER"
+  // && transaction.from.type === "BANK"
+  // && transaction.to.type === "BANK"
+  // && the user can sign in the bank method
+  // && transaction.isSigned === false
+  // && !transaction.signers.find(s=> s.userId === user.id)
+
+  approvisionementBy = async (userId: number) => {
+    const transaction = await prisma.transaction.findMany({
+      where: {
+        Type: "TRANSFER",
+        methodId: {
+          not: null,
+        },
+        from: {
+          type: "BANK",
+        },
+        isSigned: false,
+      },
+    });
+
+    const signers = await prisma.signatair.findMany({
+      include: { user: true },
+    });
+
+    const selectedTransactions = transaction.filter(t => {
+      return signers.find((x) => x.bankId === t.fromBankId && x.payTypeId === t.methodId)
+        ?.user?.some((u) => u.id === userId);
+
+    })
+
+    return selectedTransactions.length
+  };
+
+  getAcceptedTransaction = async () => {
+    return await prisma.transaction.count({
+      where: {
+        Type: "TRANSFER",
+        status: "ACCEPTED",
+      },
+    })
+  }
 }

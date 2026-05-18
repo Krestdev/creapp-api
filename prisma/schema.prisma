@@ -64,6 +64,12 @@ model User {
   serviceUserId     Int?
   requestModels     RequestModel[]
   shouldValidate    Boolean            @default(false)
+
+  // modification as requestor
+  modificationRequestor modification[] @relation("requestor")
+
+  // modification as validator
+  modificationValidator modification[] @relation("validator")
 }
 
 model Role {
@@ -176,6 +182,8 @@ model RequestModel {
   // transactionId Int?
   // selected      Boolean         @default(false)
   paytype    RequestPayType?
+
+  modifications modification[]
 }
 
 enum RequestState {
@@ -284,6 +292,8 @@ model DeviElement {
   reduction Float    @default(0)
   ceatedAt  DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+
+  modifications modification[]
 }
 
 model Command {
@@ -330,6 +340,8 @@ model Command {
   hasPrecompt Boolean           @default(false)
   validators  commandValidator? @relation(name: "aboveCommandValidator", fields: [validatorId], references: [id])
   validatorId Int?              @unique()
+
+  modifications modification[]
 }
 
 enum ValidatorDecision {
@@ -539,6 +551,8 @@ model Payment {
   selected             Boolean      @default(false)
 
   paymentProof String?
+
+  modifications modification[]
 }
 
 model Accounting {
@@ -683,6 +697,8 @@ model Transaction {
 
   // requests RequestModel[] @relation(name: "TransactionRequest")
   payments Payment[] @relation(name: "TransactionPayments")
+
+  modifications modification[]
 }
 
 model TransactionSigners {
@@ -728,3 +744,45 @@ model Vehicle {
 //   payments      Payment[]
 //   requestModels RequestModel[]
 // }
+
+enum modifact {
+  CANCEL
+  UPDATE
+  DELETE
+}
+
+model modification {
+  id          Int      @id @default(autoincrement())
+  action      modifact
+  description String?
+  // request
+  request     RequestModel? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  requestId   Int?
+
+  // devis
+  devis     DeviElement? @relation(fields: [devisId], references: [id], onDelete: SetNull)
+  devisId   Int?
+
+  // Command
+  command     Command?   @relation(fields: [commandId], references: [id], onDelete: SetNull)
+  commandId   Int?
+
+  // Payment
+  payment     Payment?   @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  paymentId   Int?
+
+  // Transaction
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  transactionId Int?
+  
+  validator        User?    @relation("validator", fields: [validatorId], references: [id], onDelete: SetNull)
+  validatorId      Int?
+
+  requestor        User?    @relation("requestor", fields: [requestorId], references: [id], onDelete: SetNull)
+  requestorId      Int?
+
+  decision Boolean
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+}

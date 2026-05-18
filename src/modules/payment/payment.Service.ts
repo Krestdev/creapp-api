@@ -5,7 +5,13 @@ import {
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
-import { PaymentQueryOptions } from "./payment.Controller";
+import {
+  AccountantPaymentQueryParameter,
+  DGPaymentQueryParameter,
+  PaymentQueryOptions,
+  PaymentQueryParameter,
+  PaymentSignQueryParameter,
+} from "./payment.Controller";
 
 const prisma = new PrismaClient();
 
@@ -311,7 +317,25 @@ export class PaymentService {
   };
 
   // Get all
-  getAll = async ({ startDate, endDate, mount, provider, type, excludeType, priority, paymentMethod, matchBeneficiary, selected, date, state, paymentType, requestId, userId, limit, page }: PaymentQueryOptions) => {
+  getAll = async ({
+    startDate,
+    endDate,
+    mount,
+    provider,
+    type,
+    excludeType,
+    priority,
+    paymentMethod,
+    matchBeneficiary,
+    selected,
+    date,
+    state,
+    paymentType,
+    requestId,
+    userId,
+    limit,
+    page,
+  }: PaymentQueryOptions) => {
     const payment = await prisma.payment.findMany({
       where: {
         ...(state && { status: state }),
@@ -336,7 +360,7 @@ export class PaymentService {
                 },
               },
             },
-          ]
+          ],
         }),
         ...(selected && { id: Number(selected) }),
         ...(date && { createdAt: new Date(date) }),
@@ -379,10 +403,52 @@ export class PaymentService {
   };
 
   // Get one
-  getOne = (id: number) => {
-    return prisma.payment.findUniqueOrThrow({
+  getOne = async (id: number) => {
+    const payment = await prisma.payment.findUniqueOrThrow({
       where: { id },
+      include: {
+        signer: true,
+        method: true,
+        request: true,
+        transaction: true,
+        facture: {
+          include: {
+            command: {
+              include: {
+                provider: true,
+                facture: {
+                  include: {
+                    payment: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
+
+    const totalPaid = payment.facture
+      ? payment.facture.command.facture.reduce((acc, facture) => {
+        const amount = facture.payment
+          .filter((py) => py.status == "PAID")
+          .reduce((acc, py) => acc + py.price, 0);
+        return acc + amount;
+      }, 0)
+      : 0;
+
+    const progress =
+      payment.facture && payment.facture.command.netToPay
+        ? (totalPaid * 100) / payment.facture.command.netToPay
+        : 0;
+
+    const newPayment = {
+      ...payment,
+      progress,
+      totalPaid,
+    };
+
+    return newPayment;
   };
 
   // Get one
@@ -415,10 +481,10 @@ export class PaymentService {
     const payment = await prisma.payment.count({
       where: {
         type: {
-          notIn: ["transport", "others", "gas"]
+          notIn: ["transport", "others", "gas"],
         },
         status: {
-          in: ["pending", "accepted"]
+          in: ["pending", "accepted"],
         },
       },
     });
@@ -429,9 +495,9 @@ export class PaymentService {
     const payment = await prisma.payment.count({
       where: {
         status: {
-          in: ["validate", "unsigned"]
+          in: ["validate", "unsigned"],
         },
-        type: "appro"
+        type: "appro",
       },
     });
     return payment;
@@ -446,15 +512,761 @@ export class PaymentService {
               user: {
                 some: {
                   id: userId,
-                }
+                },
               },
             },
-          }
+          },
         },
         status: "unsigned",
-        type: "appro"
+        type: "appro",
       },
     });
     return payment;
+  };
+
+  getAllExpensesPayment = async (queryParams: PaymentQueryParameter) => {
+    const {
+      type,
+      amount,
+      amountType,
+      provider,
+      pageIndex,
+      pageSize,
+      tab,
+      paymentMethod,
+      beneficiary,
+      isSelected,
+      from,
+      to,
+      date,
+      search,
+      priority,
+    } = queryParams;
+    const payment = await prisma.payment.findMany({
+      where: {
+        ...(search ? { title: { contains: search } } : {}),
+        ...(beneficiary ? { beneficiary: { id: beneficiary } } : {}),
+        ...(type ? { paymentType: type } : {}),
+        price: {
+          ...(amountType === "greater" && amount
+            ? { gte: Number(amount) }
+            : amountType === "less" && amount
+              ? { lte: Number(amount) }
+              : amountType === "equal" && amount
+                ? { equals: Number(amount) }
+                : {}),
+        },
+        type: {
+          not: "appro"
+        },
+        ...(tab === "validated"
+          ? { status: { in: ["validated", "unsigned"] } }
+          : tab === "processed"
+            ? { status: { in: ["signed", "simple_signed"] } }
+            : tab === "paid"
+              ? { status: "paid" }
+              : tab === "cancelled"
+                ? { status: "cancelled" }
+                : {}),
+        ...(provider ? { provider: provider } : {}),
+        ...(paymentMethod ? { methodId: paymentMethod } : {}),
+        ...(isSelected ? { isSelected: isSelected } : {}),
+        ...(from ? { createdAt: { gte: from } } : {}),
+        ...(to ? { createdAt: { lte: to } } : {}),
+        ...(priority ? { priority: priority } : {}),
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
+      },
+      include: {
+        signer: true,
+        method: true,
+        request: true,
+        transaction: true,
+        facture: {
+          include: {
+            command: {
+              include: {
+                provider: true,
+              },
+            },
+          },
+        },
+      },
+      skip: (pageIndex || 0) * (pageSize || 10),
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return {
+      data: payment.slice(0, pageSize || 0),
+      count: payment.length,
+    };
+  };
+
+  getAllExpensesStats = async (queryParams: PaymentQueryParameter) => {
+    const {
+      type,
+      amount,
+      amountType,
+      provider,
+      pageIndex,
+      pageSize,
+      tab,
+      paymentMethod,
+      beneficiary,
+      isSelected,
+      from,
+      to,
+      date,
+      search,
+      priority,
+    } = queryParams;
+    const payment = await prisma.payment.findMany({
+      where: {
+        ...(search ? { title: { contains: search } } : {}),
+        ...(beneficiary ? { beneficiary: { id: beneficiary } } : {}),
+        ...(type ? { paymentType: type } : {}),
+        price: {
+          ...(amountType === "greater" && amount
+            ? { gte: Number(amount) }
+            : amountType === "less" && amount
+              ? { lte: Number(amount) }
+              : amountType === "equal" && amount
+                ? { equals: Number(amount) }
+                : {}),
+        },
+        status: { not: "appro" },
+        ...(provider ? { provider: provider } : {}),
+        ...(paymentMethod ? { methodId: paymentMethod } : {}),
+        ...(isSelected ? { isSelected: isSelected } : {}),
+        ...(from ? { createdAt: { gte: from } } : {}),
+        ...(to ? { createdAt: { lte: to } } : {}),
+        ...(priority ? { priority: priority } : {}),
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
+      },
+      skip: (pageIndex || 0) * (pageSize || 10),
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const stats = {
+      validated: {
+        count: payment.filter(
+          (r) => r.status === "validated" || r.status === "unsigned",
+        ).length,
+        sum: payment
+          .filter((r) => r.status === "validated" || r.status === "unsigned")
+          .reduce((acc, r) => acc + r.price, 0),
+      },
+      processed: {
+        count: payment.filter(
+          (r) => r.status === "signed" || r.status === "simple_signed",
+        ).length,
+        sum: payment
+          .filter((r) => r.status === "signed" || r.status === "simple_signed")
+          .reduce((acc, r) => acc + r.price, 0),
+      },
+      paid: {
+        count: payment.filter((r) => r.status === "paid").length,
+        sum: payment
+          .filter((r) => r.status === "paid")
+          .reduce((acc, r) => acc + r.price, 0),
+      },
+      cancelled: {
+        count: payment.filter((r) => r.status === "cancelled").length,
+        sum: payment
+          .filter((r) => r.status === "cancelled")
+          .reduce((acc, r) => acc + r.price, 0),
+      },
+    };
+
+    return stats;
+  };
+
+
+  getAllExpensesAccountantPayment = async (queryParams: AccountantPaymentQueryParameter) => {
+    const {
+      amount,
+      amountType,
+      provider,
+      pageIndex,
+      pageSize,
+      tab,
+      from,
+      to,
+      date,
+      search,
+      priority,
+    } = queryParams;
+    const payment = await prisma.payment.findMany({
+      where: {
+        ...(search ? { title: { contains: search } } : {}),
+        price: {
+          ...(amountType === "greater" && amount
+            ? { gte: Number(amount) }
+            : amountType === "less" && amount
+              ? { lte: Number(amount) }
+              : amountType === "equal" && amount
+                ? { equals: Number(amount) }
+                : {}),
+        },
+        type: "achat",
+        ...(tab === "pending"
+          ? { status: { in: ["pending", "accepted"] } }
+          : tab === "processed"
+            ? { status: { in: ["unsigned", "validated", "signed", "simple_signed"] } }
+            : tab === "paid"
+              ? { status: "paid" }
+              : tab === "cancelled"
+                ? { status: "cancelled" }
+                : {}),
+        ...(provider ? { provider: provider } : {}),
+        ...(from ? { createdAt: { gte: from } } : {}),
+        ...(to ? { createdAt: { lte: to } } : {}),
+        ...(priority ? { priority: priority } : {}),
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
+      },
+      include: {
+        signer: true,
+        method: true,
+        request: true,
+        transaction: true,
+        facture: {
+          select: {
+            command: {
+              select: {
+                provider: { select: { name: true } },
+                devi: {
+                  select: {
+                    commandRequest: { select: { title: true } }
+                  }
+                }
+              },
+            },
+            amount: true,
+            id: true
+          },
+        },
+      },
+      skip: (pageIndex || 0) * (pageSize || 10),
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return {
+      data: payment.slice(0, pageSize || 0),
+      count: payment.length,
+    };
+  };
+
+  getAllExpensesAccountantPaymentStats = async (queryParams: AccountantPaymentQueryParameter) => {
+    const {
+      amount,
+      amountType,
+      provider,
+      pageIndex,
+      pageSize,
+      tab,
+      from,
+      to,
+      date,
+      search,
+      priority,
+    } = queryParams;
+    const payment = await prisma.payment.findMany({
+      where: {
+        ...(search ? { title: { contains: search } } : {}),
+        price: {
+          ...(amountType === "greater" && amount
+            ? { gte: Number(amount) }
+            : amountType === "less" && amount
+              ? { lte: Number(amount) }
+              : amountType === "equal" && amount
+                ? { equals: Number(amount) }
+                : {}),
+        },
+        type: "achat",
+        ...(tab === "pending"
+          ? { status: { in: ["pending", "accepted"] } }
+          : tab === "processed"
+            ? { status: { in: ["unsigned", "validated", "signed", "simple_signed"] } }
+            : tab === "paid"
+              ? { status: "paid" }
+              : tab === "cancelled"
+                ? { status: "cancelled" }
+                : {}),
+        ...(provider ? { provider: provider } : {}),
+        ...(from ? { createdAt: { gte: from } } : {}),
+        ...(to ? { createdAt: { lte: to } } : {}),
+        ...(priority ? { priority: priority } : {}),
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
+      },
+      skip: (pageIndex || 0) * (pageSize || 10),
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const stats = {
+      pending: {
+        count: payment.filter(
+          (r) => r.status === "validated" || r.status === "unsigned",
+        ).length,
+        sum: payment
+          .filter((r) => r.status === "validated" || r.status === "unsigned")
+          .reduce((acc, r) => acc + r.price, 0),
+      },
+      processed: {
+        count: payment.filter(
+          (r) => r.status === "signed" || r.status === "simple_signed",
+        ).length,
+        sum: payment
+          .filter((r) => r.status === "signed" || r.status === "simple_signed")
+          .reduce((acc, r) => acc + r.price, 0),
+      },
+      paid: {
+        count: payment.filter((r) => r.status === "paid").length,
+        sum: payment
+          .filter((r) => r.status === "paid")
+          .reduce((acc, r) => acc + r.price, 0),
+      },
+      cancelled: {
+        count: payment.filter((r) => r.status === "cancelled").length,
+        sum: payment
+          .filter((r) => r.status === "cancelled")
+          .reduce((acc, r) => acc + r.price, 0),
+      },
+    };
+
+    return stats;
+  };
+
+  getAllExpensesDGPayment = async (queryParams: DGPaymentQueryParameter) => {
+    const {
+      pageIndex,
+      pageSize,
+      tab,
+      from,
+      to,
+      date,
+      search,
+      priority,
+    } = queryParams;
+    const payment = await prisma.payment.findMany({
+      where: {
+        ...(search ? { title: { contains: search } } : {}),
+        type: {
+          notIn: ["transport", "gas", "others"],
+        },
+        ...(tab === "pending"
+          ? { status: { in: ["pending", "accepted"] } }
+          : tab === "processed"
+            ? { status: { in: ["unsigned", "validated", "signed", "simple_signed"] } }
+            : tab === "paid"
+              ? { status: "paid" }
+              : {
+                status: {
+                  notIn: ["cancelled", "ghost"]
+                }
+              }),
+        ...(from ? { createdAt: { gte: from } } : {}),
+        ...(to ? { createdAt: { lte: to } } : {}),
+        ...(priority ? { priority: priority } : {}),
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
+      },
+      include: {
+        signer: true,
+        method: true,
+        request: true,
+        transaction: true,
+        facture: {
+          select: {
+            command: {
+              select: {
+                provider: { select: { name: true } },
+                devi: {
+                  select: {
+                    commandRequest: { select: { title: true } }
+                  }
+                }
+              },
+            },
+            amount: true,
+            id: true
+          },
+        },
+      },
+      skip: (pageIndex || 0) * (pageSize || 10),
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return {
+      data: payment.slice(0, pageSize || 0),
+      count: payment.length,
+    };
+  };
+
+  getAllExpensesDGPaymentStats = async (queryParams: DGPaymentQueryParameter) => {
+    const {
+      pageIndex,
+      pageSize,
+      tab,
+      from,
+      to,
+      date,
+      search,
+      priority,
+    } = queryParams;
+    const payment = await prisma.payment.findMany({
+      where: {
+        ...(search ? { title: { contains: search } } : {}),
+        type: {
+          notIn: ["transport", "gas", "others"],
+        },
+        ...(tab === "pending"
+          ? { status: { in: ["pending", "accepted"] } }
+          : tab === "processed"
+            ? { status: { in: ["unsigned", "validated", "signed", "simple_signed"] } }
+            : tab === "paid"
+              ? { status: "paid" }
+              : {
+                status: {
+                  notIn: ["cancelled", "ghost"]
+                }
+              }),
+        ...(from ? { createdAt: { gte: from } } : {}),
+        ...(to ? { createdAt: { lte: to } } : {}),
+        ...(priority ? { priority: priority } : {}),
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
+      },
+      skip: (pageIndex || 0) * (pageSize || 10),
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    const stats = {
+      pending: {
+        count: payment.filter(
+          (r) => r.status === "validated" || r.status === "unsigned",
+        ).length,
+        sum: payment
+          .filter((r) => r.status === "validated" || r.status === "unsigned")
+          .reduce((acc, r) => acc + r.price, 0),
+      },
+      processed: {
+        count: payment.filter(
+          (r) => r.status === "signed" || r.status === "simple_signed",
+        ).length,
+        sum: payment
+          .filter((r) => r.status === "signed" || r.status === "simple_signed")
+          .reduce((acc, r) => acc + r.price, 0),
+      },
+      paid: {
+        count: payment.filter((r) => r.status === "paid").length,
+        sum: payment
+          .filter((r) => r.status === "paid")
+          .reduce((acc, r) => acc + r.price, 0),
+      }
+    };
+    return stats;
+  };
+
+
+  getPaymentToSign = async (userId: number, queryParams: PaymentSignQueryParameter) => {
+    const { tab, search, bank, priority, amount, amountType, pageIndex, pageSize } = queryParams
+
+    const payment = await prisma.payment.findMany({
+      where: {
+        method: {
+          signatairs: {
+            some: {
+              user: {
+                some: {
+                  id: userId,
+                },
+              },
+            },
+          },
+        },
+        ...(tab === "pending"
+          ? { status: { in: ["unsigned"] } }
+          : tab === "signed"
+            ? { status: { in: ["signed", "paid"] } }
+            : { status: "paid" }),
+        ...(search ? { title: { contains: search } } : {}),
+        ...(bank ? { bankId: bank } : {}),
+        ...(priority ? { priority: priority } : {}),
+        price: {
+          ...(amountType === "greater" && amount
+            ? { gte: Number(amount) }
+            : amountType === "less" && amount
+              ? { lte: Number(amount) }
+              : amountType === "equal" && amount
+                ? { equals: Number(amount) }
+                : {}),
+        }
+      },
+      include: {
+        transaction: {
+          select: { docNumber: true }
+        },
+        bank: {
+          select: { label: true }
+        }
+      },
+      skip: (pageIndex || 0) * (pageSize || 10),
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return {
+      data: payment.slice(0, pageSize || 0),
+      count: payment.length,
+    };
+  };
+
+  getPaymentToSignStat = async (userId: number, queryParams: PaymentSignQueryParameter) => {
+    const { tab, search, bank, priority, amount, amountType } = queryParams
+    const payment = await prisma.payment.findMany({
+      where: {
+        method: {
+          signatairs: {
+            some: {
+              user: {
+                some: {
+                  id: userId,
+                },
+              },
+            },
+          },
+        },
+        ...(tab === "pending"
+          ? { status: { in: ["unsinged"] } }
+          : tab === "signed"
+            ? { status: { in: ["signed", "paid"] } }
+            : { status: "paid" }),
+        ...(search ? { title: { contains: search } } : {}),
+        ...(bank ? { bankId: bank } : {}),
+        ...(priority ? { priority: priority } : {}),
+        price: {
+          ...(amountType === "greater" && amount
+            ? { gte: Number(amount) }
+            : amountType === "less" && amount
+              ? { lte: Number(amount) }
+              : amountType === "equal" && amount
+                ? { equals: Number(amount) }
+                : {}),
+        }
+      },
+    });
+
+    const stats = {
+      pending: {
+        count: payment.filter(
+          (r) => r.status === "unsigned",
+        ).length,
+        sum: payment
+          .filter((r) => r.status === "unsigned")
+          .reduce((acc, r) => acc + r.price, 0),
+      },
+      signed: {
+        count: payment.filter(
+          (r) => r.status === "signed" || r.status === "paid",
+        ).length,
+        sum: payment
+          .filter((r) => r.status === "signed" || r.status === "paid")
+          .reduce((acc, r) => acc + r.price, 0),
+      },
+      paid: {
+        count: payment.filter((r) => r.status === "paid").length,
+        sum: payment
+          .filter((r) => r.status === "paid")
+          .reduce((acc, r) => acc + r.price, 0),
+      }
+    };
+
+    return stats;
   };
 }

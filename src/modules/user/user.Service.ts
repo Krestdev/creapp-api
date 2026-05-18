@@ -38,10 +38,6 @@ export class UserService {
         password,
         otp,
       })
-      .catch((e) => {
-        console.log(e);
-        console.error("could not send mail");
-      });
 
     let existingRole = await prisma.role.findFirst({
       where: {
@@ -99,10 +95,6 @@ export class UserService {
         password,
         otp,
       })
-      .catch((e) => {
-        console.log(e);
-        console.error("could not send mail");
-      });
 
     let existingRole = await prisma.role.findFirst({
       where: {

@@ -63,8 +63,6 @@ export class InvoiceService {
       data.isPartial = true;
     }
 
-    console.log(data);
-
     const invoice = await prisma.invoice
       .create({
         data: {
@@ -74,10 +72,6 @@ export class InvoiceService {
           status: "UNPAID",
         },
       })
-      .catch((err) => {
-        console.log(err);
-        throw err;
-      });
 
     if (data.amount + totalPaid === command.amountBase) {
       // update command status to paid

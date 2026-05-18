@@ -218,6 +218,28 @@ export default class TransactionRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    this.routes.get("/appro/by", requireRole("USER"), (req, res) => {
+      this.trTransactionController
+        .getApprovisionementCountBy(Number(req.user?.userId))
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
+    this.routes.get("/accepted/count", requireRole("USER"), (req, res) => {
+      this.trTransactionController
+        .getAcceptedTransaction()
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // getAll
     this.routes.get("/", requireRole("USER"), (req, res) => {
       this.trTransactionController

@@ -62,10 +62,6 @@ export class ProviderService {
           valid,
         },
       })
-      .catch((e) => {
-        console.log(e);
-        throw e;
-      });
 
     if (
       files &&
@@ -149,10 +145,8 @@ export class ProviderService {
       !data.phone ||
       !data.NIU
     ) {
-      // console.log(providerUp, data.phone, data.NIU);
       valid = false;
     }
-    // console.log(valid);
 
     const provider = await prisma.provider.update({
       where: { id },

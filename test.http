@@ -1,0 +1,18 @@
+@token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFUyIsIlNBTEVTX01BTkFHRVIiLCJWT0xUIiwiVk9MVF9NQU5BR0VSIiwiUkgiLCJBQ0NPVU5UQU5UIiwiRFJJVkVSIiwiU1VQRVJBRE1JTiJdLCJpYXQiOjE3Nzg4NDIyNzksImV4cCI6MTc3ODkyODY3OX0.oxkgOdRXFlqO2HFSKKV2jVu3MkvsYOVoTvXCw6Ca0Fg
+
+### login
+POST http://localhost:5002/api/v1.0.0/base/user/login
+Content-Type: application/json
+
+{
+    "email": "wassom@gmail.com",
+    "password": "1234567"
+}
+
+###
+GET http://localhost:5002/api/v1.0.0/request/payment/expenses/all?pageIndex=1&pageSize=15&tab=validated&amount=0&amountType=greater
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:5002/api/v1.0.0/request/payment/paymentToSign/all?pageIndex=0&pageSize=15&tab=pending&amount=0&amountType=greater
+Authorization: Bearer {{token}}

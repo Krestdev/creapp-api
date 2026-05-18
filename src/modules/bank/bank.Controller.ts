@@ -17,8 +17,6 @@ export default class BankController {
   ): Promise<Bank> {
     const { justification, ...restData } = data;
 
-    console.log(data);
-
     const newBank = {
       ...restData,
       balance: Number(data.balance),
