@@ -130,9 +130,19 @@ export class InvoiceService {
       },
     });
 
+    // invoice amount - all payment in the invoice except rejected or canceled
+
+    const newinvoice = invoice.map(inv => {
+      const rest = inv.amount - inv.payment.filter(p => !["rejected", "cancelled"].includes(p.status)).reduce((sum, b) => sum + b.price, 0)
+      return {
+        ...inv,
+        rest
+      }
+    })
+
     await CacheService.set(`${this.CACHE_KEY}:all`, invoice, 90);
 
-    return invoice;
+    return newinvoice;
   };
 
   // Get one
