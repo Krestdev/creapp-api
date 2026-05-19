@@ -592,13 +592,13 @@ export class TransactionService {
       where: { id },
     });
 
-    const okay = await this.shouldDecrement(
-      tragetTransaction.fromBankId,
-      tragetTransaction.amount,
-    );
-    if (!okay) {
-      throw Error("Fond insufisant");
-    }
+    // const okay = await this.shouldDecrement(
+    //   tragetTransaction.fromBankId,
+    //   tragetTransaction.amount,
+    // );
+    // if (!okay) {
+    //   throw Error("Fond insufisant");
+    // }
 
     const transaction = await prisma.transaction.update({
       where: { id },
@@ -606,13 +606,13 @@ export class TransactionService {
         proof,
         status: "APPROVED",
         date: date,
-        from: {
-          update: {
-            balance: {
-              decrement: tragetTransaction.amount,
-            },
-          },
-        },
+        // from: {
+        //   update: {
+        //     balance: {
+        //       decrement: tragetTransaction.amount,
+        //     },
+        //   },
+        // },
         to: {
           update: {
             balance: {
