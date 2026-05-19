@@ -711,7 +711,7 @@ export class PaymentService {
                 : {}),
         },
         status: { not: "appro" },
-        ...(provider ? { provider: provider } : {}),
+        ...(provider ? { facture: { command: { providerId: +provider } } } : {}),
         ...(paymentMethod ? { methodId: paymentMethod } : {}),
         ...(isSelected ? { isSelected: isSelected } : {}),
         ...(from ? { createdAt: { gte: from } } : {}),
@@ -826,7 +826,7 @@ export class PaymentService {
               : tab === "cancelled"
                 ? { status: "cancelled" }
                 : {}),
-        ...(provider ? { provider: provider } : {}),
+        ...(provider ? { facture: { command: { providerId: +provider } } } : {}),
         ...(from ? { createdAt: { gte: from } } : {}),
         ...(to ? { createdAt: { lte: to } } : {}),
         ...(priority ? { priority: priority } : {}),
