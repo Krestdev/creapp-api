@@ -872,6 +872,9 @@ export class TransactionService {
         },
         isSigned: false,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     const signers = await prisma.signatair.findMany({

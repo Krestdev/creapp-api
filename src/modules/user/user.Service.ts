@@ -279,6 +279,9 @@ export class UserService {
           signatairs: true,
         },
         omit: { password: true },
+        orderBy: {
+          createdAt: "desc",
+        },
       });
     }
     return prisma.user.findMany({

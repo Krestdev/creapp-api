@@ -117,6 +117,9 @@ export class DeviService {
           },
         },
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     await prisma.deviElement.updateMany({

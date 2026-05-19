@@ -365,6 +365,9 @@ export class CommandService {
         provider: true,
         validators: true,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     await CacheService.set(`${this.CACHE_KEY}:all`, command, 90);

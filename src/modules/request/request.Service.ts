@@ -167,6 +167,9 @@ export class RequestService {
       include: {
         validators: true,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
   };
 
@@ -183,6 +186,9 @@ export class RequestService {
             validated: false,
           },
         },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
 
@@ -354,6 +360,9 @@ export class RequestService {
       },
       // take: filters?.pageSize || 10,
       skip: (pageIndex || 0) * (pageSize || 10),
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return {
@@ -404,6 +413,9 @@ export class RequestService {
       },
       // take: filters?.pageSize || 10,
       skip: (pageIndex || 0) * (pageSize || 10),
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     const totalSent = await prisma.requestModel.count()
@@ -429,7 +441,10 @@ export class RequestService {
             status: "validated",
           },
         },
-      }
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
     return allRequests;
   }
@@ -448,6 +463,9 @@ export class RequestService {
             validated: false,
           },
         },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
 
@@ -483,7 +501,10 @@ export class RequestService {
       },
       include: {
         validators: true
-      }
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return {
@@ -505,7 +526,10 @@ export class RequestService {
       },
       include: {
         validators: true
-      }
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return {
@@ -549,6 +573,9 @@ export class RequestService {
         state: "validated",
         commandRequestId: null
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
   };
 
@@ -577,6 +604,9 @@ export class RequestService {
         requestOlds: true,
         validators: true,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return requests;
@@ -600,6 +630,9 @@ export class RequestService {
         },
         requestOlds: true,
         validators: true,
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
 

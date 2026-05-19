@@ -324,14 +324,12 @@ export class PaymentService {
     mount,
     provider,
     type,
-    excludeType,
     priority,
     paymentMethod,
     matchBeneficiary,
     selected,
     date,
     state,
-    paymentType,
     requestId,
     userId,
     limit,
@@ -340,13 +338,11 @@ export class PaymentService {
     const payment = await prisma.payment.findMany({
       where: {
         ...(state && { status: state }),
-        ...(paymentType && { paymentType }),
-        ...(excludeType && { paymentType: { not: excludeType } }),
         ...(requestId && { requestId: +requestId }),
         ...(userId && { userId: +userId }),
         ...(mount && { price: { gte: mount } }),
         ...(provider && { provider }),
-        ...(type && { paymentType: type }),
+        ...(type && { type: type }),
         ...(priority && { priority }),
         ...(paymentMethod && { methodId: Number(paymentMethod) }),
         ...(matchBeneficiary && {
@@ -389,7 +385,6 @@ export class PaymentService {
     const count = await prisma.payment.count({
       where: {
         ...(state && { status: state }),
-        ...(paymentType && { paymentType }),
         ...(requestId && { requestId: +requestId }),
         ...(userId && { userId: +userId }),
       },
@@ -1279,6 +1274,9 @@ export class PaymentService {
                 : {}),
         }
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     const stats = {
@@ -1334,7 +1332,10 @@ export class PaymentService {
             }
           }
         }
-      }
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return {
