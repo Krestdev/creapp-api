@@ -28,9 +28,7 @@ export default class RequestRoute {
       this.requestController
         .getStats(req.query as unknown as QueryString)
         .then((stats) =>
-          res
-            .status(200)
-            .json({ message: create.success.create, data: stats }),
+          res.status(200).json({ message: create.success.create, data: stats }),
         )
         .catch((error) => res.status(400).json({ error: error.message }));
     });
@@ -79,45 +77,75 @@ export default class RequestRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
-    this.routes.get("/pendingRequests/count", requireRole("USER"), (req, res) => {
-      this.requestController.getPendingRequests({ userId: req.user?.userId! }).then((request) =>
-        res
-          .status(200)
-          .json({ message: create.success.create, data: request }),
-      )
-    })
+    this.routes.get(
+      "/pendingRequests/count",
+      requireRole("USER"),
+      (req, res) => {
+        this.requestController
+          .getPendingRequests({ userId: req.user?.userId! })
+          .then((request) =>
+            res
+              .status(200)
+              .json({ message: create.success.create, data: request }),
+          );
+      },
+    );
 
-    this.routes.get("/chief/requests/count", requireRole("USER"), (req, res) => {
-      this.requestController.getChiefRequests({ userId: req.user?.userId! }).then((request) =>
-        res
-          .status(200)
-          .json({ message: create.success.create, data: request }),
-      )
-    })
+    this.routes.get(
+      "/chief/requests/count",
+      requireRole("USER"),
+      (req, res) => {
+        this.requestController
+          .getChiefRequests({ userId: req.user?.userId! })
+          .then((request) =>
+            res
+              .status(200)
+              .json({ message: create.success.create, data: request }),
+          );
+      },
+    );
 
-    this.routes.get("/board/requests/stats", requireRole("USER"), (req, res) => {
-      this.requestController.getBoardRequestStats({ userId: req.user?.userId! }).then((request) =>
-        res
-          .status(200)
-          .json({ message: create.success.create, data: request }),
-      )
-    })
+    this.routes.get(
+      "/board/requests/stats",
+      requireRole("USER"),
+      (req, res) => {
+        this.requestController
+          .getBoardRequestStats({ userId: req.user?.userId! })
+          .then((request) =>
+            res
+              .status(200)
+              .json({ message: create.success.create, data: request }),
+          );
+      },
+    );
 
-    this.routes.get("/board/requests/graph", requireRole("USER"), (req, res) => {
-      this.requestController.getBoardRequestGraph({ userId: req.user?.userId! }).then((request) =>
-        res
-          .status(200)
-          .json({ message: create.success.create, data: request }),
-      )
-    })
+    this.routes.get(
+      "/board/requests/graph",
+      requireRole("USER"),
+      (req, res) => {
+        this.requestController
+          .getBoardRequestGraph({ userId: req.user?.userId! })
+          .then((request) =>
+            res
+              .status(200)
+              .json({ message: create.success.create, data: request }),
+          );
+      },
+    );
 
-    this.routes.get("/usableRequests/count", requireRole("USER"), (req, res) => {
-      this.requestController.getUsableRequests().then((request) =>
-        res
-          .status(200)
-          .json({ message: create.success.create, data: request }),
-      )
-    })
+    this.routes.get(
+      "/usableRequests/count",
+      requireRole("USER"),
+      (req, res) => {
+        this.requestController
+          .getUsableRequests()
+          .then((request) =>
+            res
+              .status(200)
+              .json({ message: create.success.create, data: request }),
+          );
+      },
+    );
 
     this.routes.get("/:id", requireRole("USER"), (req, res) => {
       this.requestController
@@ -130,10 +158,22 @@ export default class RequestRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
-
-    this.routes.get("/validator/:id", requireRole("USER"), (req, res) => {
+    this.routes.get("/validator/stats", requireRole("USER"), (req, res) => {
       this.requestController
-        .getMyValidator(req.params.id ?? "-1")
+        .getDashboardRequestsStats(
+          req.user?.userId!,
+          req.params as unknown as QueryString,
+        )
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        );
+    });
+
+    this.routes.get("/validator/all", requireRole("USER"), (req, res) => {
+      this.requestController
+        .getMyValidator(req.user?.userId!, req.params as unknown as QueryString)
         .then((request) =>
           res
             .status(200)

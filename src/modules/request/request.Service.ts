@@ -3,6 +3,7 @@ import {
   PrismaClient,
   RequestModel,
   RequestState,
+  Validators
 } from "@prisma/client";
 import {
   deleteDocumentsByOwner,
@@ -58,55 +59,54 @@ export class RequestService {
 
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
-    const request = await prisma.requestModel
-      .create({
-        data: {
-          ...data,
-          serviceChiefId: user?.service?.head?.id ?? null,
-          decision: "PENDING",
-          period: data.period
-            ? JSON.parse(data.period as unknown as string)
-            : null,
-          benFac: data.benFac
-            ? JSON.parse(data.benFac as unknown as string)
-            : null,
-          ref,
-          requestOlds: {
-            create: {
-              unit: data.unit,
-              quantity: data.quantity,
-              priority: data.priority,
-              amount: data.amount,
-              dueDate: data.dueDate,
-              user: {
-                connect: {
-                  id: data.userId!,
-                },
+    const request = await prisma.requestModel.create({
+      data: {
+        ...data,
+        serviceChiefId: user?.service?.head?.id ?? null,
+        decision: "PENDING",
+        period: data.period
+          ? JSON.parse(data.period as unknown as string)
+          : null,
+        benFac: data.benFac
+          ? JSON.parse(data.benFac as unknown as string)
+          : null,
+        ref,
+        requestOlds: {
+          create: {
+            unit: data.unit,
+            quantity: data.quantity,
+            priority: data.priority,
+            amount: data.amount,
+            dueDate: data.dueDate,
+            user: {
+              connect: {
+                id: data.userId!,
               },
             },
           },
-          type: category.type.type,
-          beficiaryList: {
-            connect: benList
-              ? benList.map((beId) => {
-                return { id: beId };
-              })
-              : [],
-          },
-          validators: {
-            createMany: {
-              data: validators.map((vldr) => ({
-                userId: vldr.userId,
-                rank: vldr.rank,
-                validated: false,
-              })),
-            },
+        },
+        type: category.type.type,
+        beficiaryList: {
+          connect: benList
+            ? benList.map((beId) => {
+              return { id: beId };
+            })
+            : [],
+        },
+        validators: {
+          createMany: {
+            data: validators.map((vldr) => ({
+              userId: vldr.userId,
+              rank: vldr.rank,
+              validated: false,
+            })),
           },
         },
-        include: {
-          validators: true,
-        },
-      })
+      },
+      include: {
+        validators: true,
+      },
+    });
 
     getIO().emit("request:new", { userId: request.userId });
     return request;
@@ -194,7 +194,7 @@ export class RequestService {
 
     const pendingRequests = requests.filter((request) => {
       const currentValidator = request.validators.find(
-        (v) => v.userId === userId
+        (v) => v.userId === userId,
       );
 
       if (!currentValidator) return false;
@@ -206,7 +206,7 @@ export class RequestService {
 
       // Previous validator must already validate
       const previousValidator = request.validators.find(
-        (v) => v.rank === currentValidator.rank - 1
+        (v) => v.rank === currentValidator.rank - 1,
       );
 
       return previousValidator?.validated === true;
@@ -289,7 +289,19 @@ export class RequestService {
   };
 
   getAll = async (query?: QueryString) => {
-    const { pageIndex, pageSize, search, user, category, project, status, type, from, to, date } = query || {};
+    const {
+      pageIndex,
+      pageSize,
+      search,
+      user,
+      category,
+      project,
+      status,
+      type,
+      from,
+      to,
+      date,
+    } = query || {};
 
     const allRequests = await prisma.requestModel.findMany({
       where: {
@@ -297,47 +309,72 @@ export class RequestService {
           OR: [
             {
               label: {
-                contains: search
-              }
+                contains: search,
+              },
             },
             {
               ref: {
-                contains: search
-              }
-            }
-          ]
+                contains: search,
+              },
+            },
+          ],
         }),
-        user: user ? {
-          id: +user
-        } : {},
-        category: category ? {
-          id: +category
-        } : {},
-        project: project ? {
-          id: +project
-        } : {},
-        state: status ? {
-          equals: status
-        } : {},
-        type: type ? {
-          equals: type
-        } : {},
-        createdAt: date === "custom" && from && to ? {
-          gte: new Date(from),
-          lte: new Date(to)
-        } : date === "today" ? {
-          gte: new Date(new Date().setHours(0, 0, 0, 0)),
-          lte: new Date(new Date().setHours(23, 59, 59, 999))
-        } : date === "week" ? {
-          gte: new Date(new Date().setDate(new Date().getDate() - 7)),
-          lte: new Date(new Date().setHours(23, 59, 59, 999))
-        } : date === "month" ? {
-          gte: new Date(new Date().setDate(new Date().getDate() - 30)),
-          lte: new Date(new Date().setHours(23, 59, 59, 999))
-        } : date === "year" ? {
-          gte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)),
-          lte: new Date(new Date().setHours(23, 59, 59, 999))
-        } : {},
+        user: user
+          ? {
+            id: +user,
+          }
+          : {},
+        category: category
+          ? {
+            id: +category,
+          }
+          : {},
+        project: project
+          ? {
+            id: +project,
+          }
+          : {},
+        state: status
+          ? {
+            equals: status,
+          }
+          : {},
+        type: type
+          ? {
+            equals: type,
+          }
+          : {},
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
       },
       include: {
         beficiaryList: {
@@ -354,19 +391,19 @@ export class RequestService {
         validators: true,
         category: {
           select: {
-            label: true
-          }
+            label: true,
+          },
         },
         project: {
           select: {
-            label: true
-          }
+            label: true,
+          },
         },
         // payments: true,
         user: {
           select: {
-            firstName: true
-          }
+            firstName: true,
+          },
         },
       },
       // take: filters?.pageSize || 10,
@@ -377,50 +414,92 @@ export class RequestService {
     });
 
     return {
-      data: allRequests.slice(0, (pageSize || 10)),
-      total: allRequests.length
+      data: allRequests.slice(0, pageSize || 10),
+      total: allRequests.length,
     };
   };
 
   getStats = async (query?: QueryString) => {
-    const { pageIndex, pageSize, header, section, reviewer, search, user, category, project, status, type, from, to, date } = query || {};
+    const {
+      pageIndex,
+      pageSize,
+      header,
+      section,
+      reviewer,
+      search,
+      user,
+      category,
+      project,
+      status,
+      type,
+      from,
+      to,
+      date,
+    } = query || {};
 
     const allRequests = await prisma.requestModel.findMany({
       where: {
-        label: search ? {
-          contains: search
-        } : {},
-        user: user ? {
-          id: +user
-        } : {},
-        category: category ? {
-          id: +category
-        } : {},
-        project: project ? {
-          id: +project
-        } : {},
-        state: status ? {
-          equals: status
-        } : {},
-        type: type ? {
-          equals: type
-        } : {},
-        createdAt: date === "custom" && from && to ? {
-          gte: new Date(from),
-          lte: new Date(to)
-        } : date === "today" ? {
-          gte: new Date(new Date().setHours(0, 0, 0, 0)),
-          lte: new Date(new Date().setHours(23, 59, 59, 999))
-        } : date === "week" ? {
-          gte: new Date(new Date().setDate(new Date().getDate() - 7)),
-          lte: new Date(new Date().setHours(23, 59, 59, 999))
-        } : date === "month" ? {
-          gte: new Date(new Date().setDate(new Date().getDate() - 30)),
-          lte: new Date(new Date().setHours(23, 59, 59, 999))
-        } : date === "year" ? {
-          gte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)),
-          lte: new Date(new Date().setHours(23, 59, 59, 999))
-        } : {},
+        label: search
+          ? {
+            contains: search,
+          }
+          : {},
+        user: user
+          ? {
+            id: +user,
+          }
+          : {},
+        category: category
+          ? {
+            id: +category,
+          }
+          : {},
+        project: project
+          ? {
+            id: +project,
+          }
+          : {},
+        state: status
+          ? {
+            equals: status,
+          }
+          : {},
+        type: type
+          ? {
+            equals: type,
+          }
+          : {},
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
       },
       // take: filters?.pageSize || 10,
       skip: (pageIndex || 0) * (pageSize || 10),
@@ -429,16 +508,16 @@ export class RequestService {
       },
     });
 
-    const totalSent = await prisma.requestModel.count()
+    const totalSent = await prisma.requestModel.count();
 
     const stats = {
-      awaiting: allRequests.filter(r => r.state === "pending").length,
+      awaiting: allRequests.filter((r) => r.state === "pending").length,
       rejected: allRequests.filter((r) => r.state === "rejected").length,
       validated: allRequests.filter((r) => r.state === "validated").length,
       fromStore: allRequests.filter((r) => r.state === "store").length,
       cancelled: allRequests.filter((r) => r.state === "cancel").length,
       sent: totalSent,
-    }
+    };
 
     return stats;
   };
@@ -458,7 +537,7 @@ export class RequestService {
       },
     });
     return allRequests;
-  }
+  };
 
   getChiefRequests = async ({ userId }: { userId: number }) => {
     const requests = await prisma.requestModel.findMany({
@@ -482,7 +561,7 @@ export class RequestService {
 
     const pendingRequests = requests.filter((request) => {
       const currentValidator = request.validators.find(
-        (v) => v.userId === userId
+        (v) => v.userId === userId,
       );
 
       if (!currentValidator) return false;
@@ -494,7 +573,7 @@ export class RequestService {
 
       // Previous validator must already validate
       const previousValidator = request.validators.find(
-        (v) => v.rank === currentValidator.rank - 1
+        (v) => v.rank === currentValidator.rank - 1,
       );
 
       return previousValidator?.validated === true;
@@ -507,11 +586,11 @@ export class RequestService {
   getAllRequestStats = async ({ userId }: { userId: number }) => {
     const allRequests = await prisma.requestModel.findMany({
       where: {
-        state: { not: 'cancel' },
+        state: { not: "cancel" },
         userId,
       },
       include: {
-        validators: true
+        validators: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -519,11 +598,27 @@ export class RequestService {
     });
 
     return {
-      awaiting: allRequests.filter(r => r.state === "pending" && r.decision === "PENDING" && r.validators.some(v => v.userId === userId && !v.validated)).length,
-      rejected: allRequests.filter((r) => r.state === "rejected" && r.decision === "REJECTED" && r.validators.some(v => v.userId === userId && !v.validated)).length,
-      submited: allRequests.filter((r) => r.state !== "cancel" && r.userId === userId).length,
-      approved: allRequests.filter((r) => ["store", "validated"].includes(r.state) && r.userId === userId).length,
-      approvedTotal: allRequests.filter((r) => ["store", "validated"].includes(r.state)).length,
+      awaiting: allRequests.filter(
+        (r) =>
+          r.state === "pending" &&
+          r.decision === "PENDING" &&
+          r.validators.some((v) => v.userId === userId && !v.validated),
+      ).length,
+      rejected: allRequests.filter(
+        (r) =>
+          r.state === "rejected" &&
+          r.decision === "REJECTED" &&
+          r.validators.some((v) => v.userId === userId && !v.validated),
+      ).length,
+      submited: allRequests.filter(
+        (r) => r.state !== "cancel" && r.userId === userId,
+      ).length,
+      approved: allRequests.filter(
+        (r) => ["store", "validated"].includes(r.state) && r.userId === userId,
+      ).length,
+      approvedTotal: allRequests.filter((r) =>
+        ["store", "validated"].includes(r.state),
+      ).length,
       total: allRequests.filter((r) => r.state !== "cancel").length,
     };
   };
@@ -532,11 +627,11 @@ export class RequestService {
   getAllRequestGraphs = async ({ userId }: { userId: number }) => {
     const allRequests = await prisma.requestModel.findMany({
       where: {
-        state: { not: 'cancel' },
+        state: { not: "cancel" },
         userId,
       },
       include: {
-        validators: true
+        validators: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -544,9 +639,37 @@ export class RequestService {
     });
 
     return {
-      submited: allRequests.filter((r) => r.state !== "cancel" && r.userId === userId).map(req => { return { state: req.state, createdAt: req.createdAt, updatedAt: req.updatedAt } }),
-      validator: allRequests.filter(r => r.state !== "cancel" && r.validators.some(v => v.userId === userId && !v.validated)).map(req => { return { state: req.state, createdAt: req.createdAt, updatedAt: req.updatedAt } }),
-      all: allRequests.filter((r) => r.state !== "cancel").map(req => { return { state: req.state, createdAt: req.createdAt, updatedAt: req.updatedAt } }),
+      submited: allRequests
+        .filter((r) => r.state !== "cancel" && r.userId === userId)
+        .map((req) => {
+          return {
+            state: req.state,
+            createdAt: req.createdAt,
+            updatedAt: req.updatedAt,
+          };
+        }),
+      validator: allRequests
+        .filter(
+          (r) =>
+            r.state !== "cancel" &&
+            r.validators.some((v) => v.userId === userId && !v.validated),
+        )
+        .map((req) => {
+          return {
+            state: req.state,
+            createdAt: req.createdAt,
+            updatedAt: req.updatedAt,
+          };
+        }),
+      all: allRequests
+        .filter((r) => r.state !== "cancel")
+        .map((req) => {
+          return {
+            state: req.state,
+            createdAt: req.createdAt,
+            updatedAt: req.updatedAt,
+          };
+        }),
     };
   };
 
@@ -558,7 +681,7 @@ export class RequestService {
         commandRequestId: null,
       },
     });
-  }
+  };
 
   getOne = (id: number) => {
     return prisma.requestModel.findUnique({
@@ -567,12 +690,12 @@ export class RequestService {
         requestOlds: {
           include: {
             user: {
-              select: { firstName: true, lastName: true }
+              select: { firstName: true, lastName: true },
             },
           },
         },
         validators: true,
-        user: { select: { firstName: true, lastName: true } }
+        user: { select: { firstName: true, lastName: true } },
       },
     });
   };
@@ -582,7 +705,7 @@ export class RequestService {
       where: {
         type: "achat",
         state: "validated",
-        commandRequestId: null
+        commandRequestId: null,
       },
       orderBy: {
         createdAt: "desc",
@@ -590,16 +713,107 @@ export class RequestService {
     });
   };
 
-  getMyValidator = async (id: number) => {
+  getMyValidator = async (id: number, query?: QueryString) => {
+    const {
+      pageIndex,
+      pageSize,
+      search,
+      user,
+      tab,
+      category,
+      project,
+      status,
+      type,
+      from,
+      to,
+      date,
+    } = query || {};
+
     const requests = await prisma.requestModel.findMany({
       where: {
         validators: {
           some: {
-            userId: {
-              equals: id,
-            },
+            AND: [
+              { userId: id },
+              { validated: false },
+            ]
           },
         },
+        ...(tab === "pending"
+          ? { status: { in: ["pending"] } }
+          : tab === "processed"
+            ? { status: { in: ["store", "validated", "rejected"] } }
+            : {}),
+        ...(search && {
+          OR: [
+            {
+              label: {
+                contains: search,
+              },
+            },
+            {
+              ref: {
+                contains: search,
+              },
+            },
+          ],
+        }),
+        user: user
+          ? {
+            id: +user,
+          }
+          : {},
+        category: category
+          ? {
+            id: +category,
+          }
+          : {},
+        project: project
+          ? {
+            id: +project,
+          }
+          : {},
+        state: status
+          ? {
+            equals: status,
+          }
+          : {},
+        type: type
+          ? {
+            equals: type,
+          }
+          : {},
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
       },
       include: {
         beficiaryList: {
@@ -614,13 +828,210 @@ export class RequestService {
         },
         requestOlds: true,
         validators: true,
+        category: {
+          select: {
+            label: true,
+          },
+        },
+        project: {
+          select: {
+            label: true,
+          },
+        },
+        // payments: true,
+        user: {
+          select: {
+            firstName: true,
+          },
+        },
       },
+      // take: filters?.pageSize || 10,
+      skip: (pageIndex || 0) * (pageSize || 10),
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    return requests;
+    return {
+      data: this.approbatorRequests(requests, id).filter((r) => r.validators.slice(0, pageSize || 10)),
+      total: requests.length,
+    };
+  };
+
+  getMyValidatorStat = async (id: number, query?: QueryString) => {
+    const {
+      pageIndex,
+      pageSize,
+      search,
+      user,
+      tab,
+      category,
+      project,
+      status,
+      type,
+      from,
+      to,
+      date,
+    } = query || {};
+
+    const requests = await prisma.requestModel.findMany({
+      where: {
+        validators: {
+          some: {
+            AND: [
+              { userId: id },
+              { validated: false },
+            ]
+          },
+        },
+        ...(tab === "pending"
+          ? { status: { in: ["pending"] } }
+          : tab === "processed"
+            ? { status: { in: ["store", "validated", "rejected"] } }
+            : {}),
+        ...(search && {
+          OR: [
+            {
+              label: {
+                contains: search,
+              },
+            },
+            {
+              ref: {
+                contains: search,
+              },
+            },
+          ],
+        }),
+        user: user
+          ? {
+            id: +user,
+          }
+          : {},
+        category: category
+          ? {
+            id: +category,
+          }
+          : {},
+        project: project
+          ? {
+            id: +project,
+          }
+          : {},
+        state: status
+          ? {
+            equals: status,
+          }
+          : {},
+        type: type
+          ? {
+            equals: type,
+          }
+          : {},
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
+      },
+      include: {
+        beficiaryList: {
+          omit: {
+            password: true,
+            verified: true,
+            createdAt: true,
+            updatedAt: true,
+            phone: true,
+            verificationOtp: true,
+          },
+        },
+        requestOlds: true,
+        validators: true,
+        category: {
+          select: {
+            label: true,
+          },
+        },
+        project: {
+          select: {
+            label: true,
+          },
+        },
+        // payments: true,
+        user: {
+          select: {
+            firstName: true,
+          },
+        },
+      },
+      // take: filters?.pageSize || 10,
+      skip: (pageIndex || 0) * (pageSize || 10),
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const approbatorRequests = this.approbatorRequests(requests, id);
+
+    const stats = {
+      awaiting: approbatorRequests.filter((r) => r.state === "pending").length,
+      processed: approbatorRequests.filter((r) => r.state === "proccessed").length,
+      validated: approbatorRequests.filter((r) => r.state === "validated").length,
+      rejected: requests.filter((r) => r.state === "rejected").length,
+      total: requests.length,
+    };
+
+    return stats;
+  };
+
+  approbatorRequests = (
+    requests: Array<RequestModel & { validators: Validators[] }>,
+    userId?: number,
+  ): Array<RequestModel & { validators: Validators[] }> => {
+    if (!userId) return [];
+    const res = requests.filter((r) => {
+      const myRank = r.validators.find((u) => u.userId === userId)?.rank;
+      if (!myRank) {
+        return false;
+      }
+      if (r.state === "cancel" || r.type === "speciaux") {
+        return false;
+      }
+      if (myRank === 1) {
+        return true;
+      }
+      if (r.state === "validated" || r.state === "rejected" || r.state === "store") {
+        return true;
+      }
+      return r.validators.find((v) => v.rank === myRank - 1)?.validated === true;
+    });
+    return res;
   };
 
   getMine = async (id: number) => {
@@ -1304,31 +1715,30 @@ export class RequestService {
       });
     }
 
-    const request = await prisma.requestModel
-      .update({
-        where: {
-          id,
+    const request = await prisma.requestModel.update({
+      where: {
+        id,
+      },
+      data: {
+        ...requestData,
+        period: requestData.period
+          ? JSON.parse(requestData.period as unknown as string)
+          : null,
+        benFac: requestData.benFac
+          ? JSON.parse(requestData.benFac as unknown as string)
+          : null,
+        beficiaryList: {
+          set: benef
+            ? benef.map((beId) => {
+              return { id: beId };
+            })
+            : [],
         },
-        data: {
-          ...requestData,
-          period: requestData.period
-            ? JSON.parse(requestData.period as unknown as string)
-            : null,
-          benFac: requestData.benFac
-            ? JSON.parse(requestData.benFac as unknown as string)
-            : null,
-          beficiaryList: {
-            set: benef
-              ? benef.map((beId) => {
-                return { id: beId };
-              })
-              : [],
-          },
-        },
-        include: {
-          beficiaryList: true,
-        },
-      })
+      },
+      include: {
+        beficiaryList: true,
+      },
+    });
 
     if (file) {
       await storeDocumentsBulk(file, {
@@ -1366,6 +1776,4 @@ export class RequestService {
       console.error(`Could not create notification ${e}`);
     }
   };
-
-
 }

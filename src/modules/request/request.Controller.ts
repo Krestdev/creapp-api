@@ -44,6 +44,7 @@ export type QueryString = {
   project?: number,
   status?: string,
   type?: "all" | "facilitation" | "ressource_humaine" | "speciaux" | "achat" | "CURRENT" | "others" | "transport" | "gas" | "appro" | "taxes" | "settle",
+  tab?: "pending" | "processed",
   from?: Date,
   to?: Date,
   date?: "today" | "week" | "month" | "year" | "custom",
@@ -169,10 +170,21 @@ export default class RequestController {
     return requestService.getUsableRequests();
   }
 
-  @Get("/validator/{id}")
-  getMyValidator(@Path() id: string): Promise<unknown[]> {
+  // @Get("/usableRequests/count")
+  getDashboardRequestsStats(id: number, query?: QueryString): Promise<{
+    awaiting: number;
+    processed: number;
+    validated: number;
+    rejected: number;
+    total: number;
+  }> {
+    return requestService.getMyValidatorStat(id, query);
+  }
+
+  // @Get("/validator/{id}")
+  getMyValidator(id: number, query?: QueryString): Promise<{ data: unknown[], total: number }> {
     // needs user Id
-    return requestService.getMyValidator(Number(id));
+    return requestService.getMyValidator(id, query);
   }
 
   @Get("/mine/{id}")
