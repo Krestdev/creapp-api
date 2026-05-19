@@ -341,7 +341,7 @@ export class PaymentService {
         ...(requestId && { requestId: +requestId }),
         ...(userId && { userId: +userId }),
         ...(mount && { price: { gte: mount } }),
-        ...(provider && { provider }),
+        ...(provider && { facture: { command: { providerId: +provider } } }),
         ...(type && { type: type }),
         ...(priority && { priority }),
         ...(paymentMethod && { methodId: Number(paymentMethod) }),
@@ -576,11 +576,11 @@ export class PaymentService {
       search,
       priority,
     } = queryParams;
+
     const payment = await prisma.payment.findMany({
       where: {
         ...(search ? { title: { contains: search } } : {}),
         ...(beneficiary ? { beneficiary: { id: beneficiary } } : {}),
-        ...(type ? { type: type } : {}),
         price: {
           ...(amountType === "greater" && amount
             ? { gte: Number(amount) }
@@ -590,9 +590,20 @@ export class PaymentService {
                 ? { equals: Number(amount) }
                 : {}),
         },
-        type: {
-          not: "appro"
-        },
+        AND: [
+          {
+            ...(type ? {
+              type: {
+                equals: type
+              }
+            } : {}),
+          },
+          {
+            type: {
+              not: "appro"
+            },
+          }
+        ],
         ...(tab === "validated"
           ? { status: { in: ["validated", "unsigned"] } }
           : tab === "processed"
@@ -602,7 +613,7 @@ export class PaymentService {
               : tab === "cancelled"
                 ? { status: "cancelled" }
                 : {}),
-        ...(provider ? { provider: provider } : {}),
+        ...(provider ? { facture: { command: { providerId: provider } } } : {}),
         ...(paymentMethod ? { methodId: paymentMethod } : {}),
         ...(isSelected ? { isSelected: isSelected } : {}),
         ...(from ? { createdAt: { gte: from } } : {}),
@@ -660,6 +671,7 @@ export class PaymentService {
         createdAt: "desc",
       },
     });
+
     return {
       data: payment.slice(0, pageSize || 0),
       count: payment.length,
@@ -919,7 +931,7 @@ export class PaymentService {
               : tab === "cancelled"
                 ? { status: "cancelled" }
                 : {}),
-        ...(provider ? { provider: provider } : {}),
+        ...(provider ? { facture: { command: { providerId: +provider } } } : {}),
         ...(from ? { createdAt: { gte: from } } : {}),
         ...(to ? { createdAt: { lte: to } } : {}),
         ...(priority ? { priority: priority } : {}),
