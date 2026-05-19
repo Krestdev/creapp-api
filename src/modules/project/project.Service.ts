@@ -112,7 +112,7 @@ export class ProjectService {
   }
 
   async getRequest(id: number) {
-    return prisma.project.findMany({
+    return prisma.project.findFirst({
       where: {
         requests: {
           some: {
