@@ -289,13 +289,24 @@ export class RequestService {
   };
 
   getAll = async (query?: QueryString) => {
-    const { pageIndex, pageSize, header, section, reviewer, search, user, category, project, status, type, from, to, date } = query || {};
+    const { pageIndex, pageSize, search, user, category, project, status, type, from, to, date } = query || {};
 
     const allRequests = await prisma.requestModel.findMany({
       where: {
-        label: search ? {
-          contains: search
-        } : {},
+        ...(search && {
+          OR: [
+            {
+              label: {
+                contains: search
+              }
+            },
+            {
+              ref: {
+                contains: search
+              }
+            }
+          ]
+        }),
         user: user ? {
           id: +user
         } : {},
