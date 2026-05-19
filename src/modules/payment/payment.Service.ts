@@ -613,7 +613,7 @@ export class PaymentService {
               : tab === "cancelled"
                 ? { status: "cancelled" }
                 : {}),
-        ...(provider ? { facture: { command: { providerId: provider } } } : {}),
+        ...(provider ? { facture: { command: { providerId: +provider } } } : {}),
         ...(paymentMethod ? { methodId: paymentMethod } : {}),
         ...(isSelected ? { isSelected: isSelected } : {}),
         ...(from ? { createdAt: { gte: from } } : {}),
