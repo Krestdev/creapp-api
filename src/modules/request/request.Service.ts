@@ -735,7 +735,6 @@ export class RequestService {
           some: {
             AND: [
               { userId: id },
-              { validated: false },
             ]
           },
         },
@@ -880,7 +879,7 @@ export class RequestService {
           some: {
             AND: [
               { userId: id },
-              { validated: false },
+              // { validated: false },
             ]
           },
         },
