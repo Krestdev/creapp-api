@@ -880,7 +880,7 @@ export class RequestService {
           some: {
             AND: [
               { userId: id },
-              // { validated: false },
+              (tab === "pending" ? { validated: false } : {}),
             ]
           },
         },
