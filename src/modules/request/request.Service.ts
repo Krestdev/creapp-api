@@ -735,13 +735,14 @@ export class RequestService {
           some: {
             AND: [
               { userId: id },
+              (tab === "pending" ? { validated: false } : {}),
             ]
           },
         },
         ...(tab === "pending"
-          ? { status: { in: ["pending"] } }
+          ? { state: { in: ["pending"] } }
           : tab === "processed"
-            ? { status: { in: ["store", "validated", "rejected"] } }
+            ? { state: { in: ["store", "validated", "rejected"] } }
             : {}),
         ...(search && {
           OR: [

@@ -183,7 +183,7 @@ export default class RequestController {
 
   // @Get("/validator/{id}")
   getMyValidator(id: number, query?: QueryString): Promise<{ data: unknown[], total: number }> {
-    // needs user Id
+    console.log("query", query)
     return requestService.getMyValidator(id, query);
   }
 

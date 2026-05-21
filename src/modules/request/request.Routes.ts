@@ -162,7 +162,7 @@ export default class RequestRoute {
       this.requestController
         .getDashboardRequestsStats(
           req.user?.userId!,
-          req.params as unknown as QueryString,
+          req.query as unknown as QueryString,
         )
         .then((request) =>
           res
@@ -173,7 +173,7 @@ export default class RequestRoute {
 
     this.routes.get("/validator/all", requireRole("USER"), (req, res) => {
       this.requestController
-        .getMyValidator(req.user?.userId!, req.params as unknown as QueryString)
+        .getMyValidator(req.user?.userId!, req.query as unknown as QueryString)
         .then((request) =>
           res
             .status(200)
