@@ -656,7 +656,11 @@ export class PaymentService {
       include: {
         signer: true,
         method: true,
-        request: true,
+        request: {
+          include: {
+            beficiaryList: true
+          },
+        },
         transaction: true,
         facture: {
           include: {

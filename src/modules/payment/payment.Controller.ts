@@ -104,6 +104,7 @@ export default class PaymentController {
       userId: Number(paymentData.userId),
       invoiceId: Number(paymentData.invoiceId),
       isPartial: Boolean(paymentData.isPartial),
+      ...(paymentData.benefId && { benefId: Number(paymentData.benefId) }),
       proof: null,
       justification: null,
     };
