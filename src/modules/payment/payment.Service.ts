@@ -725,7 +725,29 @@ export class PaymentService {
                 ? { equals: Number(amount) }
                 : {}),
         },
-        status: { not: "appro" },
+        AND: [
+          {
+            ...(type ? {
+              type: {
+                equals: type
+              }
+            } : {}),
+          },
+          {
+            type: {
+              not: "appro"
+            },
+          }
+        ],
+        ...(tab === "validated"
+          ? { status: { in: ["validated", "unsigned"] } }
+          : tab === "processed"
+            ? { status: { in: ["signed", "simple_signed"] } }
+            : tab === "paid"
+              ? { status: "paid" }
+              : tab === "cancelled"
+                ? { status: "cancelled" }
+                : {}),
         ...(provider ? { facture: { command: { providerId: +provider } } } : {}),
         ...(paymentMethod ? { methodId: paymentMethod } : {}),
         ...(isSelected ? { isSelected: isSelected } : {}),
