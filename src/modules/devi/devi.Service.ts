@@ -292,8 +292,8 @@ export class DeviService {
     });
   };
 
-  getUntreated = async () => {
-    const devis = await prisma.devi.findMany({
+  getUntreated = () => {
+    return prisma.devi.count({
       where: {
         status: "APPROVED",
         OR: [
@@ -309,12 +309,7 @@ export class DeviService {
             }
           }
         ]
-      },
-      include: {
-        command: true
-      },
+      }
     });
-
-    return devis.length
   };
 }
