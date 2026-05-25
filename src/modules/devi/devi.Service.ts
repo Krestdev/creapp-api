@@ -1,6 +1,7 @@
 import { Devi, DeviElement, PrismaClient } from "@prisma/client";
 import { storeDocumentsBulk } from "../../utils/DocumentManager";
 import { getIO } from "../../socket";
+import { console } from "inspector";
 
 const prisma = new PrismaClient();
 
@@ -292,21 +293,25 @@ export class DeviService {
     });
   };
 
-  getUntreated = () => {
-    return prisma.devi.count({
+  getUntreated = async () => {
+    const devis = await prisma.devi.count({
       where: {
         status: "APPROVED",
-        OR: [
-          {
-            command: {
-              every: {
-                status: "REJECTED"
-              }
-            }
-          },
-          { commandId: null }
-        ]
       }
     });
+
+    const bcApproved = await prisma.command.count({
+      where: {
+        status: "APPROVED"
+      }
+    })
+
+    const bcPending = await prisma.command.count({
+      where: {
+        status: "PENDING"
+      }
+    })
+
+    return devis - (bcApproved + bcPending);
   };
 }
