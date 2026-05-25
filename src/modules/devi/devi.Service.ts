@@ -315,6 +315,6 @@ export class DeviService {
       },
     });
 
-    return devis
+    return devis.length
   };
 }
