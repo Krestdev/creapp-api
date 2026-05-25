@@ -293,11 +293,22 @@ export class DeviService {
   };
 
   getUntreated = async () => {
-    return prisma.devi.count({
+    const devis = await prisma.devi.count({
       where: {
         status: "APPROVED",
-        commandId: null
+        OR: [
+          { commandId: null },
+          {
+            command: {
+              none: {
+                status: "REJECTED"
+              }
+            }
+          }
+        ]
       },
     });
+
+    return devis
   };
 }
