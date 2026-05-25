@@ -742,7 +742,9 @@ export class RequestService {
           },
         },
         ...(tab === "pending"
-          ? { state: { in: ["pending"] } }
+          ? {
+            state: { in: ["pending"] }
+          }
           : tab === "processed"
             ? { state: { in: ["store", "validated", "rejected"] } }
             : {}),
@@ -855,7 +857,7 @@ export class RequestService {
     });
 
     return {
-      data: this.approbatorRequests(requests, id).filter((r) => r.validators.slice(0, pageSize || 10)),
+      data: this.approbatorRequests(requests, id, tab).filter((r) => r.validators.slice(0, pageSize || 10)),
       total: requests.length,
     };
   };
@@ -1017,15 +1019,30 @@ export class RequestService {
   approbatorRequests = (
     requests: Array<RequestModel & { validators: Validators[] }>,
     userId?: number,
+    tab?: "pending" | "processed",
   ): Array<RequestModel & { validators: Validators[] }> => {
     if (!userId) return [];
     const res = requests.filter((r) => {
-      const myRank = r.validators.find((u) => u.userId === userId)?.rank;
-      if (!myRank) {
+      const validator = r.validators.find((u) => u.userId === userId);
+      const myRank = validator?.rank;
+      if (!validator || !myRank) {
         return false;
       }
       if (r.state === "cancel" || r.type === "speciaux") {
         return false;
+      }
+      if (tab === "pending") {
+        if (myRank === 1) return r.state === "pending" && validator.validated === false;
+        return r.validators.find((v) => v.rank === myRank - 1)?.validated === true && validator.validated === false && r.state === "pending";
+
+      }
+      if (tab === "processed") {
+        if (validator.validated === true) {
+          return true;
+        }
+        else {
+          return false;
+        }
       }
       if (myRank === 1) {
         return true;
@@ -1034,6 +1051,7 @@ export class RequestService {
         return true;
       }
       return r.validators.find((v) => v.rank === myRank - 1)?.validated === true;
+
     });
     return res;
   };
