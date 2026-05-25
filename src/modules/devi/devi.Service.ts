@@ -315,8 +315,6 @@ export class DeviService {
       },
     });
 
-    console.log(devis)
-
     return devis
   };
 }
