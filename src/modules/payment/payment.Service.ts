@@ -514,7 +514,8 @@ export class PaymentService {
         status: "validated",
         selected: false
       },
-      skip: (pageIndex || 0) * (pageSize || 10),
+      skip: (pageIndex || 0) * (pageSize || 15),
+      take: pageSize || 15,
       orderBy: {
         createdAt: "desc",
       },
@@ -534,7 +535,7 @@ export class PaymentService {
     })
 
     return {
-      data: payment.slice(0, pageSize || 15),
+      data: payment,
       count: paymentCount,
     };
   }
@@ -579,7 +580,7 @@ export class PaymentService {
       priority,
     } = queryParams;
 
-    const payment = await prisma.payment.findMany({
+    const FilterObject = {
       where: {
         ...(search ? { title: { contains: search } } : {}),
         ...(beneficiary ? { beneficiary: { id: beneficiary } } : {}),
@@ -672,15 +673,23 @@ export class PaymentService {
           },
         },
       },
-      skip: (pageIndex || 0) * (pageSize || 10),
+    }
+
+    const payment = await prisma.payment.findMany({
+      ...FilterObject,
+      skip: (pageIndex || 0) * (pageSize || 15),
+      take: pageSize || 15,
       orderBy: {
         createdAt: "desc",
       },
     });
+    const paymentCount = await prisma.payment.count({
+      where: FilterObject.where
+    });
 
     return {
-      data: payment.slice(0, pageSize || 0),
-      count: payment.length,
+      data: payment,
+      count: paymentCount,
     };
   };
 
@@ -755,7 +764,6 @@ export class PaymentService {
                     }
                     : {},
       },
-      skip: (pageIndex || 0) * (pageSize || 10),
       orderBy: {
         createdAt: "desc",
       },
@@ -810,7 +818,8 @@ export class PaymentService {
       search,
       priority,
     } = queryParams;
-    const payment = await prisma.payment.findMany({
+
+    const FilterObject = {
       where: {
         ...(search ? { title: { contains: search } } : {}),
         price: {
@@ -890,14 +899,24 @@ export class PaymentService {
           },
         },
       },
+    }
+
+    const payment = await prisma.payment.findMany({
+      ...FilterObject,
       skip: (pageIndex || 0) * (pageSize || 10),
+      take: pageSize || 15,
       orderBy: {
         createdAt: "desc",
       },
     });
+
+    const paymentCount = await prisma.payment.count({
+      where: FilterObject.where
+    });
+
     return {
-      data: payment.slice(0, pageSize || 0),
-      count: payment.length,
+      data: payment,
+      count: paymentCount,
     };
   };
 
@@ -915,7 +934,8 @@ export class PaymentService {
       search,
       priority,
     } = queryParams;
-    const payment = await prisma.payment.findMany({
+
+    const FIlterObject = {
       where: {
         ...(search ? { title: { contains: search } } : {}),
         price: {
@@ -973,7 +993,10 @@ export class PaymentService {
                     }
                     : {},
       },
-      skip: (pageIndex || 0) * (pageSize || 10),
+    }
+
+    const payment = await prisma.payment.findMany({
+      ...FIlterObject,
       orderBy: {
         createdAt: "desc",
       },
@@ -1024,7 +1047,8 @@ export class PaymentService {
       search,
       priority,
     } = queryParams;
-    const payment = await prisma.payment.findMany({
+
+    const FilterObject = {
       where: {
         ...(search ? { title: { contains: search } } : {}),
         type: {
@@ -1098,14 +1122,24 @@ export class PaymentService {
           },
         },
       },
-      skip: (pageIndex || 0) * (pageSize || 10),
+    }
+
+    const payment = await prisma.payment.findMany({
+      ...FilterObject,
+      skip: (pageIndex || 0) * (pageSize || 15),
+      take: pageSize || 15,
       orderBy: {
         createdAt: "desc",
       },
     });
+
+    const total = await prisma.payment.count({
+      where: FilterObject.where,
+    });
+
     return {
-      data: payment.slice(0, pageSize || 0),
-      count: payment.length,
+      data: payment,
+      count: total,
     };
   };
 
@@ -1172,7 +1206,6 @@ export class PaymentService {
                     }
                     : {},
       },
-      skip: (pageIndex || 0) * (pageSize || 10),
       orderBy: {
         createdAt: "desc",
       },
@@ -1208,7 +1241,7 @@ export class PaymentService {
   getPaymentToSign = async (userId: number, queryParams: PaymentSignQueryParameter) => {
     const { tab, search, bank, priority, amount, amountType, pageIndex, pageSize } = queryParams
 
-    const payment = await prisma.payment.findMany({
+    const FilterObject = {
       where: {
         method: {
           signatairs: {
@@ -1247,15 +1280,24 @@ export class PaymentService {
           select: { label: true }
         }
       },
-      skip: (pageIndex || 0) * (pageSize || 10),
+    }
+
+    const payment = await prisma.payment.findMany({
+      ...FilterObject,
+      skip: (pageIndex || 0) * (pageSize || 15),
+      take: pageSize || 15,
       orderBy: {
         createdAt: "desc",
       },
     });
 
+    const total = await prisma.payment.count({
+      where: FilterObject.where,
+    });
+
     return {
-      data: payment.slice(0, pageSize || 0),
-      count: payment.length,
+      data: payment,
+      count: total,
     };
   };
 
