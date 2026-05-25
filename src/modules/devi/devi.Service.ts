@@ -293,21 +293,29 @@ export class DeviService {
   };
 
   getUntreated = async () => {
-    const devis = await prisma.devi.count({
+    const devis = await prisma.devi.findMany({
       where: {
         status: "APPROVED",
         OR: [
           { commandId: null },
           {
+            commandId: {
+              not: null
+            },
             command: {
-              none: {
+              every: {
                 status: "REJECTED"
               }
             }
           }
         ]
       },
+      include: {
+        command: true
+      },
     });
+
+    console.log(devis)
 
     return devis
   };
