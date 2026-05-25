@@ -1,4 +1,4 @@
-import { Payment, PrismaClient, Signatair, User } from "@prisma/client";
+import { Payment, Prisma, PrismaClient, Signatair, User } from "@prisma/client";
 import { getIO } from "../../socket";
 import {
   deleteDocumentsByOwner,
@@ -515,7 +515,7 @@ export class PaymentService {
         selected: false
       },
       skip: (pageIndex || 0) * (pageSize || 15),
-      take: pageSize || 15,
+      take: +pageSize || 15,
       orderBy: {
         createdAt: "desc",
       },
@@ -582,7 +582,7 @@ export class PaymentService {
 
     const FilterObject = {
       where: {
-        ...(search ? { title: { contains: search } } : {}),
+        ...(search ? { title: { contains: search, mode: "insensitive" as unknown as Prisma.QueryMode } } : {}),
         ...(beneficiary ? { beneficiary: { id: beneficiary } } : {}),
         price: {
           ...(amountType === "greater" && amount
@@ -678,7 +678,7 @@ export class PaymentService {
     const payment = await prisma.payment.findMany({
       ...FilterObject,
       skip: (pageIndex || 0) * (pageSize || 15),
-      take: pageSize || 15,
+      take: +pageSize || 15,
       orderBy: {
         createdAt: "desc",
       },
@@ -713,7 +713,7 @@ export class PaymentService {
     } = queryParams;
     const payment = await prisma.payment.findMany({
       where: {
-        ...(search ? { title: { contains: search } } : {}),
+        ...(search ? { title: { contains: search, mode: "insensitive" as unknown as Prisma.QueryMode } } : {}),
         ...(beneficiary ? { beneficiary: { id: beneficiary } } : {}),
         ...(type ? { type: type } : {}),
         price: {
@@ -821,7 +821,7 @@ export class PaymentService {
 
     const FilterObject = {
       where: {
-        ...(search ? { title: { contains: search } } : {}),
+        ...(search ? { title: { contains: search, mode: "insensitive" as unknown as Prisma.QueryMode } } : {}),
         price: {
           ...(amountType === "greater" && amount
             ? { gte: Number(amount) }
@@ -904,7 +904,7 @@ export class PaymentService {
     const payment = await prisma.payment.findMany({
       ...FilterObject,
       skip: (pageIndex || 0) * (pageSize || 10),
-      take: pageSize || 15,
+      take: +pageSize || 15,
       orderBy: {
         createdAt: "desc",
       },
@@ -937,7 +937,7 @@ export class PaymentService {
 
     const FIlterObject = {
       where: {
-        ...(search ? { title: { contains: search } } : {}),
+        ...(search ? { title: { contains: search, mode: "insensitive" as unknown as Prisma.QueryMode } } : {}),
         price: {
           ...(amountType === "greater" && amount
             ? { gte: Number(amount) }
@@ -1050,7 +1050,7 @@ export class PaymentService {
 
     const FilterObject = {
       where: {
-        ...(search ? { title: { contains: search } } : {}),
+        ...(search ? { title: { contains: search, mode: "insensitive" as unknown as Prisma.QueryMode } } : {}),
         type: {
           notIn: ["transport", "gas", "others"],
         },
@@ -1127,7 +1127,7 @@ export class PaymentService {
     const payment = await prisma.payment.findMany({
       ...FilterObject,
       skip: (pageIndex || 0) * (pageSize || 15),
-      take: pageSize || 15,
+      take: +pageSize || 15,
       orderBy: {
         createdAt: "desc",
       },
@@ -1156,7 +1156,7 @@ export class PaymentService {
     } = queryParams;
     const payment = await prisma.payment.findMany({
       where: {
-        ...(search ? { title: { contains: search } } : {}),
+        ...(search ? { title: { contains: search, mode: "insensitive" as unknown as Prisma.QueryMode } } : {}),
         type: {
           notIn: ["transport", "gas", "others"],
         },
@@ -1259,7 +1259,7 @@ export class PaymentService {
           : tab === "signed"
             ? { status: { in: ["signed", "paid"] } }
             : { status: "paid" }),
-        ...(search ? { title: { contains: search } } : {}),
+        ...(search ? { title: { contains: search, mode: "insensitive" as unknown as Prisma.QueryMode } } : {}),
         ...(bank ? { bankId: bank } : {}),
         ...(priority ? { priority: priority } : {}),
         price: {
@@ -1285,7 +1285,7 @@ export class PaymentService {
     const payment = await prisma.payment.findMany({
       ...FilterObject,
       skip: (pageIndex || 0) * (pageSize || 15),
-      take: pageSize || 15,
+      take: +pageSize || 15,
       orderBy: {
         createdAt: "desc",
       },
@@ -1321,7 +1321,7 @@ export class PaymentService {
           : tab === "signed"
             ? { status: { in: ["signed", "paid"] } }
             : { status: "paid" }),
-        ...(search ? { title: { contains: search } } : {}),
+        ...(search ? { title: { contains: search, mode: "insensitive" as unknown as Prisma.QueryMode } } : {}),
         ...(bank ? { bankId: bank } : {}),
         ...(priority ? { priority: priority } : {}),
         price: {

@@ -310,11 +310,13 @@ export class RequestService {
             {
               label: {
                 contains: search,
+                mode: "insensitive"
               },
             },
             {
               ref: {
                 contains: search,
+                mode: "insensitive"
               },
             },
           ],
@@ -894,11 +896,13 @@ export class RequestService {
             {
               label: {
                 contains: search,
+                mode: "insensitive"
               },
             },
             {
               ref: {
                 contains: search,
+                mode: "insensitive"
               },
             },
           ],
