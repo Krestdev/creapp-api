@@ -297,17 +297,14 @@ export class DeviService {
       where: {
         status: "APPROVED",
         OR: [
-          { commandId: null },
           {
-            commandId: {
-              not: null
-            },
             command: {
               every: {
                 status: "REJECTED"
               }
             }
-          }
+          },
+          { commandId: null }
         ]
       }
     });
