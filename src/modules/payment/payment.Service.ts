@@ -618,7 +618,7 @@ export class PaymentService {
                 : {}),
         ...(provider ? { facture: { command: { providerId: +provider } } } : {}),
         ...(paymentMethod ? { methodId: paymentMethod } : {}),
-        ...(isSelected ? { isSelected: isSelected } : {}),
+        ...(isSelected ? { selected: isSelected } : {}),
         ...(from ? { createdAt: { gte: from } } : {}),
         ...(to ? { createdAt: { lte: to } } : {}),
         ...(priority ? { priority: priority } : {}),
