@@ -414,7 +414,7 @@ export class RequestService {
       ...FilterObject,
       // take: filters?.pageSize || 10,
       skip: (pageIndex || 0) * (pageSize || 15),
-      take: pageSize || 15,
+      take: pageSize ? Number(pageSize) : 15,
       orderBy: {
         createdAt: "desc",
       },
@@ -867,7 +867,7 @@ export class RequestService {
       ...FilterObject,
       // take: filters?.pageSize || 10,
       skip: (pageIndex || 0) * (pageSize || 15),
-      take: (pageSize || 15),
+      take: pageSize ? Number(pageSize) : 15,
       orderBy: {
         createdAt: "desc",
       },
