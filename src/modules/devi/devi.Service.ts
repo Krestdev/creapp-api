@@ -104,90 +104,140 @@ export class DeviService {
     }[],
   ) => {
     const elements = data.map((el) => el.elements).flat();
-    const elementIds = elements.map((el) => el.elementIds[0]!);
     const DelementIds = elements.map((el) => el.elementIds).flat();
 
-    //  find all the requests linked to the commandRequest
-    const requestList = await prisma.requestModel.findMany({
+    if (DelementIds.length === 0) {
+      return { count: 0 };
+    }
+
+    // 1. Find all requestModelId values associated with the currently selected elements
+    const selectedElements = await prisma.deviElement.findMany({
       where: {
-        deviElements: {
-          some: {
-            id: {
-              in: elementIds,
+        id: { in: DelementIds },
+      },
+      select: {
+        requestModelId: true,
+      },
+    });
+
+    const requestModelIds = selectedElements
+      .map((el) => el.requestModelId)
+      .filter((id): id is number => id !== null);
+
+    // 2. Find all Devi IDs that contain elements for the command requests of the submitted devis
+    const commandRequestIds = data
+      .map((d) => d.commandRequestId)
+      .filter((id): id is number => id !== null && id !== undefined);
+
+    const devisToUpdate = await prisma.devi.findMany({
+      where: {
+        commandRequestId: { in: commandRequestIds },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const submittedDeviIds = data.map((d) => d.deviId);
+    const affectedDeviIds = Array.from(
+      new Set([...submittedDeviIds, ...devisToUpdate.map((d) => d.id)]),
+    );
+
+    // 3. Perform updates inside a transaction for consistency
+    return prisma.$transaction(async (tx) => {
+      // Mark submitted elements as SELECTED
+      await tx.deviElement.updateMany({
+        where: {
+          id: { in: DelementIds },
+        },
+        data: { status: "SELECTED" },
+      });
+
+      // Mark other elements for the same requests as REJECTED
+      await tx.deviElement.updateMany({
+        where: {
+          deviId: { in: affectedDeviIds },
+          id: { notIn: DelementIds },
+          requestModelId: { in: requestModelIds },
+        },
+        data: {
+          status: "REJECTED",
+        },
+      });
+
+      // Reset elements whose requests are completely unselected to NOT_SELECTED
+      await tx.deviElement.updateMany({
+        where: {
+          deviId: { in: affectedDeviIds },
+          id: { notIn: DelementIds },
+          requestModelId: {
+            notIn: requestModelIds,
+            not: null,
+          },
+        },
+        data: {
+          status: "NOT_SELECTED",
+        },
+      });
+
+      // Reset affected Devis status to PENDING
+      await tx.devi.updateMany({
+        where: {
+          id: { in: affectedDeviIds },
+        },
+        data: {
+          status: "PENDING",
+        },
+      });
+
+      // Rule 2: A Devi is rejected only when all its elements are REJECTED
+      await tx.devi.updateMany({
+        where: {
+          id: { in: affectedDeviIds },
+          element: {
+            every: {
+              status: "REJECTED",
             },
           },
         },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+        data: {
+          status: "REJECTED",
+        },
+      });
 
-    await prisma.deviElement.updateMany({
-      where: {
-        id: {
-          in: DelementIds,
-        },
-      },
-      data: { status: "SELECTED" },
-    });
-
-    await prisma.deviElement.updateMany({
-      where: {
-        id: {
-          notIn: DelementIds,
-        },
-        requestModelId: {
-          in: requestList.map((r) => r.id),
-        },
-      },
-      data: {
-        status: "REJECTED",
-      },
-    });
-
-    await prisma.devi.updateMany({
-      where: {
-        element: {
-          every: {
-            status: "REJECTED",
-          },
-        },
-      },
-      data: {
-        status: "REJECTED",
-      },
-    });
-
-    return prisma.devi.updateMany({
-      where: {
-        id: {
-          in: data.map((d) => d.deviId),
-        },
-        AND: [
-          {
-            element: {
-              none: {
-                status: {
-                  equals: "NOT_SELECTED",
+      // Rule 1 & 3: A Devi is approved only when:
+      // - At least one of its elements is SELECTED (some: SELECTED)
+      // - None of its elements are NOT_SELECTED (none: NOT_SELECTED)
+      // If there is still at least one request not handled, that element is NOT_SELECTED,
+      // which prevents the Devi from matching this clause, keeping it PENDING.
+      return tx.devi.updateMany({
+        where: {
+          id: { in: affectedDeviIds },
+          AND: [
+            {
+              element: {
+                none: {
+                  status: {
+                    equals: "NOT_SELECTED",
+                  },
                 },
               },
             },
-          },
-          {
-            element: {
-              some: {
-                status: {
-                  equals: "SELECTED",
+            {
+              element: {
+                some: {
+                  status: {
+                    equals: "SELECTED",
+                  },
                 },
               },
             },
-          },
-        ],
-      },
-      data: {
-        status: "APPROVED",
-      },
+          ],
+        },
+        data: {
+          status: "APPROVED",
+        },
+      });
     });
   };
 
