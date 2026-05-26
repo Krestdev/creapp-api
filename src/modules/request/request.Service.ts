@@ -1,17 +1,17 @@
 import {
   PayType,
+  Prisma,
   PrismaClient,
   RequestModel,
   RequestState,
   Validators
 } from "@prisma/client";
+import { getIO } from "../../socket";
 import {
   deleteDocumentsByOwner,
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
-import { getIO } from "../../socket";
-import { date, number } from "joi";
 import { QueryString } from "./request.Controller";
 
 const prisma = new PrismaClient();
@@ -303,20 +303,20 @@ export class RequestService {
       date,
     } = query || {};
 
-    const allRequests = await prisma.requestModel.findMany({
+    const FilterObject = {
       where: {
         ...(search && {
           OR: [
             {
               label: {
                 contains: search,
-                mode: "insensitive"
+                mode: "insensitive" as Prisma.QueryMode
               },
             },
             {
               ref: {
                 contains: search,
-                mode: "insensitive"
+                mode: "insensitive" as Prisma.QueryMode
               },
             },
           ],
@@ -408,16 +408,23 @@ export class RequestService {
           },
         },
       },
+    }
+
+    const allRequests = await prisma.requestModel.findMany({
+      ...FilterObject,
       // take: filters?.pageSize || 10,
-      skip: (pageIndex || 0) * (pageSize || 10),
+      skip: (pageIndex || 0) * (pageSize || 15),
+      take: pageSize || 15,
       orderBy: {
         createdAt: "desc",
       },
     });
 
+    const count = await prisma.requestModel.count({ where: FilterObject.where })
+
     return {
-      data: allRequests.slice(0, pageSize || 10),
-      total: allRequests.length,
+      data: allRequests,
+      total: count,
     };
   };
 
@@ -439,7 +446,7 @@ export class RequestService {
       date,
     } = query || {};
 
-    const allRequests = await prisma.requestModel.findMany({
+    const FilterObject = {
       where: {
         label: search
           ? {
@@ -503,6 +510,10 @@ export class RequestService {
                     }
                     : {},
       },
+    }
+
+    const allRequests = await prisma.requestModel.findMany({
+      ...FilterObject,
       // take: filters?.pageSize || 10,
       skip: (pageIndex || 0) * (pageSize || 10),
       orderBy: {
@@ -732,7 +743,7 @@ export class RequestService {
       date,
     } = query || {};
 
-    const requests = await prisma.requestModel.findMany({
+    const FilterObject = {
       where: {
         validators: {
           some: {
@@ -850,16 +861,25 @@ export class RequestService {
           },
         },
       },
+    }
+
+    const requests = await prisma.requestModel.findMany({
+      ...FilterObject,
       // take: filters?.pageSize || 10,
-      skip: (pageIndex || 0) * (pageSize || 10),
+      skip: (pageIndex || 0) * (pageSize || 15),
+      take: (pageSize || 15),
       orderBy: {
         createdAt: "desc",
       },
     });
 
+    const count = await prisma.requestModel.count({
+      where: FilterObject.where,
+    });
+
     return {
       data: this.approbatorRequests(requests, id, tab).filter((r) => r.validators.slice(0, pageSize || 10)),
-      total: requests.length,
+      total: count,
     };
   };
 
@@ -879,7 +899,7 @@ export class RequestService {
       date,
     } = query || {};
 
-    const requests = await prisma.requestModel.findMany({
+    const FilterObject = {
       where: {
         validators: {
           some: {
@@ -899,13 +919,13 @@ export class RequestService {
             {
               label: {
                 contains: search,
-                mode: "insensitive"
+                mode: "insensitive" as Prisma.QueryMode
               },
             },
             {
               ref: {
                 contains: search,
-                mode: "insensitive"
+                mode: "insensitive" as Prisma.QueryMode
               },
             },
           ],
@@ -997,6 +1017,10 @@ export class RequestService {
           },
         },
       },
+    }
+
+    const requests = await prisma.requestModel.findMany({
+      ...FilterObject,
       // take: filters?.pageSize || 10,
       skip: (pageIndex || 0) * (pageSize || 10),
       orderBy: {
