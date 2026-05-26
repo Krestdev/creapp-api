@@ -664,21 +664,26 @@ model Bank {
 }
 
 model Transaction {
-  id         Int       @id @default(autoincrement())
-  label      String
-  amount     Float
-  date       DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @default(now()) @updatedAt
-  Type       String
-  from       Bank      @relation(name: "incoming", fields: [fromBankId], references: [id])
-  to         Bank      @relation(name: "outgoing", fields: [toBankId], references: [id])
-  fromBankId Int
-  toBankId   Int
-  proof      String?
-  status     String? // APPROVED, PENDING, REJECTED, ACCEPTED
-  reason     String?
-  docNumber  String?
+  id        Int       @id @default(autoincrement())
+  label     String
+  amount    Float
+  date      DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  Type      String
+
+  from       Bank? @relation(name: "incoming", fields: [fromBankId], references: [id])
+  to         Bank? @relation(name: "outgoing", fields: [toBankId], references: [id])
+  fromBankId Int?
+  toBankId   Int?
+
+  fromBankName String?
+  toBankName   String?
+
+  proof     String?
+  status    String? // APPROVED, PENDING, REJECTED, ACCEPTED
+  reason    String?
+  docNumber String?
 
   method   PayType? @relation(fields: [methodId], references: [id])
   methodId Int?
@@ -752,7 +757,7 @@ enum modifact {
 }
 
 model modification {
-  id          Int      @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   action      modifact
   description String?
   // request
@@ -760,29 +765,29 @@ model modification {
   requestId   Int?
 
   // devis
-  devis     DeviElement? @relation(fields: [devisId], references: [id], onDelete: SetNull)
-  devisId   Int?
+  devis   DeviElement? @relation(fields: [devisId], references: [id], onDelete: SetNull)
+  devisId Int?
 
   // Command
-  command     Command?   @relation(fields: [commandId], references: [id], onDelete: SetNull)
-  commandId   Int?
+  command   Command? @relation(fields: [commandId], references: [id], onDelete: SetNull)
+  commandId Int?
 
   // Payment
-  payment     Payment?   @relation(fields: [paymentId], references: [id], onDelete: SetNull)
-  paymentId   Int?
+  payment   Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  paymentId Int?
 
   // Transaction
   transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
   transactionId Int?
-  
-  validator        User?    @relation("validator", fields: [validatorId], references: [id], onDelete: SetNull)
-  validatorId      Int?
 
-  requestor        User?    @relation("requestor", fields: [requestorId], references: [id], onDelete: SetNull)
-  requestorId      Int?
+  validator   User? @relation("validator", fields: [validatorId], references: [id], onDelete: SetNull)
+  validatorId Int?
+
+  requestor   User? @relation("requestor", fields: [requestorId], references: [id], onDelete: SetNull)
+  requestorId Int?
 
   decision Boolean
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }

@@ -696,6 +696,7 @@ export class RequestService {
             },
           },
         },
+        beficiaryList: true,
         validators: true,
         user: { select: { firstName: true, lastName: true } },
       },

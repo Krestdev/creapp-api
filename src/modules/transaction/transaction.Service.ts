@@ -13,7 +13,7 @@ export class TransactionService {
   // Create payment transaction
   createCreditTransaction = async (
     data: Transaction & {
-      toBankId: number;
+      toBankId: number | null;
       from: Bank;
     },
     file: Express.Multer.File[] | null,
@@ -32,6 +32,10 @@ export class TransactionService {
     await CacheService.del(`payment:all`);
     // create the bank if the provider bank is an inverstor
 
+    if (!toBankId) {
+      throw Error("Recipient bank not found");
+    }
+
     const [transaction] = await prisma.$transaction([
       prisma.transaction.create({
         data: {
@@ -46,12 +50,7 @@ export class TransactionService {
               id: Number(toBankId),
             },
           },
-          from: {
-            create: {
-              ...from,
-              balance: 0,
-            },
-          },
+          fromBankName: from.label,
           status: "APPROVED",
         },
         include: {
@@ -97,7 +96,7 @@ export class TransactionService {
   // Create payment transaction
   createDebitTransaction = async (
     data: Transaction & {
-      fromBankId: number;
+      fromBankId: number | null;
       to: Bank;
     },
     file: Express.Multer.File[] | null,
@@ -117,6 +116,10 @@ export class TransactionService {
     // create the bank if the provider bank is an inverstor
 
     // verify the available amount befor decementing
+
+    if (!fromBankId) {
+      throw Error("Origin bank not found");
+    }
 
     const okay = await this.shouldDecrement(
       Number(fromBankId),
@@ -275,7 +278,7 @@ export class TransactionService {
     const [_, __, transaction] = await prisma.$transaction([
       prisma.bank.update({
         where: {
-          id: data.fromBankId,
+          id: data.fromBankId!,
         },
         data: {
           balance: {
@@ -285,7 +288,7 @@ export class TransactionService {
       }),
       prisma.bank.update({
         where: {
-          id: data.toBankId,
+          id: data.toBankId!,
         },
         data: {
           balance: {
@@ -320,16 +323,9 @@ export class TransactionService {
     },
   ) => {
     const { from, to, paymentId, methodId, payments, ...transak } = data;
-    let fromBank: Bank | null = null;
 
     // create the bank if the provider bank is an inverstor
-    if (from) {
-      fromBank = await prisma.bank.create({
-        data: {
-          ...from,
-        },
-      });
-    } else {
+    if (!from) {
       transak.fromBankId = Number(transak.fromBankId);
       const okay = await this.shouldDecrement(transak!.fromBankId, data.amount);
       if (!okay) {
@@ -412,8 +408,8 @@ export class TransactionService {
       ? await prisma.transaction.create({
         data: {
           ...transak,
-          fromBankId: transak.fromBankId ?? fromBank?.id,
-          toBankId: transak.toBankId ?? to?.id,
+          ...(transak.fromBankId ? { fromBankId: transak.fromBankId } : { fromBankName: from.label }),
+          toBankId: transak.toBankId ?? to!.id,
           methodId: methodId ?? null,
           status:
             data.Type == "TRANSFER" && transak.status
@@ -441,8 +437,8 @@ export class TransactionService {
       : await prisma.transaction.create({
         data: {
           ...transak,
-          fromBankId: transak.fromBankId ?? fromBank?.id,
-          toBankId: transak.toBankId ?? to?.id,
+          ...(transak.fromBankId ? { fromBankId: transak.fromBankId } : { fromBankName: from.label }),
+          ...(transak.toBankId ? { toBankId: transak.toBankId } : { toBankName: to?.label ?? null }),
           status:
             data.Type == "TRANSFER" && transak.status
               ? transak.status
@@ -522,12 +518,17 @@ export class TransactionService {
       },
     });
 
-    const okay = await this.shouldDecrement(
-      payment.transaction!.fromBankId,
-      payment.price,
-    );
-    if (!okay) {
-      throw Error("Fond insufisant");
+    let okay = true
+
+    if (payment.transaction!.fromBankId !== null) {
+      okay = await this.shouldDecrement(
+        payment.transaction!.fromBankId,
+        payment.price,
+      );
+
+      if (!okay) {
+        throw Error("Fond insufisant");
+      }
     }
 
     const [_, transaction] = await prisma.$transaction([
@@ -770,7 +771,7 @@ export class TransactionService {
       },
     });
 
-    if (transaction.status === "REJECTED") {
+    if (transaction.status === "REJECTED" && transaction.fromBankId) {
       await prisma.bank.update({
         where: {
           id: transaction.fromBankId,
