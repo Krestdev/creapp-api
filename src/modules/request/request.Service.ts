@@ -3,6 +3,7 @@ import {
   Prisma,
   PrismaClient,
   RequestModel,
+  RequestPayType,
   RequestState,
   Validators
 } from "@prisma/client";
@@ -1120,8 +1121,8 @@ export class RequestService {
     return request;
   };
 
-  validate = async (id: number, validatorId: number, userId: number, dueDate?: Date, amount?: number | null, priority?: string, quantity?: number, unit?: string, benFac?: string) => {
-    const requestModel = await prisma.requestModel.findFirst({
+  validate = async (id: number, userId: number, dueDate?: Date, amount?: number | null, priority?: string, quantity?: number, unit?: string, benFac?: string, paytype?: RequestPayType) => {
+    const requestModel = await prisma.requestModel.findFirstOrThrow({
       where: { id },
     });
 
@@ -1144,6 +1145,24 @@ export class RequestService {
       });
     }
 
+    await prisma.requestOld.create({
+      data: {
+        unit: unit ? requestModel?.unit : null,
+        quantity: quantity ? requestModel?.quantity : null,
+        priority: priority ? requestModel?.priority : null,
+        amount: amount ? requestModel?.amount : null,
+        dueDate: dueDate ? requestModel?.dueDate : null,
+        request: {
+          connect: { id: id },
+        },
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+    });
+
     const request = await prisma.requestModel.update({
       where: { id },
       data: {
@@ -1154,6 +1173,7 @@ export class RequestService {
         ...(quantity && { quantity: quantity }),
         ...(unit && { unit: unit }),
         ...(benFac && { benFac: benFac }),
+        ...(paytype && { paytype: paytype }),
         validators: {
           updateMany: {
             where: { userId: userId },

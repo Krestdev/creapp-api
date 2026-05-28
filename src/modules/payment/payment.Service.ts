@@ -617,8 +617,13 @@ export class PaymentService {
                 ? { status: "cancelled" }
                 : {}),
         ...(provider ? { facture: { command: { providerId: +provider } } } : {}),
-        ...(paymentMethod ? { methodId: paymentMethod } : {}),
-        ...(isSelected ? { selected: isSelected } : {}),
+        ...(paymentMethod ? {
+          method: {
+            type: paymentMethod
+          }
+        } : {}),
+        ...(isSelected as unknown as string === "true" ? { selected: true } : {}),
+        ...(isSelected as unknown as string === "false" ? { selected: false } : {}),
         ...(from ? { createdAt: { gte: from } } : {}),
         ...(to ? { createdAt: { lte: to } } : {}),
         ...(priority ? { priority: priority } : {}),
@@ -676,7 +681,15 @@ export class PaymentService {
     }
 
     const payment = await prisma.payment.findMany({
-      ...FilterObject,
+      where: FilterObject.where,
+      include: {
+        ...FilterObject.include,
+        transaction: {
+          where: {
+            Type: "TRANSFER"
+          }
+        }
+      },
       skip: (pageIndex || 0) * (pageSize || 15),
       take: +pageSize || 15,
       orderBy: {
@@ -749,8 +762,13 @@ export class PaymentService {
                 ? { status: "cancelled" }
                 : {}),
         ...(provider ? { facture: { command: { providerId: +provider } } } : {}),
-        ...(paymentMethod ? { methodId: paymentMethod } : {}),
-        ...(isSelected ? { isSelected: isSelected } : {}),
+        ...(paymentMethod ? {
+          method: {
+            type: paymentMethod
+          }
+        } : {}),
+        ...(isSelected as unknown as string === "true" ? { selected: true } : {}),
+        ...(isSelected as unknown as string === "false" ? { selected: false } : {}),
         ...(from ? { createdAt: { gte: from } } : {}),
         ...(to ? { createdAt: { lte: to } } : {}),
         ...(priority ? { priority: priority } : {}),

@@ -71,9 +71,9 @@ export default class ModificationRoute {
     });
 
     // getAll
-    this.routes.get("/me/:id", requireRole("USER"), (req, res) => {
+    this.routes.post("/validate/:id", requireRole("USER"), (req, res) => {
       this.modificationController
-        .getMymodifications(Number(req.params.id))
+        .validateAndApply(Number(req.params.id ?? -1), req.body.decision ?? false)
         .then((request) =>
           res
             .status(200)

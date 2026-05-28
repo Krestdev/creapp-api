@@ -201,9 +201,9 @@ export default class RequestController {
   @Put("/validate/{id}")
   validate(
     @Path() id: string,
-    @Body() data: { validatorId: number; userId: number } & Pick<RequestModelDto, "dueDate" | "amount" | "priority" | "quantity" | "unit" | "benFac">,
+    @Body() data: { userId: number } & Pick<RequestModelDto, "dueDate" | "amount" | "priority" | "quantity" | "unit" | "benFac" | "paytype">,
   ): Promise<unknown> {
-    return requestService.validate(Number(id), data.validatorId, data.userId, data.dueDate, data.amount, data.priority, data.quantity, data.unit, data.benFac);
+    return requestService.validate(Number(id), data.userId, data.dueDate, data.amount, data.priority, data.quantity, data.unit, data.benFac, data.paytype);
   }
 
   @Put("/review/{id}")

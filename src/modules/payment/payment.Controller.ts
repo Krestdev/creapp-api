@@ -33,7 +33,7 @@ export type PaymentQueryParameter = {
   tab?: "validated" | "processed" | "paid" | "cancelled"
   type?: string;
   priority?: "low" | "medium" | "high" | "urgent";
-  paymentMethod?: number;
+  paymentMethod?: "check" | "bank-transfer" | "cash";
   beneficiary?: number;
   isSelected?: boolean;
   from?: Date,

@@ -39,7 +39,7 @@ export default class ModificationController {
   }
 
   @Get("/me/{id}")
-  getMymodifications(@Path() id: number): Promise<modification[]> {
-    return modificationService.getMyNotif(id);
+  validateAndApply(@Path() id: number, @Body() decision: boolean): Promise<modification> {
+    return modificationService.validate(id, decision);
   }
 }

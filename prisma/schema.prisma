@@ -550,6 +550,8 @@ model Payment {
   paymentTransactionId Int?
   selected             Boolean      @default(false)
 
+  recipient String?
+
   paymentProof String?
 
   modifications modification[]
@@ -756,13 +758,22 @@ enum modifact {
   DELETE
 }
 
+enum ModificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model modification {
-  id          Int           @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   action      modifact
   description String?
+
+  changes   Json?
+  status    ModificationStatus @default(PENDING)
   // request
-  request     RequestModel? @relation(fields: [requestId], references: [id], onDelete: SetNull)
-  requestId   Int?
+  request   RequestModel?      @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  requestId Int?
 
   // devis
   devis   DeviElement? @relation(fields: [devisId], references: [id], onDelete: SetNull)
