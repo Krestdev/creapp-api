@@ -1,45 +1,44 @@
-import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
-import { ModificationService } from "./modification.Service";
 import { modification } from "@prisma/client";
+import { ModificationService } from "./modification.Service";
 
 const modificationService = new ModificationService();
 
-@Route("request/modification")
-@Tags("modification Routes")
+// @Route("request/modification")
+// @Tags("modification Routes")
 export default class ModificationController {
-  @Post("/")
-  create(@Body() data: modification): Promise<modification> {
+  // @Post("/")
+  create(data: modification): Promise<modification> {
     return modificationService.create(data);
   }
 
   /**
    * @summary Update Command request
    */
-  @Put("/{id}")
+  // @Put("/{id}")
   update(
-    @Path() id: string,
-    @Body() data: modification,
+    id: string,
+    data: modification,
   ): Promise<modification> {
     return modificationService.update(Number(id), data);
   }
 
-  @Delete("/{id}")
-  delete(@Path() id: string): Promise<modification> {
+  // @Delete("/{id}")
+  delete(id: string): Promise<modification> {
     return modificationService.delete(Number(id));
   }
 
-  @Get("/{id}")
-  getOne(@Path() id: string): Promise<modification> {
+  // @Get("/{id}")
+  getOne(id: string): Promise<modification> {
     return modificationService.getOne(Number(id));
   }
 
-  @Get("/")
+  // @Get("/")
   getAll(): Promise<modification[]> {
     return modificationService.getAll();
   }
 
-  @Get("/me/{id}")
-  validateAndApply(@Path() id: number, @Body() decision: boolean): Promise<modification> {
+  // @Get("/me/{id}")
+  validateAndApply(id: number, decision: boolean): Promise<modification> {
     return modificationService.validate(id, decision);
   }
 }
