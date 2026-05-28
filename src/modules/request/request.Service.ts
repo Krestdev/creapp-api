@@ -1120,7 +1120,7 @@ export class RequestService {
     return request;
   };
 
-  validate = async (id: number, validatorId: number, userId: number, dueDate?: Date, amount?: number | null, priority?: string, quantity?: number, unit?: string) => {
+  validate = async (id: number, validatorId: number, userId: number, dueDate?: Date, amount?: number | null, priority?: string, quantity?: number, unit?: string, benFac?: string) => {
     const requestModel = await prisma.requestModel.findFirst({
       where: { id },
     });
@@ -1153,6 +1153,7 @@ export class RequestService {
         ...(priority && { priority: priority }),
         ...(quantity && { quantity: quantity }),
         ...(unit && { unit: unit }),
+        ...(benFac && { benFac: benFac }),
         validators: {
           updateMany: {
             where: { userId: userId },
