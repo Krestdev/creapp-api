@@ -58,7 +58,7 @@ model User {
   signature         Document?          @relation(name: "signature", fields: [signatureId], references: [id])
   signatureId       String?            @unique()
   commandValidators commandValidator[]
-  servicehead       Services?          @relation(name: "service_head")
+  servicehead       Services[]         @relation(name: "service_head")
   serviceId         Int?
   service           Services?          @relation(name: "service_users", fields: [serviceUserId], references: [id])
   serviceUserId     Int?
@@ -171,6 +171,8 @@ model RequestModel {
 
   servicechief   User? @relation(name: "service_head", fields: [serviceChiefId], references: [id], onDelete: SetNull)
   serviceChiefId Int?
+
+  chiefDecision Boolean?
 
   decision RequestState?
 
