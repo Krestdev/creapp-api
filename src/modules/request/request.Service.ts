@@ -563,6 +563,7 @@ export class RequestService {
       where: {
         state: "pending",
         decision: "PENDING",
+        chiefDecision: null,
         validators: {
           some: {
             userId,
@@ -748,6 +749,9 @@ export class RequestService {
 
     const FilterObject = {
       where: {
+        chiefDecision: {
+          not: null
+        },
         validators: {
           some: {
             AND: [
@@ -868,6 +872,12 @@ export class RequestService {
 
     const requests = await prisma.requestModel.findMany({
       ...FilterObject,
+      // where:{
+      //   AND:[
+      //     {state: {notIn: ["pending"]}},
+      //     {chiefDecision: {not: null}},
+      //   ]
+      // }
       // take: filters?.pageSize || 10,
       skip: (pageIndex || 0) * (pageSize || 15),
       take: pageSize ? Number(pageSize) : 15,
@@ -904,6 +914,9 @@ export class RequestService {
 
     const FilterObject = {
       where: {
+        chiefDecision: {
+          not: null
+        },
         validators: {
           some: {
             AND: [
@@ -1191,6 +1204,17 @@ export class RequestService {
           type: request.paytype ?? "cash",
         },
       });
+
+      if (["facilitation"].includes(request.type)) {
+        await prisma.payment.updateMany({
+          where: {
+            requestId: request.id,
+          },
+          data: {
+            methodId: paytype.id,
+          },
+        });
+      }
 
       if (["taxes", "settle"].includes(request.type)) {
         await prisma.payment.updateMany({
@@ -1530,9 +1554,10 @@ export class RequestService {
     file?: Express.Multer.File[] | null,
     benef?: number[],
   ) => {
+
     const paytype = await prisma.payType.findFirstOrThrow({
       where: {
-        type: data.paytype,
+        type: "cash",
       },
     });
 
