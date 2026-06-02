@@ -31,6 +31,8 @@ export class RequestService {
       | "vehiclesId"
       | "serviceChiefId"
       | "decision"
+      | "chiefDecision"
+      | "isUsed"
     >,
     benList?: number[],
   ) => {
@@ -1522,6 +1524,8 @@ export class RequestService {
       | "driverId"
       | "decision"
       | "serviceChiefId"
+      | "chiefDecision"
+      | "isUsed"
     > & { type: string; proof: string | null },
     file?: Express.Multer.File[] | null,
     benef?: number[],
@@ -1639,6 +1643,8 @@ export class RequestService {
       | "driverId"
       | "decision"
       | "serviceChiefId"
+      | "chiefDecision"
+      | "isUsed"
     >,
   ) => {
     const { ...requestData } = data;
