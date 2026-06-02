@@ -1207,23 +1207,14 @@ export class RequestService {
       },
     });
 
+
+
     if (["transport", "taxes", "gas", "others"].includes(request.type)) {
       const paytype = await prisma.payType.findFirstOrThrow({
         where: {
           type: request.paytype ?? "cash",
         },
       });
-
-      if (["facilitation"].includes(request.type)) {
-        await prisma.payment.updateMany({
-          where: {
-            requestId: request.id,
-          },
-          data: {
-            methodId: paytype.id,
-          },
-        });
-      }
 
       if (["taxes", "settle"].includes(request.type)) {
         await prisma.payment.updateMany({
@@ -1249,6 +1240,25 @@ export class RequestService {
           },
         });
       }
+    }
+
+    if (["facilitation"].includes(request.type)) {
+
+      const paytype = await prisma.payType.findFirstOrThrow({
+        where: {
+          type: request.paytype ?? "cash",
+        },
+      });
+
+      console.log("updating", paytype.id, paytype)
+      await prisma.payment.updateMany({
+        where: {
+          requestId: request.id,
+        },
+        data: {
+          methodId: paytype.id,
+        },
+      });
     }
 
     try {
