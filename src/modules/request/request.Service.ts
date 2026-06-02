@@ -749,9 +749,18 @@ export class RequestService {
 
     const FilterObject = {
       where: {
-        chiefDecision: {
-          not: null
-        },
+        // AND: [
+        //   {
+        //     chiefDecision: {
+        //       not: null
+        //     }
+        //   },
+        //   {
+        //     serviceChiefId: {
+        //       not: null
+        //     }
+        //   }
+        // ],
         validators: {
           some: {
             AND: [
@@ -876,8 +885,11 @@ export class RequestService {
       //   AND:[
       //     {state: {notIn: ["pending"]}},
       //     {chiefDecision: {not: null}},
-      //   ]
-      // }
+      //   ],
+      //   serviceChiefId: {
+      //     not: null
+      //   }
+      // },
       // take: filters?.pageSize || 10,
       skip: (pageIndex || 0) * (pageSize || 15),
       take: pageSize ? Number(pageSize) : 15,
@@ -891,7 +903,7 @@ export class RequestService {
     });
 
     return {
-      data: this.approbatorRequests(requests, id, tab).filter((r) => r.validators.slice(0, pageSize || 10)),
+      data: this.approbatorRequests(requests, id, tab).filter(filter => filter.serviceChiefId && filter.chiefDecision == null ? false : true).filter((r) => r.validators.slice(0, pageSize || 10)),
       total: count,
     };
   };
@@ -914,9 +926,6 @@ export class RequestService {
 
     const FilterObject = {
       where: {
-        chiefDecision: {
-          not: null
-        },
         validators: {
           some: {
             AND: [
@@ -1044,7 +1053,7 @@ export class RequestService {
       },
     });
 
-    const approbatorRequests = this.approbatorRequests(requests, id);
+    const approbatorRequests = this.approbatorRequests(requests, id).filter(filter => filter.serviceChiefId && filter.chiefDecision == null ? false : true);
 
     const stats = {
       awaiting: approbatorRequests.filter((r) => r.state === "pending").length,
