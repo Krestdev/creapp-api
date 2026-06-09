@@ -300,6 +300,7 @@ model DeviElement {
   modifications modification[]
 }
 
+// Bons de commande
 model Command {
   id               Int      @id @default(autoincrement())
   provider         Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
@@ -346,6 +347,21 @@ model Command {
   validatorId Int?              @unique()
 
   modifications modification[]
+
+  // le delait minimum de payment (pas de payment avant ce numbre de jours)
+  payDelay Int @default(0)
+
+  // le paiement est il conditionner par le reception
+  isPayConditionedByReception Boolean @default(false)
+
+  // mode de reception
+  receptionMode RECEPTIONMODE @default(PARTIAL) // PARTIAL, FULL, NONE
+}
+
+enum RECEPTIONMODE {
+  PARTIAL
+  FULL
+  NONE
 }
 
 enum ValidatorDecision {
