@@ -13,6 +13,13 @@ export default class ReceptionController {
     return receptionService.create(data);
   }
 
+  @Put("/command/{id}")
+  command(
+    @Path() id: string,
+  ): Promise<Reception[]> {
+    return receptionService.command(Number(id));
+  }
+
   /**
    * @summary Update Command request
    */

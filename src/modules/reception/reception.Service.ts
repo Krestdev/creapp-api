@@ -17,6 +17,14 @@ export class ReceptionService {
     return reception;
   };
 
+  // get receptions from a command
+  command = async (id: number) => {
+    const reception = await prisma.reception.findMany({
+      where: { CommandId: id },
+    });
+    return reception;
+  };
+
   // Update
   update = async (
     id: number,
