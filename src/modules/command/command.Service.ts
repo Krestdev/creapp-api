@@ -254,6 +254,9 @@ export class CommandService {
         validated: true,
         decision: "APPROVED",
       },
+    }).catch(e => {
+      console.log(e)
+      throw e
     });
 
     const command = await prisma.command.update({
@@ -276,6 +279,9 @@ export class CommandService {
         validators: true,
         commandConditions: true,
       },
+    }).catch(e => {
+      console.log(e)
+      throw e
     });
 
     if (data.status === "APPROVED") {

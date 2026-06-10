@@ -21,6 +21,7 @@ export class ReceptionService {
   command = async (id: number) => {
     const reception = await prisma.reception.findMany({
       where: { CommandId: id },
+      include: { Deliverables: true },
     });
     return reception;
   };

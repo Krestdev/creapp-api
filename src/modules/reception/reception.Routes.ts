@@ -36,7 +36,7 @@ export default class ReceptionRoute {
     });
 
     // assign
-    this.routes.put("/command/:id", requireRole("USER"), (req, res) => {
+    this.routes.get("/command/:id", requireRole("USER"), (req, res) => {
       this.receptionController
         .command(req.params.id!)
         .then((request) =>
