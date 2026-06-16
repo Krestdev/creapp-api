@@ -491,7 +491,7 @@ export class PaymentService {
     const payment = await prisma.payment.count({
       where: {
         status: {
-          in: ["validated", "unsigned"],
+          in: ["validated", "unsigned", "simple_signed", "signed"],
         },
         type: {
           not: "appro"
