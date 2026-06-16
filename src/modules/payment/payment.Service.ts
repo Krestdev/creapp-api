@@ -583,7 +583,7 @@ export class PaymentService {
     const FilterObject = {
       where: {
         ...(search ? { title: { contains: search, mode: "insensitive" as unknown as Prisma.QueryMode } } : {}),
-        ...(beneficiary ? { beneficiary: { id: beneficiary } } : {}),
+        ...(beneficiary ? { beneficiary: { id: Number(beneficiary) } } : {}),
         price: {
           ...(amountType === "greater" && amount
             ? { gte: Number(amount) }
