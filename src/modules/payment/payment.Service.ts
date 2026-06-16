@@ -727,7 +727,7 @@ export class PaymentService {
     const payment = await prisma.payment.findMany({
       where: {
         ...(search ? { title: { contains: search, mode: "insensitive" as unknown as Prisma.QueryMode } } : {}),
-        ...(beneficiary ? { beneficiary: { id: beneficiary } } : {}),
+        ...(beneficiary ? { beneficiary: { id: Number(beneficiary) } } : {}),
         ...(type ? { type: type } : {}),
         price: {
           ...(amountType === "greater" && amount
