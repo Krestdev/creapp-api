@@ -422,7 +422,7 @@ export class TransactionService {
               id: paymentId,
             },
           },
-          payments: {
+          payementappro: {
             connect: payments.map((id) => {
               return { id };
             }),
@@ -445,7 +445,7 @@ export class TransactionService {
               : data.Type == "TRANSFER"
                 ? "PENDING"
                 : "APPROVED",
-          payments: {
+          payementappro: {
             connect: payments.map((id) => {
               return { id };
             }),

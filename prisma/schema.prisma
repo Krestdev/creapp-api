@@ -566,9 +566,15 @@ model Payment {
   facture       Invoice?     @relation(fields: [invoiceId], references: [id])
   invoiceId     Int?
 
-  paymentTransaction   Transaction? @relation(fields: [paymentTransactionId], references: [id], name: "TransactionPayments")
+  paymentTransaction Transaction? @relation(fields: [paymentTransactionId], references: [id], name: "TransactionPayments")
+
+  // payment approvisionement
+  paymentAppro Transaction? @relation(fields: [paymentApproId], references: [id], name: "paymentAppro")
+
+  paymentApproId Int?
+
   paymentTransactionId Int?
-  selected             Boolean      @default(false)
+  selected             Boolean @default(false)
 
   recipient String?
 
@@ -713,12 +719,15 @@ model Transaction {
   isSigned Boolean @default(false)
   signDoc  String?
 
-  user        User?                @relation(name: "creator", fields: [userId], references: [id], onDelete: SetNull)
+  user        User?    @relation(name: "creator", fields: [userId], references: [id], onDelete: SetNull)
   userId      Int?
-  validator   User?                @relation(name: "validator", fields: [validatorId], references: [id])
+  validator   User?    @relation(name: "validator", fields: [validatorId], references: [id])
   validatorId Int?
-  payement    Payment?             @relation(name: "paymentTransaction")
-  signers     TransactionSigners[]
+  payement    Payment? @relation(name: "paymentTransaction")
+
+  // all approvisionement
+  payementappro Payment[]            @relation(name: "paymentAppro")
+  signers       TransactionSigners[]
 
   comment String?
 
