@@ -583,7 +583,26 @@ export class PaymentService {
     const FilterObject = {
       where: {
         ...(search ? { title: { contains: search, mode: "insensitive" as unknown as Prisma.QueryMode } } : {}),
-        ...(beneficiary ? { beneficiary: { id: Number(beneficiary) } } : {}),
+        ...(beneficiary && {
+          OR: [
+            { beneficiary: { id: Number(beneficiary) } },
+            {
+              request: {
+                OR: [
+                  { beneficiary: String(beneficiary) },
+                  {
+                    beficiaryList: {
+                      some: {
+                        id: Number(beneficiary)
+                      }
+                    }
+                  },
+                  { userId: Number(beneficiary) }
+                ]
+              }
+            }
+          ]
+        }),
         price: {
           ...(amountType === "greater" && amount
             ? { gte: Number(amount) }
