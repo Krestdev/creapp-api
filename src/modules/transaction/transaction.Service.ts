@@ -231,11 +231,7 @@ export class TransactionService {
                 id: Number(fromBankId),
               },
             },
-            to: {
-              create: {
-                ...to,
-              },
-            },
+            toBankName: to.label,
             status: "PENDING",
           },
         },
