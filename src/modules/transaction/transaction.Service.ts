@@ -143,12 +143,7 @@ export class TransactionService {
               id: fromBankId,
             },
           },
-          to: {
-            create: {
-              ...to,
-              balance: data.amount,
-            },
-          },
+          toBankName: to.label,
           status: "APPROVED",
         },
         include: {
