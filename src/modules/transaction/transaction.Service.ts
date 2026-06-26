@@ -522,6 +522,14 @@ export class TransactionService {
       }
     }
 
+    const transaction_v = await prisma.transaction.findFirst({
+      where: { id },
+      include: {
+        from: true,
+        to: true,
+      },
+    });
+
     const [_, transaction] = await prisma.$transaction([
       prisma.payment.update({
         where: { id: paymentId },
@@ -542,13 +550,15 @@ export class TransactionService {
               },
             },
           },
-          to: {
-            update: {
-              balance: {
-                increment: payment.price,
+          ...(transaction_v?.to ? {
+            to: {
+              update: {
+                balance: {
+                  increment: payment.price,
+                },
               },
             },
-          },
+          } : {})
         },
         include: {
           from: true,
