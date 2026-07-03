@@ -642,10 +642,20 @@ export class RequestService {
 
   // tableaux de board
   getAllRequestGraphs = async ({ userId }: { userId: number }) => {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        role: true,
+      },
+    });
+
     const allRequests = await prisma.requestModel.findMany({
       where: {
         state: { not: "cancel" },
-        userId,
+        // if user role is ADMIN or SUPER_ADMIN get all requests else get only user requests
+        ...(user?.role.find((r: any) => r.label === "ADMIN" || r.label === "SUPER_ADMIN") == null && { userId }),
       },
       include: {
         validators: true,
@@ -679,7 +689,6 @@ export class RequestService {
           };
         }),
       all: allRequests
-        .filter((r) => r.state !== "cancel")
         .map((req) => {
           return {
             state: req.state,
