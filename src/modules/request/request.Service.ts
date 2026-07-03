@@ -655,7 +655,7 @@ export class RequestService {
       where: {
         state: { not: "cancel" },
         // if user role is ADMIN or SUPER_ADMIN get all requests else get only user requests
-        ...(user?.role.find((r: any) => r.label === "ADMIN" || r.label === "SUPER_ADMIN") == null && { userId }),
+        ...(user?.role.find((r: any) => r.label === "ADMIN" || r.label === "SUPERADMIN") == null && { userId }),
       },
       include: {
         validators: true,
