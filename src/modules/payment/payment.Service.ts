@@ -1460,13 +1460,15 @@ export class PaymentService {
     return {
       total: allPayments.reduce((sum, payment) => sum + payment.price, 0),
       payments: allPayments.map(pay => {
-        const { price, type, title, project, facture } = pay
+        const { price, type, title, project, facture, status, createdAt } = pay
         return {
           price,
           type,
           title,
+          status,
           project: project?.label,
-          provider: facture?.command.provider.name
+          provider: facture?.command.provider.name,
+          createdAt
         }
       })
     }
