@@ -121,6 +121,7 @@ model Validators {
   request        RequestModel? @relation(fields: [requestModelId], references: [id], onDelete: Cascade)
   validated      Boolean       @default(false)
   decision       String?
+  comment        String?
   rank           Int
   userId         Int?
   requestModelId Int?

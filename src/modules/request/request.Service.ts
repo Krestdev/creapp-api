@@ -1441,7 +1441,8 @@ export class RequestService {
               validated: true,
               decision: data.validated
                 ? "pending"
-                : `rejected - ${data.decision}`,
+                : "rejected",
+              comment: data.decision ?? '',
             },
           },
         },
