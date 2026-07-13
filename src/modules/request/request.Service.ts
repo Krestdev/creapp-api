@@ -669,11 +669,7 @@ export class RequestService {
       submited: allRequests
         .filter((r) => r.state !== "cancel" && r.userId === userId)
         .map((req) => {
-          return {
-            state: req.state,
-            createdAt: req.createdAt,
-            updatedAt: req.updatedAt,
-          };
+          return req;
         }),
       validator: allRequests
         .filter(
@@ -682,19 +678,11 @@ export class RequestService {
             r.validators.some((v) => v.userId === userId && !v.validated),
         )
         .map((req) => {
-          return {
-            state: req.state,
-            createdAt: req.createdAt,
-            updatedAt: req.updatedAt,
-          };
+          return req;
         }),
       all: allRequests
         .map((req) => {
-          return {
-            state: req.state,
-            createdAt: req.createdAt,
-            updatedAt: req.updatedAt,
-          };
+          return req;
         }),
     };
   };
