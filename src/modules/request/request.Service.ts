@@ -722,6 +722,9 @@ export class RequestService {
         state: "validated",
         commandRequestId: null,
       },
+      include: {
+        validators: true,
+      },
       orderBy: {
         createdAt: "desc",
       },
