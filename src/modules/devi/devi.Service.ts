@@ -1,7 +1,6 @@
 import { Devi, DeviElement, PrismaClient } from "@prisma/client";
-import { storeDocumentsBulk } from "../../utils/DocumentManager";
 import { getIO } from "../../socket";
-import { console } from "inspector";
+import { storeDocumentsBulk } from "../../utils/DocumentManager";
 
 const prisma = new PrismaClient();
 

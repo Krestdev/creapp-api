@@ -1,8 +1,8 @@
 import { Payment } from "@prisma/client";
-import { Body, Delete, Get, Path, Post, Put, Query, Route, Tags } from "tsoa";
-import { PaymentService } from "./payment.Service";
+import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { getIO } from "../../socket";
 import { normalizeFile } from "../../utils/serverUtils";
+import { PaymentService } from "./payment.Service";
 
 const cmdRequestService = new PaymentService();
 

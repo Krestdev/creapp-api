@@ -202,7 +202,7 @@ export class TransactionService {
 
     const payement = await prisma.payment.update({
       where: {
-        id: Number(paymentId) ?? -1,
+        id: Number(paymentId),
       },
       data: {
         status: data.status!,

@@ -1,4 +1,4 @@
-import { modification, Prisma, PrismaClient, RequestModel } from "@prisma/client";
+import { modification, Prisma, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -33,7 +33,7 @@ export class ModificationService {
       },
     });
 
-    let data = JSON.parse(JSON.stringify(modification.changes))
+    const data = JSON.parse(JSON.stringify(modification.changes))
 
     if (modification.requestId) {
       await prisma.requestModel.update({

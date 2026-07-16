@@ -1,8 +1,7 @@
-import { Invoice, PrismaClient, Signatair, User } from "@prisma/client";
+import { Invoice, PrismaClient } from "@prisma/client";
 import { getIO } from "../../socket";
 import {
-  deleteDocumentsByOwner,
-  storeDocumentsBulk,
+  storeDocumentsBulk
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
 

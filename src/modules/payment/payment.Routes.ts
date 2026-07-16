@@ -175,7 +175,7 @@ export default class PaymentRoute {
 
     this.routes.get("/paymentToSign/count", requireRole("USER"), (req, res) => {
       this.paymentController
-        .getPaymentToSignCount(req.user?.userId!)
+        .getPaymentToSignCount(Number(req.user?.userId))
         .then((request) =>
           res
             .status(200)
@@ -186,7 +186,7 @@ export default class PaymentRoute {
 
     this.routes.get("/paymentToSign/all", requireRole("USER"), (req, res) => {
       this.paymentController
-        .getPaymentToSign(req.user?.userId!, req.query as unknown as PaymentSignQueryParameter)
+        .getPaymentToSign(Number(req.user?.userId), req.query as unknown as PaymentSignQueryParameter)
         .then((request) =>
           res
             .status(200)
@@ -197,7 +197,7 @@ export default class PaymentRoute {
 
     this.routes.get("/paymentToSign/stats", requireRole("USER"), (req, res) => {
       this.paymentController
-        .getPaymentToSignStats(req.user?.userId!, req.query as unknown as PaymentSignQueryParameter)
+        .getPaymentToSignStats(Number(req.user?.userId), req.query as unknown as PaymentSignQueryParameter)
         .then((request) =>
           res
             .status(200)

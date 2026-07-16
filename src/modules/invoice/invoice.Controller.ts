@@ -1,8 +1,8 @@
 import { Invoice } from "@prisma/client";
-import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
-import { InvoiceService } from "./invoice.Service";
+import { Body, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { getIO } from "../../socket";
 import { normalizeFile } from "../../utils/serverUtils";
+import { InvoiceService } from "./invoice.Service";
 
 const cmdRequestService = new InvoiceService();
 
@@ -17,7 +17,7 @@ export default class InvoiceController {
       justification: Express.Multer.File[] | null;
     },
   ): Promise<Invoice> {
-    const { proof, justification, ...invoiceData } = data;
+    const { proof, ...invoiceData } = data;
     const invoice: Omit<
       Invoice,
       "id" | "reference" | "status" | "createdAt" | "updatedAt"
@@ -51,7 +51,7 @@ export default class InvoiceController {
       proof: Express.Multer.File[] | null;
     },
   ): Promise<Invoice> {
-    const { justification, proof, ...invoiceData } = data;
+    const { proof, ...invoiceData } = data;
     const invoice: Partial<Invoice> = {
       ...invoiceData,
     };

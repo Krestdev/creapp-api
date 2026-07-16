@@ -82,7 +82,7 @@ export default class RequestRoute {
       requireRole("USER"),
       (req, res) => {
         this.requestController
-          .getPendingRequests({ userId: req.user?.userId! })
+          .getPendingRequests({ userId: Number(req.user?.userId) })
           .then((request) =>
             res
               .status(200)
@@ -96,7 +96,7 @@ export default class RequestRoute {
       requireRole("USER"),
       (req, res) => {
         this.requestController
-          .getChiefRequests({ userId: req.user?.userId! })
+          .getChiefRequests({ userId: Number(req.user?.userId) })
           .then((request) =>
             res
               .status(200)
@@ -110,7 +110,7 @@ export default class RequestRoute {
       requireRole("USER"),
       (req, res) => {
         this.requestController
-          .getBoardRequestStats({ userId: req.user?.userId! })
+          .getBoardRequestStats({ userId: Number(req.user?.userId) })
           .then((request) =>
             res
               .status(200)
@@ -124,7 +124,7 @@ export default class RequestRoute {
       requireRole("USER"),
       (req, res) => {
         this.requestController
-          .getBoardRequestGraph({ userId: req.user?.userId! })
+          .getBoardRequestGraph({ userId: Number(req.user?.userId) })
           .then((request) =>
             res
               .status(200)
@@ -161,7 +161,7 @@ export default class RequestRoute {
     this.routes.get("/validator/stats", requireRole("USER"), (req, res) => {
       this.requestController
         .getDashboardRequestsStats(
-          req.user?.userId!,
+          Number(req.user?.userId),
           req.query as unknown as QueryString,
         )
         .then((request) =>
@@ -173,7 +173,7 @@ export default class RequestRoute {
 
     this.routes.get("/validator/all", requireRole("USER"), (req, res) => {
       this.requestController
-        .getMyValidator(req.user?.userId!, req.query as unknown as QueryString)
+        .getMyValidator(Number(req.user?.userId), req.query as unknown as QueryString)
         .then((request) =>
           res
             .status(200)
@@ -289,7 +289,7 @@ export default class RequestRoute {
 
     this.routes.get("/chief/requests", requireRole("USER"), (req, res) => {
       this.requestController
-        .chiefrequest(req.user?.userId!)
+        .chiefrequest(Number(req.user?.userId))
         .then((request) =>
           res
             .status(200)

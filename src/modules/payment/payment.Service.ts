@@ -731,8 +731,8 @@ export class PaymentService {
       amount,
       amountType,
       provider,
-      pageIndex,
-      pageSize,
+      // pageIndex,
+      // pageSize,
       tab,
       paymentMethod,
       beneficiary,
@@ -984,8 +984,8 @@ export class PaymentService {
       amount,
       amountType,
       provider,
-      pageIndex,
-      pageSize,
+      // pageIndex,
+      // pageSize,
       tab,
       from,
       to,
@@ -1204,8 +1204,8 @@ export class PaymentService {
 
   getAllExpensesDGPaymentStats = async (queryParams: DGPaymentQueryParameter) => {
     const {
-      pageIndex,
-      pageSize,
+      // pageIndex,
+      // pageSize,
       tab,
       from,
       to,

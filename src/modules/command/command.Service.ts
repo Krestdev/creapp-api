@@ -1,7 +1,7 @@
 import { Command, PrismaClient } from "@prisma/client";
-import { CacheService } from "../../utils/redis";
 import { getIO } from "../../socket";
 import { storeDocumentsBulk } from "../../utils/DocumentManager";
+import { CacheService } from "../../utils/redis";
 
 const prisma = new PrismaClient();
 
@@ -28,9 +28,9 @@ export class CommandService {
     });
 
     if (provider == null) throw Error("provider does not exist");
-    const providerNotComplete = Object.entries(provider).some(([, value]) => {
-      return value === null || value === "";
-    });
+    // const providerNotComplete = Object.entries(provider).some(([, value]) => {
+    //   return value === null || value === "";
+    // });
 
     // if (providerNotComplete) throw Error("The Provider info is not Complete");
     const ref = "ref-" + new Date().getTime();
