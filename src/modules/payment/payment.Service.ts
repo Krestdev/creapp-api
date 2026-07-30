@@ -1280,10 +1280,10 @@ export class PaymentService {
     const stats = {
       pending: {
         count: payment.filter(
-          (r) => r.status === "validated" || r.status === "unsigned",
+          (r) => r.status === "pending" || r.status === "accepted",
         ).length,
         sum: payment
-          .filter((r) => r.status === "validated" || r.status === "unsigned")
+          .filter((r) => r.status === "pending" || r.status === "accepted")
           .reduce((acc, r) => acc + r.price, 0),
       },
       processed: {
