@@ -22,5 +22,5 @@ GET https://api.creaconsult-app.com/api/v1.0.0/request/payment/expenses/dg
 Authorization: Bearer {{token}}
 
 ###
-GET http://localhost:5000/api/v1.0.0/request/vehicle/stats
+GET http://localhost:5000/api/v1.0.0/request/vehicle/stats?date=custom&from=2026-08-01&to=2026-08-05
 Authorization: Bearer {{token}}

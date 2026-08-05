@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { request } from "../../../assets/messages/requestMessages.json";
-import VehicleController from "./vehicle.Controller";
-import { requireRole } from "../../middlewares/rbac.middleware";
 import { authenticate } from "../../middlewares/auth.middleware";
+import { requireRole } from "../../middlewares/rbac.middleware";
 import upload from "../../utils/upload";
+import VehicleController, { statsFilters } from "./vehicle.Controller";
 
 const {
   create,
@@ -72,7 +72,7 @@ export default class VehicleRoute {
     // getStats
     this.routes.get("/stats", requireRole("USER"), (req, res) => {
       this.vehicleController
-        .getStats()
+        .getStats(req.query as unknown as statsFilters)
         .then((request) =>
           res
             .status(200)

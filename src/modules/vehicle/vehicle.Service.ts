@@ -1,6 +1,7 @@
-import { Vehicle, PrismaClient } from "@prisma/client";
-import { storeDocumentsBulk } from "../../utils/DocumentManager";
+import { PrismaClient, Vehicle } from "@prisma/client";
 import { getIO } from "../../socket";
+import { storeDocumentsBulk } from "../../utils/DocumentManager";
+import { statsFilters } from "./vehicle.Controller";
 
 const prisma = new PrismaClient();
 
@@ -53,10 +54,72 @@ export class VehicleService {
   // total de litres carburés
   // Litres carburés pour chaque véhicule
   // Total dépenses en carburant
-  getStats = async () => {
+  getStats = async (query: statsFilters) => {
+    const { from, to, date } = query;
+
     const data = await prisma.vehicle.findMany({
       include: {
         requestModels: {
+          ...(date === "today" && {
+            where: {
+              payments: {
+                some: {
+                  createdAt: {
+                    gte: new Date(),
+                    lte: new Date(),
+                  },
+                },
+              },
+            },
+          }),
+          ...(date === "week" && {
+            where: {
+              payments: {
+                some: {
+                  createdAt: {
+                    gte: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000),
+                    lte: new Date(),
+                  },
+                },
+              },
+            },
+          }),
+          ...(date === "month" && {
+            where: {
+              payments: {
+                some: {
+                  createdAt: {
+                    gte: new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000),
+                    lte: new Date(),
+                  },
+                },
+              },
+            },
+          }),
+          ...(date === "year" && {
+            where: {
+              payments: {
+                some: {
+                  createdAt: {
+                    gte: new Date(new Date().getTime() - 365 * 24 * 60 * 60 * 1000),
+                    lte: new Date(),
+                  },
+                },
+              },
+            },
+          }),
+          ...(date === "custom" && from && to && {
+            where: {
+              payments: {
+                some: {
+                  createdAt: {
+                    gte: new Date(from),
+                    lte: new Date(to),
+                  },
+                },
+              },
+            },
+          }),
           select: {
             payments: {
               select: {

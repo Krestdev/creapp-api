@@ -5,6 +5,17 @@ import { VehicleService } from "./vehicle.Service";
 
 const vehicleService = new VehicleService();
 
+export type statsFilters = {
+  // tab?: "pending" | "processed" | "paid";
+  // priority?: "low" | "medium" | "high" | "urgent";
+  from?: Date,
+  to?: Date,
+  date?: "today" | "week" | "month" | "year" | "custom",
+  // search?: string;
+  // pageIndex: number;
+  // pageSize: number;
+}
+
 @Route("request/vehicle")
 @Tags("Vehicle Routes")
 export default class VehicleController {
@@ -80,7 +91,7 @@ export default class VehicleController {
   }
 
   @Get("/stats")
-  getStats(): Promise<{
+  getStats(query: statsFilters): Promise<{
     statsPerVehicle: {
       vehicle: number;
       liters: number;
@@ -91,6 +102,6 @@ export default class VehicleController {
       total: number;
     };
   }> {
-    return vehicleService.getStats();
+    return vehicleService.getStats(query);
   }
 }
