@@ -71,9 +71,9 @@ export class VehicleService {
     });
 
     const statsPerVehicle = data.map((vehicle) => {
-      const liters = vehicle.requestModels.reduce((acc, reqM) => acc + Number(reqM.payments.filter(p => p.status === 'APPROVED').reduce((a, b) => a + Number(b.liters), 0)), 0)
+      const liters = vehicle.requestModels.reduce((acc, reqM) => acc + Number(reqM.payments.filter(p => p.status === 'paid').reduce((a, b) => a + Number(b.liters), 0)), 0)
 
-      const total = vehicle.requestModels.reduce((acc, reqM) => acc + Number(reqM.payments.filter(p => p.status === 'APPROVED').reduce((a, b) => a + Number(b.price), 0)), 0)
+      const total = vehicle.requestModels.reduce((acc, reqM) => acc + Number(reqM.payments.filter(p => p.status === 'paid').reduce((a, b) => a + Number(b.price), 0)), 0)
 
       return { vehicle: vehicle.id, liters: liters, total: total }
     });
