@@ -90,7 +90,6 @@ export default class VehicleController {
     return vehicleService.getAll();
   }
 
-  @Get("/stats")
   getStats(query: statsFilters): Promise<{
     statsPerVehicle: {
       vehicle: number;
