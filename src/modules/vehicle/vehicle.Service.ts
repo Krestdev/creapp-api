@@ -56,18 +56,25 @@ export class VehicleService {
   getStats = async () => {
     const data = await prisma.vehicle.findMany({
       include: {
-        payments: {
+        requestModels: {
           select: {
-            liters: true,
-            price: true,
+            payments: {
+              select: {
+                liters: true,
+                price: true,
+                status: true
+              }
+            }
           }
-        }
+        },
       },
     });
 
     const statsPerVehicle = data.map((vehicle) => {
-      const liters = vehicle.payments.reduce((acc, payment) => acc + Number(payment.liters), 0)
-      const total = vehicle.payments.reduce((acc, payment) => acc + Number(payment.price), 0)
+      const liters = vehicle.requestModels.reduce((acc, reqM) => acc + Number(reqM.payments.filter(p => p.status === 'APPROVED').reduce((a, b) => a + Number(b.liters), 0)), 0)
+
+      const total = vehicle.requestModels.reduce((acc, reqM) => acc + Number(reqM.payments.filter(p => p.status === 'APPROVED').reduce((a, b) => a + Number(b.price), 0)), 0)
+
       return { vehicle: vehicle.id, liters: liters, total: total }
     });
 
