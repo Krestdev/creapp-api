@@ -69,6 +69,18 @@ export default class VehicleRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    // getStats
+    this.routes.get("/stats", requireRole("USER"), (req, res) => {
+      this.vehicleController
+        .getStats()
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // getAll
     this.routes.get("/", requireRole("USER"), (req, res) => {
       this.vehicleController

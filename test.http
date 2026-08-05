@@ -1,4 +1,4 @@
-@token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFUyIsIlNBTEVTX01BTkFHRVIiLCJWT0xUIiwiVk9MVF9NQU5BR0VSIiwiUkgiLCJBQ0NPVU5UQU5UIiwiRFJJVkVSIiwiU1VQRVJBRE1JTiJdLCJpYXQiOjE3ODU0MTQ3MjMsImV4cCI6MTc4NTUwMTEyM30.Rl12fSOJ6zmqxDvvAW3eeUtqqvNkobNgpzo_YQyFbq8
+@token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFUyIsIlNBTEVTX01BTkFHRVIiLCJWT0xUIiwiVk9MVF9NQU5BR0VSIiwiUkgiLCJBQ0NPVU5UQU5UIiwiRFJJVkVSIiwiU1VQRVJBRE1JTiJdLCJpYXQiOjE3ODU5MjQxODgsImV4cCI6MTc4NjAxMDU4OH0.B5qPKdzQWh7OEhEBq7s9jlRm4gHlVoUZiSTahlXK-jI
 
 ### login
 POST http://localhost:5000/api/v1.0.0/base/user/login
@@ -19,4 +19,8 @@ Authorization: Bearer {{token}}
 
 ###
 GET https://api.creaconsult-app.com/api/v1.0.0/request/payment/expenses/dg
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:5000/api/v1.0.0/request/vehicle/stats
 Authorization: Bearer {{token}}

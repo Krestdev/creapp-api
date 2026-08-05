@@ -78,4 +78,19 @@ export default class VehicleController {
   getAll(): Promise<Vehicle[]> {
     return vehicleService.getAll();
   }
+
+  @Get("/stats")
+  getStats(): Promise<{
+    statsPerVehicle: {
+      vehicle: number;
+      liters: number;
+      total: number;
+    }[];
+    globalVehicleStats: {
+      liters: number;
+      total: number;
+    };
+  }> {
+    return vehicleService.getStats();
+  }
 }
