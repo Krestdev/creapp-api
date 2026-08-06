@@ -134,9 +134,12 @@ export class VehicleService {
     });
 
     const statsPerVehicle = data.map((vehicle) => {
-      const liters = vehicle.requestModels.reduce((acc, reqM) => acc + Number(reqM.payments.filter(p => ['paid', 'simple_signed'].includes(p.status)).reduce((a, b) => a + Number(b.liters), 0)), 0)
+      const liters = vehicle.requestModels.reduce((acc, reqM) => acc + Number(reqM.payments.filter(p => p.price > 0).reduce((a, b) => a + Number(b.liters), 0)), 0)
 
-      const total = vehicle.requestModels.reduce((acc, reqM) => acc + Number(reqM.payments.filter(p => ['paid', 'simple_signed'].includes(p.status)).reduce((a, b) => a + Number(b.price), 0)), 0)
+      const total = vehicle.requestModels.reduce((acc, reqM) => acc + Number(reqM.payments.filter(p => p.price > 0).reduce((a, b) => a + Number(b.price), 0)), 0)
+      // const liters = vehicle.requestModels.reduce((acc, reqM) => acc + Number(reqM.payments.filter(p => ['paid', 'simple_signed'].includes(p.status)).reduce((a, b) => a + Number(b.liters), 0)), 0)
+
+      // const total = vehicle.requestModels.reduce((acc, reqM) => acc + Number(reqM.payments.filter(p => ['paid', 'simple_signed'].includes(p.status)).reduce((a, b) => a + Number(b.price), 0)), 0)
 
       return { vehicle: vehicle.id, liters: liters, total: total }
     });
