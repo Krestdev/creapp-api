@@ -138,4 +138,9 @@ export default class DeviController {
   getUntreated(): Promise<number> {
     return deviService.getUntreated();
   }
+
+  reject(id: string): Promise<Devi> {
+    getIO().emit("quotation:reject");
+    return deviService.reject(Number(id));
+  }
 }

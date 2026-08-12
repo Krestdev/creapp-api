@@ -52,6 +52,18 @@ export default class DeviRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    // reject
+    this.routes.delete("/reject/:id", requireRole("USER"), (req, res) => {
+      this.deviController
+        .reject(req.params.id!)
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // update
     this.routes.put(
       "/:id",

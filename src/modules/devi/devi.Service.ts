@@ -5,8 +5,8 @@ import { storeDocumentsBulk } from "../../utils/DocumentManager";
 const prisma = new PrismaClient();
 
 export class DeviService {
-  // Create
 
+  // Create
   create = async (data: Devi, elements: DeviElement[]) => {
     const ref = "ref-" + new Date().getTime();
     // | "SUBMITTED" Soumis, en attente d’analyse / comparaison
@@ -363,4 +363,28 @@ export class DeviService {
 
     return devis - (bcApproved + bcPending);
   };
+
+  reject = async (id: number) => {
+    // reject a devi with all its Elements
+    const devi = await prisma.devi.findUniqueOrThrow({
+      where: { id },
+    });
+
+    if (devi.status === "APPROVED") {
+      throw new Error("Devi is already approved");
+    }
+
+    return prisma.devi.update({
+      where: { id },
+      data: {
+        status: "REJECTED",
+        element: {
+          updateMany: {
+            where: { deviId: id },
+            data: { status: "REJECTED" },
+          },
+        },
+      },
+    });
+  }
 }
