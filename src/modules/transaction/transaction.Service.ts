@@ -509,18 +509,18 @@ export class TransactionService {
       },
     });
 
-    let okay = true
+    // let okay = true
 
-    if (payment.transaction!.fromBankId !== null) {
-      okay = await this.shouldDecrement(
-        payment.transaction!.fromBankId,
-        payment.price,
-      );
+    // if (payment.transaction!.fromBankId !== null) {
+    //   okay = await this.shouldDecrement(
+    //     payment.transaction!.fromBankId,
+    //     payment.price,
+    //   );
 
-      if (!okay) {
-        throw Error("Fond insufisant");
-      }
-    }
+    //   if (!okay) {
+    //     throw Error("Fond insufisant");
+    //   }
+    // }
 
     const transaction_v = await prisma.transaction.findFirst({
       where: { id },
