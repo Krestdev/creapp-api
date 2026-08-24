@@ -40,6 +40,20 @@ export default class DeviRoute {
       },
     );
 
+    this.routes.put(
+      "/discard/:besoinId",
+      (req, res) => {
+        this.deviController
+          .discardRequest(req.params.besoinId!)
+          .then((request) =>
+            res
+              .status(200)
+              .json({ message: create.success.create, data: request }),
+          )
+          .catch((error) => res.status(400).json({ error: error.message }));
+      },
+    );
+
     // update
     this.routes.put("/validerDevis", requireRole("USER"), (req, res) => {
       this.deviController

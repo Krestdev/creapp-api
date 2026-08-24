@@ -1,4 +1,4 @@
-import { Devi, DeviElement, Prisma } from "@prisma/client";
+import { Devi, DeviElement, Prisma, RequestModel } from "@prisma/client";
 import { Body, Delete, Get, Path, Post, Put, Route, Tags } from "tsoa";
 import { DeviService } from "./devi.Service";
 import { getIO } from "../../socket";
@@ -31,6 +31,13 @@ export default class DeviController {
       data.elements as unknown as string,
     ) as DeviElement[];
     return deviService.create(devi, deviElem);
+  }
+
+  @Post("/discard/{besoinId}")
+  discardRequest(
+    @Path("besoinId") besoinId: string,
+  ): Promise<RequestModel> {
+    return deviService.discardRequest(Number(besoinId));
   }
 
   /**

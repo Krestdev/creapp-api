@@ -35,6 +35,29 @@ export class DeviService {
     return devi;
   };
 
+  // Create
+  discardRequest = async (besoinId: number) => {
+    const devi = await prisma.requestModel.update({
+      where: {
+        id: besoinId
+      },
+      data: {
+        state: "DISCARDED",
+        deviElements: {
+          updateMany: {
+            where: {},
+            data: {
+              status: "DISCARDED",
+            },
+          },
+        },
+      },
+    });
+
+    getIO().emit("quotation:new");
+    return devi;
+  };
+
   // Update
   update = async (
     id: number,
@@ -148,6 +171,9 @@ export class DeviService {
       await tx.deviElement.updateMany({
         where: {
           id: { in: DelementIds },
+          status: {
+            not: "DISCARDED",
+          }
         },
         data: { status: "SELECTED" },
       });
@@ -158,6 +184,9 @@ export class DeviService {
           deviId: { in: affectedDeviIds },
           id: { notIn: DelementIds },
           requestModelId: { in: requestModelIds },
+          status: {
+            not: "DISCARDED",
+          }
         },
         data: {
           status: "REJECTED",
@@ -173,6 +202,9 @@ export class DeviService {
             notIn: requestModelIds,
             not: null,
           },
+          status: {
+            not: "DISCARDED",
+          }
         },
         data: {
           status: "NOT_SELECTED",
@@ -189,13 +221,16 @@ export class DeviService {
         },
       });
 
-      // Rule 2: A Devi is rejected only when all its elements are REJECTED
+      // Rule 2: A Devi is rejected only when all its elements are REJECTED or DISCARDED
       await tx.devi.updateMany({
         where: {
           id: { in: affectedDeviIds },
           element: {
             every: {
-              status: "REJECTED",
+              OR: [
+                { status: "REJECTED" },
+                { status: "DISCARDED" },
+              ]
             },
           },
         },
@@ -240,7 +275,7 @@ export class DeviService {
     });
   };
 
-  // Update
+  // Update an invoice element
   updateDeviElement = (id: number, data: DeviElement) => {
     return prisma.deviElement.update({
       where: { id },
@@ -248,7 +283,7 @@ export class DeviService {
     });
   };
 
-  // Update
+  // Add elements to an invoice
   addElement = (id: number, data?: DeviElement[], ids?: number[]) => {
     if (ids)
       return prisma.devi.update({
@@ -274,7 +309,7 @@ export class DeviService {
       });
   };
 
-  // Update
+  // Remove elements from an invoice
   removeElement = (id: number, elementIds: number[]) => {
     return prisma.devi.update({
       where: { id },

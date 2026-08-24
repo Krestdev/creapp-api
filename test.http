@@ -1,4 +1,4 @@
-@token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFUyIsIlNBTEVTX01BTkFHRVIiLCJWT0xUIiwiVk9MVF9NQU5BR0VSIiwiUkgiLCJBQ0NPVU5UQU5UIiwiRFJJVkVSIiwiU1VQRVJBRE1JTiJdLCJpYXQiOjE3ODY1MjY0NzUsImV4cCI6MTc4NjYxMjg3NX0.XlDMvX0UoXAWJDwu5sQMW8XY9qfy9ShYN26EB-rnoGs
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFUyIsIlNBTEVTX01BTkFHRVIiLCJWT0xUIiwiVk9MVF9NQU5BR0VSIiwiUkgiLCJBQ0NPVU5UQU5UIiwiRFJJVkVSIiwiU1VQRVJBRE1JTiJdLCJpYXQiOjE3ODcyMzQxNzUsImV4cCI6MTc4NzMyMDU3NX0.Ww2b2KJxTajXDtWqs3e4F2CvKfHQA95jfi3Vzu4XJJw
 
 ### login
 POST http://localhost:5000/api/v1.0.0/base/user/login
@@ -35,4 +35,12 @@ Authorization: Bearer {{token}}
 
 ###
 DELETE http://localhost:5000/api/v1.0.0/request/devi/reject/63
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:5000/api/v1.0.0/request/object/354
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:5000/api/v1.0.0/request/object/chief/requests/count
 Authorization: Bearer {{token}}

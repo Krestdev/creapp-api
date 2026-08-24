@@ -127,9 +127,11 @@ export class RequestService {
           ? {
             decision: decision as RequestState,
             state: "rejected",
+            chiefDecision: false
           }
           : {
             decision: decision as RequestState,
+            chiefDecision: true
           },
     });
 
@@ -561,6 +563,7 @@ export class RequestService {
         validators: true,
       },
       where: {
+        userId: userId,
         state: "pending",
         decision: "PENDING",
         chiefDecision: null,
@@ -595,6 +598,9 @@ export class RequestService {
 
       return previousValidator?.validated === true;
     });
+
+    // console.log(pendingRequests.length, 'pendingRequests.length');
+    // console.log(pendingRequests, 'requests');
 
     return pendingRequests.length;
   };
