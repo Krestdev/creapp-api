@@ -41,7 +41,11 @@ export class CommandService {
     const devi = await prisma.devi.findUnique({
       where: { id: data.deviId },
       include: {
-        element: true,
+        element: {
+          where: {
+            status: "SELECTED",
+          }
+        },
       },
     });
 
