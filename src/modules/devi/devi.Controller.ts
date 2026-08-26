@@ -33,9 +33,9 @@ export default class DeviController {
     return deviService.create(devi, deviElem);
   }
 
-  @Post("/discard/{besoinId}")
+  // @Post("/discard/{besoinId}")
   discardRequest(
-    @Path("besoinId") besoinId: string,
+    besoinId: string,
   ): Promise<RequestModel> {
     return deviService.discardRequest(Number(besoinId));
   }
