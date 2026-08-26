@@ -1,4 +1,4 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFUyIsIlNBTEVTX01BTkFHRVIiLCJWT0xUIiwiVk9MVF9NQU5BR0VSIiwiUkgiLCJBQ0NPVU5UQU5UIiwiRFJJVkVSIiwiU1VQRVJBRE1JTiJdLCJpYXQiOjE3ODcyMzQxNzUsImV4cCI6MTc4NzMyMDU3NX0.Ww2b2KJxTajXDtWqs3e4F2CvKfHQA95jfi3Vzu4XJJw
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFUyIsIlNBTEVTX01BTkFHRVIiLCJWT0xUIiwiVk9MVF9NQU5BR0VSIiwiUkgiLCJBQ0NPVU5UQU5UIiwiRFJJVkVSIiwiU1VQRVJBRE1JTiJdLCJpYXQiOjE3ODc3MzU0MjEsImV4cCI6MTc4NzgyMTgyMX0.46N5HObmzsfkLihEGhB50rC2CFDoMu8BJIe95k5k6gA
 
 ### login
 POST http://localhost:5000/api/v1.0.0/base/user/login
@@ -43,4 +43,12 @@ Authorization: Bearer {{token}}
 
 ###
 GET http://localhost:5000/api/v1.0.0/request/object/chief/requests/count
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:5000/api/v1.0.0/request/object/validator/all?pageIndex=0&pageSize=30&tab=pending
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:5000/api/v1.0.0/request/object/pendingRequests/count
 Authorization: Bearer {{token}}

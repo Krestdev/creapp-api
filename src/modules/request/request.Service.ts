@@ -207,14 +207,14 @@ export class RequestService {
       // Rank 1 can validate immediately
       if (currentValidator.rank === 1) {
         return true;
+      } else {
+        // Previous validator must already validate
+        const previousValidator = request.validators.find(
+          (v) => v.rank === currentValidator.rank - 1,
+        );
+
+        return previousValidator?.validated === true;
       }
-
-      // Previous validator must already validate
-      const previousValidator = request.validators.find(
-        (v) => v.rank === currentValidator.rank - 1,
-      );
-
-      return previousValidator?.validated === true;
     });
 
     return pendingRequests.length;
@@ -755,18 +755,6 @@ export class RequestService {
 
     const FilterObject = {
       where: {
-        // AND: [
-        //   {
-        //     chiefDecision: {
-        //       not: null
-        //     }
-        //   },
-        //   {
-        //     serviceChiefId: {
-        //       not: null
-        //     }
-        //   }
-        // ],
         validators: {
           some: {
             AND: [
@@ -887,16 +875,6 @@ export class RequestService {
 
     const requests = await prisma.requestModel.findMany({
       ...FilterObject,
-      // where:{
-      //   AND:[
-      //     {state: {notIn: ["pending"]}},
-      //     {chiefDecision: {not: null}},
-      //   ],
-      //   serviceChiefId: {
-      //     not: null
-      //   }
-      // },
-      // take: filters?.pageSize || 10,
       skip: (pageIndex || 0) * (pageSize || 15),
       take: pageSize ? Number(pageSize) : 15,
       orderBy: {
@@ -904,13 +882,13 @@ export class RequestService {
       },
     });
 
-    const count = await prisma.requestModel.count({
-      where: FilterObject.where,
-    });
+    // const count = await prisma.requestModel.count({
+    //   where: FilterObject.where,
+    // });
 
     return {
       data: this.approbatorRequests(requests, id, tab).filter(filter => filter.serviceChiefId && filter.chiefDecision == null ? false : true).filter((r) => r.validators.slice(0, pageSize || 10)),
-      total: count,
+      total: this.approbatorRequests(requests, id, tab).length,
     };
   };
 
