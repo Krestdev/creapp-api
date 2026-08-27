@@ -887,7 +887,10 @@ export class RequestService {
     // });
 
     return {
-      data: this.approbatorRequests(requests, id, tab).filter(filter => filter.serviceChiefId && filter.chiefDecision == null ? false : true).filter((r) => r.validators.slice(0, pageSize || 10)),
+      data: this.approbatorRequests(requests, id, tab)
+        .filter(
+          filter => filter.serviceChiefId && filter.chiefDecision == null ? false : true
+        ),
       total: this.approbatorRequests(requests, id, tab).length,
     };
   };
