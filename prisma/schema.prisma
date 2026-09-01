@@ -280,7 +280,7 @@ model DeviElement {
   id             Int           @id @default(autoincrement())
   request        RequestModel? @relation(fields: [requestModelId], references: [id], onDelete: SetNull)
   requestModelId Int?
-  quantity       Int
+  quantity       Float
   unit           String
   title          String
   status         String        @default("NOT_SELECTED")

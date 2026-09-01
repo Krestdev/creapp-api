@@ -13,6 +13,7 @@ export class DeviService {
     // | "APPROVED" Toutes les lignes du devis sont retenues
     // | "REJECTED" Aucune ligne retenue
     // | "PENDING";
+
     const devi = await prisma.devi.create({
       data: {
         ...data,
