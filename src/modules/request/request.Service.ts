@@ -1871,6 +1871,14 @@ export class RequestService {
     });
   };
 
+  last5byuser = async (userId: number) => {
+    return await prisma.requestModel.findMany({
+      where: { userId },
+      take: 5,
+      orderBy: { createdAt: "desc" },
+    });
+  };
+
   // create notification
 
   createNotification = async (request: RequestModel) => {

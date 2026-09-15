@@ -55,6 +55,18 @@ export default class RequestRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
+    // last 5 request of a user
+    this.routes.get("/last5byuser/:userId", requireRole("USER"), (req, res) => {
+      this.requestController
+        .last5byuser(Number(req.params.userId))
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     this.routes.get("/quotation", requireRole("USER"), (req, res) => {
       this.requestController
         .getForQuotation()

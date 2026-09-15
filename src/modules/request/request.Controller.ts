@@ -359,5 +359,10 @@ export default class RequestController {
     return requestService.specialGet();
   }
 
+  // @Get("/last5byuser/:userId")
+  last5byuser(id: number): Promise<unknown[]> {
+    return requestService.last5byuser(id);
+  }
+
 
 }
