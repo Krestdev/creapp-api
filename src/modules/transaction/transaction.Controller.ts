@@ -6,6 +6,20 @@ import { normalizeFile } from "../../utils/serverUtils";
 
 const transactionService = new TransactionService();
 
+export type QueryTransaction = {
+  pageIndex?: number
+  pageSize?: number
+  type?: "CREDIT" | "DEBIT" | "TRANSFER"
+  status?: "PENDING" | "APPROVED" | "CANCELLED"
+  bankId?: number
+  from?: Date
+  to?: Date
+  amountMin?: number
+  amountMax?: number
+  search?: string
+  date?: "today" | "week" | "month" | "year" | "custom",
+}
+
 @Route("request/transaction")
 @Tags("Transactioning Routes")
 export default class TransactionController {
@@ -280,9 +294,9 @@ export default class TransactionController {
     return transactionService.getOne(Number(id));
   }
 
-  @Get("/")
-  getAll(): Promise<Transaction[]> {
-    return transactionService.getAll();
+  // @Get("/")
+  getAll(pagination: QueryTransaction): Promise<Transaction[]> {
+    return transactionService.getAll(pagination);
   }
 
   @Post("/appro")

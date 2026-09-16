@@ -243,7 +243,7 @@ export default class TransactionRoute {
     // getAll
     this.routes.get("/", requireRole("USER"), (req, res) => {
       this.trTransactionController
-        .getAll()
+        .getAll(req.query)
         .then((request) =>
           res
             .status(200)

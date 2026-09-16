@@ -5,6 +5,7 @@ import {
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
 import { getIO } from "../../socket";
+import { QueryTransaction } from "./transaction.Controller";
 
 const prisma = new PrismaClient();
 
@@ -810,13 +811,56 @@ export class TransactionService {
   };
 
   // Get all
-  getAll = async () => {
+  getAll = async ({ pageIndex, pageSize, type, status, bankId, from, to, amountMin, amountMax, search, date }: QueryTransaction) => {
     const cached = await CacheService.get<Transaction[]>(
       `${this.CACHE_KEY}:all`,
     );
     if (cached) return cached;
 
     const transaction = await prisma.transaction.findMany({
+      where: {
+        ...(type && { Type: type }),
+        ...(status && { status }),
+        ...(bankId && { fromBankId: bankId }),
+        ...(amountMin && { amount: { gte: amountMin } }),
+        ...(amountMax && { amount: { lte: amountMax } }),
+        ...(search && {
+          description: { contains: search },
+          label: { contains: search },
+          ref: { contains: search },
+        }),
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
+      },
       include: {
         from: true,
         to: true,
@@ -825,6 +869,11 @@ export class TransactionService {
           include: { user: true },
         },
         payments: true,
+      },
+      skip: (pageIndex || 0) * (pageSize || 15),
+      take: pageSize ? Number(pageSize) : 15,
+      orderBy: {
+        createdAt: "desc",
       },
     });
 
