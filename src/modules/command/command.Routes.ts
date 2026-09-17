@@ -103,7 +103,7 @@ export default class CommandRoute {
     // getAll
     this.routes.get("/", requireRole("USER"), (req, res) => {
       this.commandController
-        .getAll(req.query)
+        .getAll()
         .then((request) =>
           res
             .status(200)

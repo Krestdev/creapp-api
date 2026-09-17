@@ -5,19 +5,19 @@ import { normalizeFile } from "../../utils/serverUtils";
 
 const commandService = new CommandService();
 
-export type CommandQueryString = {
-  pageIndex?: number;
-  pageSize?: number;
-  status?: "PENDING" | "APPROVED" | "REJECTED" | "PAID";
-  providerId?: number;
-  commandRequestId?: number;
-  from?: Date;
-  to?: Date;
-  paymentPercentageMin?: number;
-  paymentPercentageMax?: number;
-  search?: string;
-  date?: "today" | "week" | "month" | "year" | "custom";
-}
+// export type CommandQueryString = {
+//   pageIndex?: number;
+//   pageSize?: number;
+//   status?: "PENDING" | "APPROVED" | "REJECTED" | "PAID";
+//   providerId?: number;
+//   commandRequestId?: number;
+//   from?: Date;
+//   to?: Date;
+//   paymentPercentageMin?: number;
+//   paymentPercentageMax?: number;
+//   search?: string;
+//   date?: "today" | "week" | "month" | "year" | "custom";
+// }
 
 @Route("request/command")
 @Tags("Command Routes")
@@ -96,9 +96,10 @@ export default class CommandController {
 
   // @Get("/")
   getAll(
-    queryString: CommandQueryString
+    // queryString: CommandQueryString
   ): Promise<unknown> {
-    return commandService.getAll(queryString);
+    // return commandService.getAll(queryString);
+    return commandService.getAll();
   }
 
   @Get("/pending/count")
