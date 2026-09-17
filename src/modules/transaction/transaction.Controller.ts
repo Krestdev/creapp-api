@@ -295,7 +295,7 @@ export default class TransactionController {
   }
 
   // @Get("/")
-  getAll(pagination: QueryTransaction): Promise<Transaction[]> {
+  getAll(pagination: QueryTransaction): Promise<unknown> {
     return transactionService.getAll(pagination);
   }
 

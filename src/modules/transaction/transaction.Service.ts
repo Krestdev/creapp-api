@@ -817,7 +817,7 @@ export class TransactionService {
     );
     if (cached) return cached;
 
-    const transaction = await prisma.transaction.findMany({
+    const FilterObject = {
       where: {
         ...(type && { Type: type }),
         ...(status && { status }),
@@ -861,6 +861,10 @@ export class TransactionService {
                     }
                     : {},
       },
+    }
+
+    const transaction = await prisma.transaction.findMany({
+      ...FilterObject,
       include: {
         from: true,
         to: true,
@@ -877,8 +881,10 @@ export class TransactionService {
       },
     });
 
-    await CacheService.set(`${this.CACHE_KEY}:all`, transaction, 90);
-    return transaction;
+    const count = await prisma.transaction.count({ where: FilterObject.where })
+
+    await CacheService.set(`${this.CACHE_KEY}:all`, { transactions: transaction, total: count }, 90);
+    return { transactions: transaction, total: count };
   };
 
   // Get one
