@@ -2,6 +2,7 @@ import { Command, PrismaClient } from "@prisma/client";
 import { getIO } from "../../socket";
 import { storeDocumentsBulk } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
+import { CommandQueryString } from "./command.Controller";
 
 const prisma = new PrismaClient();
 
@@ -350,11 +351,68 @@ export class CommandService {
   };
 
   // Get all
-  getAll = async () => {
+  getAll = async ({
+    pageIndex,
+    pageSize,
+    status,
+    providerId,
+    commandRequestId,
+    from,
+    to,
+    paymentPercentageMin,
+    paymentPercentageMax,
+    search,
+    date,
+  }: CommandQueryString) => {
     const cached = await CacheService.get<Command[]>(`${this.CACHE_KEY}:all`);
     if (cached) return cached;
 
+    const FilterObject = {
+      where: {
+        ...(status && { status }),
+        ...(providerId && { providerId }),
+        ...(commandRequestId && { commandRequestId }),
+        ...(search && {
+          description: { contains: search },
+          label: { contains: search },
+          ref: { contains: search },
+        }),
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
+      },
+    }
+
     const command = await prisma.command.findMany({
+      ...FilterObject,
       include: {
         devi: {
           include: {
@@ -380,8 +438,10 @@ export class CommandService {
       },
     });
 
-    await CacheService.set(`${this.CACHE_KEY}:all`, command, 90);
-    return command;
+    const count = await prisma.command.count({ where: FilterObject.where })
+
+    await CacheService.set(`${this.CACHE_KEY}:all`, { command: command, total: count }, 90);
+    return { commands: command, total: count };
   };
 
   // Get one

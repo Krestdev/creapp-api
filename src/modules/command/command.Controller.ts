@@ -5,6 +5,20 @@ import { normalizeFile } from "../../utils/serverUtils";
 
 const commandService = new CommandService();
 
+export type CommandQueryString = {
+  pageIndex?: number;
+  pageSize?: number;
+  status?: "PENDING" | "APPROVED" | "REJECTED" | "PAID";
+  providerId?: number;
+  commandRequestId?: number;
+  from?: Date;
+  to?: Date;
+  paymentPercentageMin?: number;
+  paymentPercentageMax?: number;
+  search?: string;
+  date?: "today" | "week" | "month" | "year" | "custom";
+}
+
 @Route("request/command")
 @Tags("Command Routes")
 export default class CommandController {
@@ -80,9 +94,11 @@ export default class CommandController {
     return commandService.getOne(Number(id));
   }
 
-  @Get("/")
-  getAll(): Promise<Command[]> {
-    return commandService.getAll();
+  // @Get("/")
+  getAll(
+    queryString: CommandQueryString
+  ): Promise<unknown> {
+    return commandService.getAll(queryString);
   }
 
   @Get("/pending/count")
