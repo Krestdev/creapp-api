@@ -18,6 +18,9 @@ export type QueryTransaction = {
   amountMax?: number
   search?: string
   date?: "today" | "week" | "month" | "year" | "custom",
+
+  // special
+  tab?: "PENDING" | "COMPLETED",
 }
 
 @Route("request/transaction")
@@ -297,6 +300,10 @@ export default class TransactionController {
   // @Get("/")
   getAll(pagination: QueryTransaction): Promise<unknown> {
     return transactionService.getAll(pagination);
+  }
+
+  getAllSpecial(pagination: QueryTransaction): Promise<unknown> {
+    return transactionService.getAllTransferApprovals({ ...pagination, type: "TRANSFER" });
   }
 
   @Post("/appro")

@@ -1,4 +1,4 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFUyIsIlNBTEVTX01BTkFHRVIiLCJWT0xUIiwiVk9MVF9NQU5BR0VSIiwiUkgiLCJBQ0NPVU5UQU5UIiwiRFJJVkVSIiwiU1VQRVJBRE1JTiJdLCJpYXQiOjE3ODk0NTc5MDMsImV4cCI6MTc4OTU0NDMwM30.Mw9RKR92_-tpUtiIz9tme61VRElKLde_OtbUD2O38wQ
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFUyIsIlNBTEVTX01BTkFHRVIiLCJWT0xUIiwiVk9MVF9NQU5BR0VSIiwiUkgiLCJBQ0NPVU5UQU5UIiwiRFJJVkVSIiwiU1VQRVJBRE1JTiJdLCJpYXQiOjE3ODk4MTczNTIsImV4cCI6MTc4OTkwMzc1Mn0.SPcFJnCXZfOA_NPb47SlHb8t6Wo49nJg3bryKHRV_SY
 
 ### login
 POST http://localhost:5000/api/v1.0.0/base/user/login
@@ -55,4 +55,30 @@ Authorization: Bearer {{token}}
 
 ###
 GET http://localhost:5000/api/v1.0.0/request/object/last5byuser/1
+Authorization: Bearer {{token}}
+
+
+###
+GET http://localhost:5000/api/v1.0.0/request/transaction/transfer/approvals?pageIndex=0&pageSize=30&tab=PENDING
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+### login
+POST http://192.168.1.66:5000/api/v1.0.0/base/user/login
+Content-Type: application/json
+
+{
+    "email": "wassom@gmail.com",
+    "password": "1234567"
+}
+
+###
+GET http://192.168.1.66:5000/api/v1.0.0/request/object/last5byuser/1
+Authorization: Bearer {{token}}
+
+
+###
+GET http://192.168.1.66:5000/api/v1.0.0/request/transaction/transfer/approvals?pageIndex=0&pageSize=30&tab=PENDING
+Content-Type: application/json
 Authorization: Bearer {{token}}
