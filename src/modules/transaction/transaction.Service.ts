@@ -893,7 +893,9 @@ export class TransactionService {
     const cached = await CacheService.get<Transaction[]>(
       `${this.CACHE_KEY}:all`,
     );
-    if (cached) return cached;
+    // if (cached) return cached;
+
+    console.log(tab)
 
     const FilterObject = {
       where: {
@@ -976,7 +978,24 @@ export class TransactionService {
       },
     });
 
-    const count = await prisma.transaction.count({ where: FilterObject.where })
+    const count = await prisma.transaction.count({
+      where: {
+        ...FilterObject.where,
+        Type: "TRANSFERT",
+        from: {
+          type: "BANK",
+          signatairs: {
+            some: {
+              user: {
+                some: {
+                  id: userId
+                }
+              }
+            }
+          }
+        }
+      }
+    })
 
     await CacheService.set(`${this.CACHE_KEY}:all`, { transactions: transaction, total: count }, 90);
     return { transactions: transaction, total: count };
