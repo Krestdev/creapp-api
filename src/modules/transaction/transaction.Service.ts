@@ -869,6 +869,7 @@ export class TransactionService {
         from: true,
         to: true,
         method: true,
+        payementappro: true,
         signers: {
           include: { user: true },
         },
