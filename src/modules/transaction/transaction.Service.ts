@@ -945,6 +945,7 @@ export class TransactionService {
     const transaction = await prisma.transaction.findMany({
       where: {
         ...FilterObject.where,
+        Type: "TRANSFERT",
         from: {
           type: "BANK",
           signatairs: {
@@ -1036,6 +1037,7 @@ export class TransactionService {
 
     const transaction = await prisma.transaction.findMany({
       where: {
+        Type: "TRANSFERT",
         ...FilterObject.where,
         ...(tab === "PENDING" && { status: "PENDING" }),
         ...(tab === "COMPLETED" && {
@@ -1064,6 +1066,7 @@ export class TransactionService {
 
     const count = await prisma.transaction.count({
       where: {
+        Type: "TRANSFERT",
         ...FilterObject.where,
         ...(tab === "PENDING" && { status: "PENDING" }),
         ...(tab === "COMPLETED" && {
