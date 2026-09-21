@@ -888,6 +888,98 @@ export class TransactionService {
   };
 
   // Get all
+  getAllTransfer = async ({ pageIndex, pageSize, type, status, bankId, from, to, amountMin, tab, amountMax, search, date }: QueryTransaction, userId: number) => {
+    const cached = await CacheService.get<Transaction[]>(
+      `${this.CACHE_KEY}:all`,
+    );
+    if (cached) return cached;
+
+    const FilterObject = {
+      where: {
+        ...(type && { Type: type }),
+        ...(status && { status }),
+        ...(bankId && { fromBankId: bankId }),
+        ...(amountMin && { amount: { gte: amountMin } }),
+        ...(amountMax && { amount: { lte: amountMax } }),
+        ...(tab && { status: tab === "PENDING" ? "ACCEPTED" : "APPROVED" }),
+        ...(search && {
+          description: { contains: search },
+          label: { contains: search },
+          ref: { contains: search },
+        }),
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
+      },
+    }
+
+    const transaction = await prisma.transaction.findMany({
+      where: {
+        ...FilterObject.where,
+        from: {
+          type: "BANK",
+          signatairs: {
+            some: {
+              user: {
+                some: {
+                  id: userId
+                }
+              }
+            }
+          }
+        }
+      },
+      include: {
+        from: true,
+        to: true,
+        method: true,
+        signers: {
+          include: { user: true },
+        },
+        payments: true,
+      },
+      skip: (pageIndex || 0) * (pageSize || 15),
+      take: pageSize ? Number(pageSize) : 15,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const count = await prisma.transaction.count({ where: FilterObject.where })
+
+    await CacheService.set(`${this.CACHE_KEY}:all`, { transactions: transaction, total: count }, 90);
+    return { transactions: transaction, total: count };
+  };
+
+  // Get all
   getAllTransferApprovals = async ({ pageIndex, pageSize, type, status, bankId, from, to, amountMin, amountMax, search, date, tab }: QueryTransaction) => {
     const cached = await CacheService.get<Transaction[]>(
       `${this.CACHE_KEY}:all`,

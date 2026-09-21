@@ -95,10 +95,16 @@ export default class CommandController {
   }
 
   // @Get("/")
+  // getAll(
+  //   queryString: CommandQueryString
+  // ): Promise<unknown> {
+  //   return commandService.getAll(queryString);
+  // }
+
   getAll(
-    queryString: CommandQueryString
+    // queryString: CommandQueryString
   ): Promise<unknown> {
-    return commandService.getAll(queryString);
+    return commandService.getAll();
   }
 
   @Get("/pending/count")

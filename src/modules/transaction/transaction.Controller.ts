@@ -302,6 +302,11 @@ export default class TransactionController {
     return transactionService.getAll(pagination);
   }
 
+  @Get("/transfer")
+  getAllTransfer(pagination: QueryTransaction, userId: number): Promise<unknown> {
+    return transactionService.getAllTransfer({ ...pagination, type: "TRANSFER" }, userId);
+  }
+
   getAllSpecial(pagination: QueryTransaction): Promise<unknown> {
     return transactionService.getAllTransferApprovals({ ...pagination, type: "TRANSFER" });
   }

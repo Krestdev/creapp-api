@@ -351,68 +351,69 @@ export class CommandService {
   };
 
   // Get all
-  getAll = async ({
-    pageIndex,
-    pageSize,
-    status,
-    providerId,
-    commandRequestId,
-    from,
-    to,
-    paymentPercentageMin,
-    paymentPercentageMax,
-    search,
-    date,
-  }: CommandQueryString) => {
+  // getAll = async ({
+  //   pageIndex,
+  //   pageSize,
+  //   status,
+  //   providerId,
+  //   commandRequestId,
+  //   from,
+  //   to,
+  //   paymentPercentageMin,
+  //   paymentPercentageMax,
+  //   search,
+  //   date,
+  // }: CommandQueryString) => {
+  getAll = async () => {
     const cached = await CacheService.get<Command[]>(`${this.CACHE_KEY}:all`);
     if (cached) return cached;
 
-    const FilterObject = {
-      where: {
-        ...(status && { status }),
-        ...(providerId && { providerId }),
-        ...(commandRequestId && { commandRequestId }),
-        ...(search && {
-          description: { contains: search },
-          label: { contains: search },
-          ref: { contains: search },
-        }),
-        createdAt:
-          date === "custom" && from && to
-            ? {
-              gte: new Date(from),
-              lte: new Date(to),
-            }
-            : date === "today"
-              ? {
-                gte: new Date(new Date().setHours(0, 0, 0, 0)),
-                lte: new Date(new Date().setHours(23, 59, 59, 999)),
-              }
-              : date === "week"
-                ? {
-                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
-                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
-                }
-                : date === "month"
-                  ? {
-                    gte: new Date(
-                      new Date().setDate(new Date().getDate() - 30),
-                    ),
-                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
-                  }
-                  : date === "year"
-                    ? {
-                      gte: new Date(
-                        new Date().setFullYear(new Date().getFullYear() - 1),
-                      ),
-                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
-                    }
-                    : {},
-      },
-    }
+    // const FilterObject = {
+    //   where: {
+    //     ...(status && { status }),
+    //     ...(providerId && { providerId }),
+    //     ...(commandRequestId && { commandRequestId }),
+    //     ...(search && {
+    //       description: { contains: search },
+    //       label: { contains: search },
+    //       ref: { contains: search },
+    //     }),
+    //     createdAt:
+    //       date === "custom" && from && to
+    //         ? {
+    //           gte: new Date(from),
+    //           lte: new Date(to),
+    //         }
+    //         : date === "today"
+    //           ? {
+    //             gte: new Date(new Date().setHours(0, 0, 0, 0)),
+    //             lte: new Date(new Date().setHours(23, 59, 59, 999)),
+    //           }
+    //           : date === "week"
+    //             ? {
+    //               gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+    //               lte: new Date(new Date().setHours(23, 59, 59, 999)),
+    //             }
+    //             : date === "month"
+    //               ? {
+    //                 gte: new Date(
+    //                   new Date().setDate(new Date().getDate() - 30),
+    //                 ),
+    //                 lte: new Date(new Date().setHours(23, 59, 59, 999)),
+    //               }
+    //               : date === "year"
+    //                 ? {
+    //                   gte: new Date(
+    //                     new Date().setFullYear(new Date().getFullYear() - 1),
+    //                   ),
+    //                   lte: new Date(new Date().setHours(23, 59, 59, 999)),
+    //                 }
+    //                 : {},
+    //   },
+    // }
 
     const command = await prisma.command.findMany({
-      ...FilterObject,
+      // ...FilterObject,
       include: {
         devi: {
           include: {
@@ -438,10 +439,11 @@ export class CommandService {
       },
     });
 
-    const count = await prisma.command.count({ where: FilterObject.where })
+    // const count = await prisma.command.count({ where: FilterObject.where })
 
-    await CacheService.set(`${this.CACHE_KEY}:all`, { command: command, total: count }, 90);
-    return { commands: command, total: count };
+    // await CacheService.set(`${this.CACHE_KEY}:all`, { command: command, total: count }, 90);
+    // return { commands: command, total: count };
+    return command;
   };
 
   // Get one
