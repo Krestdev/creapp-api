@@ -2,7 +2,7 @@ import { Command, PrismaClient } from "@prisma/client";
 import { getIO } from "../../socket";
 import { storeDocumentsBulk } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
-import { CommandQueryString } from "./command.Controller";
+// import { CommandQueryString } from "./command.Controller";
 
 const prisma = new PrismaClient();
 
