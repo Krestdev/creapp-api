@@ -900,8 +900,8 @@ export class TransactionService {
         ...(type && { Type: type }),
         ...(status && { status }),
         ...(bankId && { fromBankId: bankId }),
-        ...(amountMin && { amount: { gte: amountMin } }),
-        ...(amountMax && { amount: { lte: amountMax } }),
+        ...(amountMin && { amount: { gte: Number(amountMin) } }),
+        ...(amountMax && { amount: { lte: Number(amountMax) } }),
         ...(tab && { status: tab === "PENDING" ? "ACCEPTED" : "APPROVED" }),
         ...(search && {
           description: { contains: search },
@@ -992,8 +992,8 @@ export class TransactionService {
         ...(type && { Type: type }),
         ...(status && { status }),
         ...(bankId && { fromBankId: bankId }),
-        ...(amountMin && { amount: { gte: amountMin } }),
-        ...(amountMax && { amount: { lte: amountMax } }),
+        ...(amountMin && { amount: { gte: Number(amountMin) } }),
+        ...(amountMax && { amount: { lte: Number(amountMax) } }),
         ...(search && {
           description: { contains: search },
           label: { contains: search },
