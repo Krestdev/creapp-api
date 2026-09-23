@@ -231,17 +231,29 @@ export class PaymentService {
     return payment;
   };
 
-  // Update
+  private shouldDecrement = async (id: number, amount: number) => {
+    const bank = await prisma.bank.findUnique({ where: { id } });
+    if (!bank || !bank.balance || bank.balance - amount < 0) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  // payment/validate/id
   validate = async (
     id: number,
     data: { userId: number },
     file: Express.Multer.File[] | null,
   ) => {
-    await CacheService.del(`${this.CACHE_KEY}:all`);
-    // determine the signing mode for this payment from the back and payment type
+    // determine the signing mode for this payment from the bank and payment type
     const paymentData = await prisma.payment.findFirstOrThrow({
       where: { id },
-      include: { signer: true },
+      include: {
+        signer: true,
+        method: true,
+        transaction: { include: { from: { include: { tempAccount: true } } } },
+      },
     });
 
     let signatair: (Signatair & { user: User[] }) | null = null;
@@ -259,16 +271,83 @@ export class PaymentService {
       });
     }
 
+    const becomesFullySigned =
+      signatair?.mode === "BOTH"
+        ? signatair.user.length - 1 === paymentData.signer.length
+        : true;
+
+    const isCheck =
+      paymentData.method?.type?.toLowerCase() === "chq" ||
+      !!paymentData.method?.label?.toLowerCase().includes("chèque");
+
+    // If this signature is the one that completes the required signatures
+    // for a check payment, move the funds from the origin bank into its
+    // temporary/suspense account (auto-creating one if none is linked yet).
+    if (becomesFullySigned && isCheck && paymentData.bankId) {
+      const okay = await this.shouldDecrement(
+        paymentData.bankId,
+        paymentData.price,
+      );
+      if (!okay) {
+        throw Error("Fond insufisant");
+      }
+
+      let tempAccountId = paymentData.transaction?.from?.tempAccountId ?? null;
+
+      if (!tempAccountId) {
+        const bank = await prisma.bank.findUniqueOrThrow({
+          where: { id: paymentData.bankId },
+        });
+
+        tempAccountId = bank.tempAccountId;
+
+        if (!tempAccountId) {
+          const tempAccount = await prisma.bank.create({
+            data: {
+              label: `Compte temporaire - ${bank.label}`,
+              isTemporary: true,
+              balance: 0,
+            },
+          });
+
+          await prisma.bank.update({
+            where: { id: bank.id },
+            data: { tempAccountId: tempAccount.id },
+          });
+
+          tempAccountId = tempAccount.id;
+        }
+      }
+
+      await prisma.$transaction([
+        prisma.bank.update({
+          where: { id: paymentData.bankId },
+          data: { balance: { decrement: paymentData.price } },
+        }),
+        prisma.bank.update({
+          where: { id: tempAccountId },
+          data: { balance: { increment: paymentData.price } },
+        }),
+        ...(paymentData.transactionId
+          ? [
+            prisma.transaction.update({
+              where: { id: paymentData.transactionId },
+              data: { checkStatus: "pending" },
+            }),
+          ]
+          : []),
+      ]);
+
+      getIO().emit("bank:update");
+    }
+
     let payment: Payment | null = null;
 
     if (signatair?.mode === "BOTH") {
       payment = await prisma.payment.update({
         where: { id },
         data: {
-          status:
-            signatair.user.length - 1 === paymentData.signer.length
-              ? "signed"
-              : "unsigned",
+          status: becomesFullySigned ? "signed" : "unsigned",
           signer: {
             connect: { id: data.userId },
           },
