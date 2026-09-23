@@ -12,12 +12,14 @@ export type QueryTransaction = {
   type?: "CREDIT" | "DEBIT" | "TRANSFER"
   status?: "PENDING" | "APPROVED" | "CANCELLED"
   bankId?: number
+  toBankId?: number
   from?: Date
   to?: Date
   amountMin?: number
   amountMax?: number
   search?: string
   date?: "today" | "week" | "month" | "year" | "custom",
+  userId?: number,
 
   // special
   tab?: "PENDING" | "COMPLETED",
@@ -287,6 +289,15 @@ export default class TransactionController {
     return transactionService.validate(Number(id), data);
   }
 
+  @Put("/markCheckStatus/{id}")
+  markCheckStatus(
+    @Path() id: string,
+    @Body()
+    data: { status: "paid" | "rejected"; validatorId: number; reason?: string },
+  ): Promise<Transaction> {
+    return transactionService.markCheckStatus(Number(id), data);
+  }
+
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Transaction> {
     return transactionService.delete(Number(id));
@@ -302,7 +313,7 @@ export default class TransactionController {
     return transactionService.getAll(pagination);
   }
 
-  @Get("/transfer")
+  // @Get("/transfer")
   getAllTransfer(pagination: QueryTransaction, userId: number): Promise<unknown> {
     return transactionService.getAllTransfer({ ...pagination, type: "TRANSFER" }, userId);
   }

@@ -222,6 +222,11 @@ export class TransactionService {
         transaction: {
           create: {
             ...transak,
+            method: {
+              connect: {
+                id: Number(methodId),
+              },
+            },
             user: {
               connect: {
                 id: Number(userId),
@@ -496,7 +501,7 @@ export class TransactionService {
     return transaction;
   };
 
-  // Update
+  // transaction/paymentUpdate/id
   updatePayment = async (
     id: number,
     proof: string | null,
@@ -506,13 +511,20 @@ export class TransactionService {
     const payment = await prisma.payment.findFirstOrThrow({
       where: { id: paymentId },
       include: {
-        transaction: true,
+        transaction: { include: { method: true } },
       },
     });
 
+    // Check payments already had their funds moved into the temp account
+    // when they were signed (see PaymentService.validate) — this step only
+    // finalizes the payment/transaction status, it must not move funds again.
+    const isCheck =
+      payment.transaction?.method?.type?.toLowerCase() === "chq" ||
+      !!payment.transaction?.method?.label?.toLowerCase().includes("chèque");
+
     let okay = true
 
-    if (payment.transaction!.fromBankId !== null) {
+    if (!isCheck && payment.transaction!.fromBankId !== null) {
       okay = await this.shouldDecrement(
         payment.transaction!.fromBankId,
         payment.price,
@@ -544,22 +556,28 @@ export class TransactionService {
         data: {
           proof,
           status: "APPROVED",
-          from: {
-            update: {
-              balance: {
-                decrement: payment.price,
-              },
-            },
-          },
-          ...(transaction_v?.to ? {
-            to: {
-              update: {
-                balance: {
-                  increment: payment.price,
+          ...(isCheck
+            ? {}
+            : {
+              from: {
+                update: {
+                  balance: {
+                    decrement: payment.price,
+                  },
                 },
               },
-            },
-          } : {})
+              ...(transaction_v?.to
+                ? {
+                  to: {
+                    update: {
+                      balance: {
+                        increment: payment.price,
+                      },
+                    },
+                  },
+                }
+                : {}),
+            }),
         },
         include: {
           from: true,
@@ -582,6 +600,90 @@ export class TransactionService {
     getIO().emit("transaction:update");
     getIO().emit("bank:update");
     return transaction;
+  };
+
+  // Update the clearing status of a check (paid = cleared, rejected = bounced)
+  markCheckStatus = async (
+    id: number,
+    data: { status: "paid" | "rejected"; validatorId: number; reason?: string },
+  ) => {
+    const transaction = await prisma.transaction.findUniqueOrThrow({
+      where: { id },
+      include: {
+        from: { include: { tempAccount: true } },
+        method: true,
+      },
+    });
+
+    const isCheck =
+      transaction.method?.type?.toLowerCase() === "chq" ||
+      !!transaction.method?.label?.toLowerCase().includes("chèque");
+
+    if (!isCheck) {
+      throw Error("Cette transaction n'est pas un chèque");
+    }
+
+    if (transaction.checkStatus !== "pending") {
+      throw Error("Ce chèque a déjà été traité");
+    }
+
+    const tempAccountId = transaction.from?.tempAccountId;
+
+    if (!tempAccountId) {
+      throw Error("Aucun compte temporaire configuré pour cette banque");
+    }
+
+    const [, updated] = await prisma.$transaction([
+      prisma.bank.update({
+        where: { id: tempAccountId },
+        data: {
+          balance: {
+            decrement: transaction.amount,
+          },
+        },
+      }),
+      prisma.transaction.update({
+        where: { id },
+        data: {
+          checkStatus: data.status,
+          validatorId: data.validatorId,
+          ...(data.reason !== undefined ? { reason: data.reason } : {}),
+        },
+        include: {
+          from: true,
+          to: true,
+        },
+      }),
+      ...(data.status === "rejected" && transaction.fromBankId
+        ? [
+          prisma.bank.update({
+            where: { id: transaction.fromBankId },
+            data: {
+              balance: {
+                increment: transaction.amount,
+              },
+            },
+          }),
+        ]
+        : []),
+      ...(data.status === "rejected"
+        ? [
+          prisma.payment.updateMany({
+            where: { transactionId: id },
+            data: {
+              status: "rejected",
+              selected: false,
+            },
+          }),
+        ]
+        : []),
+    ]);
+
+    await CacheService.del(`payment:all`);
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("transaction:update");
+    getIO().emit("bank:update");
+    return updated;
   };
 
   // Update
@@ -869,6 +971,7 @@ export class TransactionService {
         from: true,
         to: true,
         method: true,
+        payementappro: true,
         signers: {
           include: { user: true },
         },
@@ -888,20 +991,13 @@ export class TransactionService {
   };
 
   // Get all
-  getAllTransfer = async ({ pageIndex, pageSize, type, status, bankId, from, to, amountMin, tab, amountMax, search, date }: QueryTransaction, userId: number) => {
-    const cached = await CacheService.get<Transaction[]>(
-      `${this.CACHE_KEY}:all`,
-    );
-    if (cached) return cached;
+  getAllTransfer = async ({ pageIndex, pageSize, bankId, from, to, amountMin, tab, amountMax, search, date }: QueryTransaction, userId: number) => {
 
     const FilterObject = {
       where: {
-        ...(type && { Type: type }),
-        ...(status && { status }),
-        ...(bankId && { fromBankId: bankId }),
-        ...(amountMin && { amount: { gte: amountMin } }),
-        ...(amountMax && { amount: { lte: amountMax } }),
-        ...(tab && { status: tab === "PENDING" ? "ACCEPTED" : "APPROVED" }),
+        ...(bankId && { fromBankId: Number(bankId) }),
+        ...(amountMin && { amount: { gte: Number(amountMin) } }),
+        ...(amountMax && { amount: { lte: Number(amountMax) } }),
         ...(search && {
           description: { contains: search },
           label: { contains: search },
@@ -944,23 +1040,41 @@ export class TransactionService {
     const transaction = await prisma.transaction.findMany({
       where: {
         ...FilterObject.where,
+        ...(tab === "PENDING" && {
+          status: {
+            in: ["ACCEPTED"]
+          }
+        }),
+        ...(tab === "COMPLETED" && {
+          status: {
+            in: ["APPROVED"]
+          }
+        }),
+        Type: "TRANSFER",
+        methodId: {
+          not: null,
+        },
         from: {
           type: "BANK",
-          signatairs: {
-            some: {
-              user: {
-                some: {
-                  id: userId
-                }
-              }
-            }
+        },
+        signers: tab === "PENDING" ? {
+          none: {
+            userId: Number(userId)
+          }
+        } : {
+          some: {
+            userId: Number(userId)
           }
         }
+      },
+      orderBy: {
+        createdAt: "desc",
       },
       include: {
         from: true,
         to: true,
         method: true,
+        payementappro: true,
         signers: {
           include: { user: true },
         },
@@ -968,31 +1082,51 @@ export class TransactionService {
       },
       skip: (pageIndex || 0) * (pageSize || 15),
       take: pageSize ? Number(pageSize) : 15,
-      orderBy: {
-        createdAt: "desc",
-      },
     });
 
-    const count = await prisma.transaction.count({ where: FilterObject.where })
+    const signers = await prisma.signatair.findMany({
+      include: { user: true },
+    });
 
-    await CacheService.set(`${this.CACHE_KEY}:all`, { transactions: transaction, total: count }, 90);
-    return { transactions: transaction, total: count };
+    const selectedTransactions = transaction.filter(t => {
+      return signers.find((x) => x.bankId === t.fromBankId && x.payTypeId === t.methodId)
+        ?.user?.some((u) => u.id === userId);
+
+    })
+
+    return { transactions: selectedTransactions, total: selectedTransactions.length };
   };
 
   // Get all
-  getAllTransferApprovals = async ({ pageIndex, pageSize, type, status, bankId, from, to, amountMin, amountMax, search, date, tab }: QueryTransaction) => {
+  getAllTransferApprovals = async ({ pageIndex, pageSize, type, status, bankId, from, to, toBankId, amountMin, amountMax, search, date, userId, tab }: QueryTransaction) => {
     const cached = await CacheService.get<Transaction[]>(
       `${this.CACHE_KEY}:all`,
     );
-    if (cached) return cached;
+    // if (cached) return cached;
+
+    // get the 7 days of the current week (monday to sunday)
+    const currentDay = new Date().getDay();
+    const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+    const startOfWeek = new Date(new Date().setDate(new Date().getDate() + diffToMonday));
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(endOfWeek.getDate() + 6);
+
+    // get the days of the current month (first day to last day)
+    const startOfMonth = new Date(new Date().setDate(1));
+    const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+
+    // get the days of the current year (first day to last day)
+    const startOfYear = new Date(new Date().setFullYear(new Date().getFullYear(), 0, 1));
+    const endOfYear = new Date(new Date().setFullYear(new Date().getFullYear(), 11, 31));
 
     const FilterObject = {
       where: {
         ...(type && { Type: type }),
         ...(status && { status }),
-        ...(bankId && { fromBankId: bankId }),
-        ...(amountMin && { amount: { gte: amountMin } }),
-        ...(amountMax && { amount: { lte: amountMax } }),
+        ...(bankId && { fromBankId: Number(bankId) }),
+        ...(toBankId && { toBankId: Number(toBankId) }),
+        ...(amountMin && { amount: { gte: Number(amountMin) } }),
+        ...(amountMax && { amount: { lte: Number(amountMax) } }),
         ...(search && {
           description: { contains: search },
           label: { contains: search },
@@ -1011,22 +1145,18 @@ export class TransactionService {
               }
               : date === "week"
                 ? {
-                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
-                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  gte: startOfWeek,
+                  lte: endOfWeek,
                 }
                 : date === "month"
                   ? {
-                    gte: new Date(
-                      new Date().setDate(new Date().getDate() - 30),
-                    ),
-                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    gte: startOfMonth,
+                    lte: endOfMonth,
                   }
                   : date === "year"
                     ? {
-                      gte: new Date(
-                        new Date().setFullYear(new Date().getFullYear() - 1),
-                      ),
-                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                      gte: startOfYear,
+                      lte: endOfYear,
                     }
                     : {},
       },
@@ -1034,10 +1164,12 @@ export class TransactionService {
 
     const transaction = await prisma.transaction.findMany({
       where: {
+        Type: "TRANSFERT",
         ...FilterObject.where,
+        ...(userId && { userId: Number(userId) }),
         ...(tab === "PENDING" && { status: "PENDING" }),
         ...(tab === "COMPLETED" && {
-          status: { notIn: ["PENDING", "CANCELLED"] },
+          status: { notIn: ["PENDING", "ACCEPTED", "CANCELLED"] },
           to: {
             type: "BANK"
           }
@@ -1047,6 +1179,7 @@ export class TransactionService {
         from: true,
         to: true,
         method: true,
+        payementappro: true,
         signers: {
           include: { user: true },
         },
@@ -1061,10 +1194,11 @@ export class TransactionService {
 
     const count = await prisma.transaction.count({
       where: {
+        Type: "TRANSFERT",
         ...FilterObject.where,
         ...(tab === "PENDING" && { status: "PENDING" }),
         ...(tab === "COMPLETED" && {
-          status: { notIn: ["PENDING", "CANCELLED"] },
+          status: { notIn: ["PENDING", "ACCEPTED", "CANCELLED"] },
           to: {
             type: "BANK"
           }
@@ -1110,13 +1244,19 @@ export class TransactionService {
     const transaction = await prisma.transaction.findMany({
       where: {
         Type: "TRANSFER",
+        status: "ACCEPTED",
         methodId: {
           not: null,
         },
         from: {
           type: "BANK",
         },
-        isSigned: false,
+        // isSigned: false,
+        signers: {
+          none: {
+            userId: Number(userId)
+          }
+        }
       },
       orderBy: {
         createdAt: "desc",
