@@ -664,6 +664,16 @@ export class TransactionService {
               },
             },
           }),
+          prisma.payment.update({
+            where: {
+              transactionId: id,
+              status: "pending"
+            },
+            data: {
+              status: "unsigned",
+              selected: false,
+            },
+          })
         ]
         : []),
       ...(data.status === "rejected"
@@ -1169,10 +1179,7 @@ export class TransactionService {
         ...(userId && { userId: Number(userId) }),
         ...(tab === "PENDING" && { status: "PENDING" }),
         ...(tab === "COMPLETED" && {
-          status: { notIn: ["PENDING", "ACCEPTED", "CANCELLED"] },
-          to: {
-            type: "BANK"
-          }
+          status: { notIn: ["PENDING", "CANCELLED"] },
         }),
       },
       include: {
@@ -1198,10 +1205,7 @@ export class TransactionService {
         ...FilterObject.where,
         ...(tab === "PENDING" && { status: "PENDING" }),
         ...(tab === "COMPLETED" && {
-          status: { notIn: ["PENDING", "ACCEPTED", "CANCELLED"] },
-          to: {
-            type: "BANK"
-          }
+          status: { notIn: ["PENDING", "CANCELLED"] },
         }),
       },
     })
