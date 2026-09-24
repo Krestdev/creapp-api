@@ -522,18 +522,24 @@ export class TransactionService {
       payment.transaction?.method?.type?.toLowerCase() === "chq" ||
       !!payment.transaction?.method?.label?.toLowerCase().includes("chèque");
 
-    let okay = true
+    /**
+     * 
+     * @note Here we don't check if the bank has enough funds because of a teporal fix on the applicaiton 
+     * 
+     */
 
-    if (!isCheck && payment.transaction!.fromBankId !== null) {
-      okay = await this.shouldDecrement(
-        payment.transaction!.fromBankId,
-        payment.price,
-      );
+    // let okay = true
 
-      if (!okay) {
-        throw Error("Fond insufisant");
-      }
-    }
+    // if (!isCheck && payment.transaction!.fromBankId !== null) {
+    //   okay = await this.shouldDecrement(
+    //     payment.transaction!.fromBankId,
+    //     payment.price,
+    //   );
+
+    //   if (!okay) {
+    //     throw Error("Fond insufisant");
+    //   }
+    // }
 
     const transaction_v = await prisma.transaction.findFirst({
       where: { id },
