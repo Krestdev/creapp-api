@@ -40,6 +40,19 @@ export class BankService {
       data.justification = justification;
     }
 
+    if (data.tempAccountId != null) {
+      if (data.tempAccountId === id) {
+        throw new Error(
+          "Une banque ne peut pas être son propre compte temporaire",
+        );
+      }
+      if (data.isTemporary) {
+        throw new Error(
+          "Un compte temporaire ne peut pas avoir son propre compte temporaire",
+        );
+      }
+    }
+
     const bank = await prisma.bank.update({
       where: { id },
       data: {
@@ -71,6 +84,8 @@ export class BankService {
 
   // Get all
   getAll = () => {
-    return prisma.bank.findMany();
+    return prisma.bank.findMany({
+      include: { tempAccount: true },
+    });
   };
 }
