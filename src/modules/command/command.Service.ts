@@ -184,7 +184,7 @@ export class CommandService {
           CommandId: command.id,
           ProviderId: command.providerId,
           userId: command.devi ? command.devi.userId : null,
-          Deadline: new Date(),
+          Deadline: command.deliveryDelay,
         },
       });
     }
