@@ -782,11 +782,12 @@ export class PaymentService {
       where: FilterObject.where,
       include: {
         ...FilterObject.include,
-        transaction: {
-          where: {
-            Type: "TRANSFER"
-          }
-        }
+        // transaction: {
+        //   where: {
+        //     Type: "TRANSFER"
+        //   }
+        // }
+        transaction: true,
       },
       skip: (pageIndex || 0) * (pageSize || 15),
       take: +pageSize || 15,

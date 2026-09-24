@@ -684,14 +684,13 @@ model Bank {
 
   Status Boolean @default(false)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
   isTemporary   Boolean @default(false)
   tempAccountId Int?    @unique
   tempAccount   Bank?   @relation(name: "BankTempAccount", fields: [tempAccountId], references: [id])
   mainAccount   Bank?   @relation(name: "BankTempAccount")
 
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
   incomming  Transaction[] @relation(name: "incoming")
   outgoing   Transaction[] @relation(name: "outgoing")
   payments   Payment[]

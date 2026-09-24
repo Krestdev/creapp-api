@@ -21,6 +21,8 @@ export default class BankController {
       ...restData,
       balance: Number(data.balance),
       Status: (data.Status as unknown as string) == "true" ? true : false,
+      isTemporary: (data.isTemporary as unknown as string) == "true" ? true : false,
+      tempAccountId: data.tempAccountId ? Number(data.tempAccountId) : null,
       justification: normalizeFile(justification),
     };
 
@@ -44,6 +46,8 @@ export default class BankController {
       ...restData,
       balance: Number(data.balance),
       Status: (data.Status as unknown as string) == "true" ? true : false,
+      isTemporary: (data.isTemporary as unknown as string) == "true" ? true : false,
+      tempAccountId: data.tempAccountId ? Number(data.tempAccountId) : null,
     };
     const newJustification = normalizeFile(justification);
     // justification && typeDetermine(justification)
