@@ -5,6 +5,7 @@ import {
   storeDocumentsBulk,
 } from "../../utils/DocumentManager";
 import { CacheService } from "../../utils/redis";
+import { getClearingInstrument } from "../../utils/clearing";
 import {
   AccountantPaymentQueryParameter,
   DGPaymentQueryParameter,
@@ -276,14 +277,12 @@ export class PaymentService {
         ? signatair.user.length - 1 === paymentData.signer.length
         : true;
 
-    const isCheck =
-      paymentData.method?.type?.toLowerCase() === "chq" ||
-      !!paymentData.method?.label?.toLowerCase().includes("chèque");
+    const isClearedByBank = !!getClearingInstrument(paymentData.method);
 
     // If this signature is the one that completes the required signatures
-    // for a check payment, move the funds from the origin bank into its
-    // temporary/suspense account (auto-creating one if none is linked yet).
-    if (becomesFullySigned && isCheck && paymentData.bankId) {
+    // for a cheque or transfer order, move the funds from the origin bank into
+    // its temporary/suspense account (auto-creating one if none is linked yet).
+    if (becomesFullySigned && isClearedByBank && paymentData.bankId) {
       const okay = await this.shouldDecrement(
         paymentData.bankId,
         paymentData.price,

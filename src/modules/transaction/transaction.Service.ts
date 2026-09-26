@@ -6,6 +6,7 @@ import {
 import { CacheService } from "../../utils/redis";
 import { getIO } from "../../socket";
 import { QueryTransaction } from "./transaction.Controller";
+import { getClearingInstrument } from "../../utils/clearing";
 
 const prisma = new PrismaClient();
 
@@ -518,12 +519,16 @@ export class TransactionService {
       },
     });
 
-    // Check payments already had their funds moved into the temp account
-    // when they were signed (see PaymentService.validate) — this step only
-    // finalizes the payment/transaction status, it must not move funds again.
-    const isCheck =
-      payment.transaction?.method?.type?.toLowerCase() === "chq" ||
-      !!payment.transaction?.method?.label?.toLowerCase().includes("chèque");
+    // Cheques and transfer orders already had their funds moved into the temp
+    // account when they were signed (see PaymentService.validate) — this step
+    // only finalizes the payment/transaction status, it must not move funds again.
+    // Transfer orders signed before they joined that flow never reached the temp
+    // account (checkStatus unset), so they are still debited here.
+    const instrument = getClearingInstrument(payment.transaction?.method);
+    const fundsHeldInTemp =
+      instrument?.kind === "chq" ||
+      (instrument?.kind === "ov" &&
+        payment.transaction?.checkStatus === "pending");
 
     /**
      * 
@@ -565,7 +570,7 @@ export class TransactionService {
         data: {
           proof,
           status: "APPROVED",
-          ...(isCheck
+          ...(fundsHeldInTemp
             ? {}
             : {
               from: {
@@ -611,13 +616,19 @@ export class TransactionService {
     return transaction;
   };
 
-  private isCheckMethod = (
-    method: { type: string | null; label: string | null } | null,
-  ) =>
-    method?.type?.toLowerCase() === "chq" ||
-    !!method?.label?.toLowerCase().includes("chèque");
+  private requireClearingInstrument = (
+    method: Parameters<typeof getClearingInstrument>[0],
+  ) => {
+    const instrument = getClearingInstrument(method);
+    if (!instrument) {
+      throw Error(
+        "Cette transaction n'est ni un chèque ni un ordre de virement",
+      );
+    }
+    return instrument;
+  };
 
-  // Voids a cheque transaction, archives it on its payment and puts the payment
+  // Voids a cheque / transfer order transaction, archives it on its payment and puts the payment
   // back to "validated" so a new cheque can be issued through "Traiter".
   private buildCheckAbortOps = (
     transaction: Transaction & { from: Bank | null },
@@ -688,7 +699,8 @@ export class TransactionService {
     getIO().emit("bank:update");
   };
 
-  // Update the clearing status of a check (paid = cleared, rejected = bounced)
+  // Update the clearing status of a cheque or transfer order
+  // (paid = cleared/executed, rejected = refused by the bank)
   markCheckStatus = async (
     id: number,
     data: { status: "paid" | "rejected"; validatorId: number; reason?: string },
@@ -698,12 +710,10 @@ export class TransactionService {
       include: { from: true, method: true, payement: true },
     });
 
-    if (!this.isCheckMethod(transaction.method)) {
-      throw Error("Cette transaction n'est pas un chèque");
-    }
+    const instrument = this.requireClearingInstrument(transaction.method);
 
     if (transaction.checkStatus !== "pending") {
-      throw Error("Ce chèque a déjà été traité");
+      throw Error(`${instrument.label} déjà traité`);
     }
 
     const tempAccountId = transaction.from?.tempAccountId;
@@ -745,7 +755,7 @@ export class TransactionService {
     });
   };
 
-  // Cancel a signed cheque that has not been cleared yet
+  // Cancel a signed cheque or transfer order that has not been cleared yet
   cancelCheck = async (
     id: number,
     data: { validatorId: number; reason?: string },
@@ -755,18 +765,21 @@ export class TransactionService {
       include: { from: true, method: true, payement: true },
     });
 
-    if (!this.isCheckMethod(transaction.method)) {
-      throw Error("Cette transaction n'est pas un chèque");
-    }
-
+    const instrument = this.requireClearingInstrument(transaction.method);
     const payment = transaction.payement;
 
     if (!payment) {
-      throw Error("Aucun paiement n'est lié à ce chèque");
+      throw Error("Aucun paiement n'est lié à cette transaction");
     }
 
     if (transaction.checkStatus && transaction.checkStatus !== "pending") {
-      throw Error("Ce chèque a déjà été traité");
+      throw Error(`${instrument.label} déjà traité`);
+    }
+
+    // Once discharged, only an instrument whose funds are still in the temp
+    // account can be voided; otherwise the debit could not be reversed.
+    if (payment.status === "paid" && transaction.checkStatus !== "pending") {
+      throw Error(`${instrument.label} déjà déchargé, annulation impossible`);
     }
 
     const hasSignature =
@@ -774,7 +787,7 @@ export class TransactionService {
       ["signed", "simple_signed", "paid"].includes(payment.status);
 
     if (!hasSignature) {
-      throw Error("Ce chèque n'a pas encore été signé");
+      throw Error(`${instrument.label} pas encore signé`);
     }
 
     await prisma.$transaction(
