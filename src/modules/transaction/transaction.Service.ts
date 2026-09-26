@@ -1324,7 +1324,11 @@ export class TransactionService {
     return prisma.transaction.findUniqueOrThrow({
       where: { id },
       include: {
-        from: true,
+        from: {
+          include: {
+            tempAccount: true
+          }
+        },
         to: true,
         method: true,
         signers: true,
