@@ -564,8 +564,11 @@ model Payment {
 
   transaction   Transaction? @relation(name: "paymentTransaction", fields: [transactionId], references: [id])
   transactionId Int?         @unique
-  facture       Invoice?     @relation(fields: [invoiceId], references: [id])
-  invoiceId     Int?
+
+  abortedTransaction Transaction[] @relation(name: "abortedTransactions")
+
+  facture   Invoice? @relation(fields: [invoiceId], references: [id])
+  invoiceId Int?
 
   paymentTransaction Transaction? @relation(fields: [paymentTransactionId], references: [id], name: "TransactionPayments")
 
@@ -743,6 +746,9 @@ model Transaction {
   payments Payment[] @relation(name: "TransactionPayments")
 
   modifications modification[]
+
+  abortedFromPayment   Payment? @relation(name: "abortedTransactions", fields: [abortedFromPaymentId], references: [id])
+  abortedFromPaymentId Int?
 }
 
 model TransactionSigners {

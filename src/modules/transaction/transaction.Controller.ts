@@ -298,6 +298,15 @@ export default class TransactionController {
     return transactionService.markCheckStatus(Number(id), data);
   }
 
+  @Put("/cancelCheck/{id}")
+  cancelCheck(
+    @Path() id: string,
+    @Body()
+    data: { validatorId: number; reason?: string },
+  ): Promise<Transaction> {
+    return transactionService.cancelCheck(Number(id), data);
+  }
+
   @Delete("/{id}")
   delete(@Path() id: string): Promise<Transaction> {
     return transactionService.delete(Number(id));

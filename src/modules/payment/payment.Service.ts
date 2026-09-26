@@ -486,6 +486,10 @@ export class PaymentService {
         method: true,
         request: true,
         transaction: true,
+        abortedTransaction: {
+          include: { method: true },
+          orderBy: { createdAt: "desc" },
+        },
         facture: {
           include: {
             command: {
@@ -766,6 +770,10 @@ export class PaymentService {
           },
         },
         transaction: true,
+        abortedTransaction: {
+          include: { method: true },
+          orderBy: { createdAt: "desc" as const },
+        },
         facture: {
           include: {
             command: {

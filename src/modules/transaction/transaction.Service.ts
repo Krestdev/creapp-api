@@ -27,6 +27,7 @@ export class TransactionService {
       methodId,
       userId,
       validatorId,
+      abortedFromPaymentId,
       ...transak
     } = data;
 
@@ -110,6 +111,7 @@ export class TransactionService {
       methodId,
       userId,
       validatorId,
+      abortedFromPaymentId,
       ...transak
     } = data;
 
@@ -195,6 +197,7 @@ export class TransactionService {
       fromBankId,
       userId,
       validatorId,
+      abortedFromPaymentId,
       ...transak
     } = data;
 
@@ -608,6 +611,83 @@ export class TransactionService {
     return transaction;
   };
 
+  private isCheckMethod = (
+    method: { type: string | null; label: string | null } | null,
+  ) =>
+    method?.type?.toLowerCase() === "chq" ||
+    !!method?.label?.toLowerCase().includes("chèque");
+
+  // Voids a cheque transaction, archives it on its payment and puts the payment
+  // back to "validated" so a new cheque can be issued through "Traiter".
+  private buildCheckAbortOps = (
+    transaction: Transaction & { from: Bank | null },
+    paymentId: number | null,
+    kind: "cancelled" | "rejected",
+    data: { validatorId: number; reason?: string },
+  ) => {
+    // checkStatus "pending" is set only once all signatures are collected,
+    // which is when the funds were moved into the temporary account.
+    const fundsInTempAccount = transaction.checkStatus === "pending";
+    const tempAccountId = transaction.from?.tempAccountId;
+
+    if (fundsInTempAccount && (!tempAccountId || !transaction.fromBankId)) {
+      throw Error("Aucun compte temporaire configuré pour cette banque");
+    }
+
+    return [
+      ...(fundsInTempAccount
+        ? [
+          prisma.bank.update({
+            where: { id: tempAccountId! },
+            data: { balance: { decrement: transaction.amount } },
+          }),
+          prisma.bank.update({
+            where: { id: transaction.fromBankId! },
+            data: { balance: { increment: transaction.amount } },
+          }),
+        ]
+        : []),
+      prisma.transaction.update({
+        where: { id: transaction.id },
+        data: {
+          checkStatus: kind,
+          ...(kind === "cancelled" ? { status: "CANCELLED" } : {}),
+          validator: { connect: { id: data.validatorId } },
+          ...(data.reason !== undefined ? { reason: data.reason } : {}),
+          ...(paymentId
+            ? { abortedFromPayment: { connect: { id: paymentId } } }
+            : {}),
+        },
+      }),
+      ...(paymentId
+        ? [
+          prisma.payment.update({
+            where: { id: paymentId },
+            data: {
+              status: "validated",
+              transaction: { disconnect: true },
+              // signers must be cleared or the next cheque's signature count is wrong
+              signer: { set: [] },
+              signed: false,
+              signeDoc: null,
+              proof: null,
+              paymentProof: null,
+              selected: false,
+            },
+          }),
+        ]
+        : []),
+    ];
+  };
+
+  private notifyCheckChange = async () => {
+    await CacheService.del(`payment:all`);
+    await CacheService.del(`${this.CACHE_KEY}:all`);
+    getIO().emit("transaction:update");
+    getIO().emit("payment:update");
+    getIO().emit("bank:update");
+  };
+
   // Update the clearing status of a check (paid = cleared, rejected = bounced)
   markCheckStatus = async (
     id: number,
@@ -615,17 +695,10 @@ export class TransactionService {
   ) => {
     const transaction = await prisma.transaction.findUniqueOrThrow({
       where: { id },
-      include: {
-        from: { include: { tempAccount: true } },
-        method: true,
-      },
+      include: { from: true, method: true, payement: true },
     });
 
-    const isCheck =
-      transaction.method?.type?.toLowerCase() === "chq" ||
-      !!transaction.method?.label?.toLowerCase().includes("chèque");
-
-    if (!isCheck) {
+    if (!this.isCheckMethod(transaction.method)) {
       throw Error("Cette transaction n'est pas un chèque");
     }
 
@@ -639,67 +712,80 @@ export class TransactionService {
       throw Error("Aucun compte temporaire configuré pour cette banque");
     }
 
-    const [, updated] = await prisma.$transaction([
-      prisma.bank.update({
-        where: { id: tempAccountId },
-        data: {
-          balance: {
-            decrement: transaction.amount,
+    if (data.status === "rejected") {
+      await prisma.$transaction(
+        this.buildCheckAbortOps(
+          transaction,
+          transaction.payement?.id ?? null,
+          "rejected",
+          data,
+        ),
+      );
+    } else {
+      await prisma.$transaction([
+        prisma.bank.update({
+          where: { id: tempAccountId },
+          data: { balance: { decrement: transaction.amount } },
+        }),
+        prisma.transaction.update({
+          where: { id },
+          data: {
+            checkStatus: "paid",
+            validatorId: data.validatorId,
+            ...(data.reason !== undefined ? { reason: data.reason } : {}),
           },
-        },
-      }),
-      prisma.transaction.update({
-        where: { id },
-        data: {
-          checkStatus: data.status,
-          validatorId: data.validatorId,
-          ...(data.reason !== undefined ? { reason: data.reason } : {}),
-        },
-        include: {
-          from: true,
-          to: true,
-        },
-      }),
-      ...(data.status === "rejected" && transaction.fromBankId
-        ? [
-          prisma.bank.update({
-            where: { id: transaction.fromBankId },
-            data: {
-              balance: {
-                increment: transaction.amount,
-              },
-            },
-          }),
-          prisma.payment.update({
-            where: {
-              transactionId: id,
-              status: "pending"
-            },
-            data: {
-              status: "unsigned",
-              selected: false,
-            },
-          })
-        ]
-        : []),
-      ...(data.status === "rejected"
-        ? [
-          prisma.payment.updateMany({
-            where: { transactionId: id },
-            data: {
-              status: "rejected",
-              selected: false,
-            },
-          }),
-        ]
-        : []),
-    ]);
+        }),
+      ]);
+    }
 
-    await CacheService.del(`payment:all`);
-    await CacheService.del(`${this.CACHE_KEY}:all`);
-    getIO().emit("transaction:update");
-    getIO().emit("bank:update");
-    return updated;
+    await this.notifyCheckChange();
+    return prisma.transaction.findUniqueOrThrow({
+      where: { id },
+      include: { from: true, to: true },
+    });
+  };
+
+  // Cancel a signed cheque that has not been cleared yet
+  cancelCheck = async (
+    id: number,
+    data: { validatorId: number; reason?: string },
+  ) => {
+    const transaction = await prisma.transaction.findUniqueOrThrow({
+      where: { id },
+      include: { from: true, method: true, payement: true },
+    });
+
+    if (!this.isCheckMethod(transaction.method)) {
+      throw Error("Cette transaction n'est pas un chèque");
+    }
+
+    const payment = transaction.payement;
+
+    if (!payment) {
+      throw Error("Aucun paiement n'est lié à ce chèque");
+    }
+
+    if (transaction.checkStatus && transaction.checkStatus !== "pending") {
+      throw Error("Ce chèque a déjà été traité");
+    }
+
+    const hasSignature =
+      payment.signed ||
+      ["signed", "simple_signed", "paid"].includes(payment.status);
+
+    if (!hasSignature) {
+      throw Error("Ce chèque n'a pas encore été signé");
+    }
+
+    await prisma.$transaction(
+      this.buildCheckAbortOps(transaction, payment.id, "cancelled", data),
+    );
+
+    await this.notifyCheckChange();
+    return prisma.transaction.findUniqueOrThrow({
+      where: { id },
+      include: { from: true, to: true },
+    });
   };
 
   // Update

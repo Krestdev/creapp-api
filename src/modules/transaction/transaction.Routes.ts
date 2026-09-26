@@ -211,6 +211,18 @@ export default class TransactionRoute {
       },
     );
 
+    // cancel a signed cheque so the payment can be treated again
+    this.routes.put("/cancelCheck/:id", requireRole("USER"), (req, res) => {
+      this.trTransactionController
+        .cancelCheck(req.params.id!, req.body)
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
+
     // delete
     this.routes.delete("/:id", requireRole("USER"), (req, res) => {
       this.trTransactionController
