@@ -530,24 +530,18 @@ export class TransactionService {
       (instrument?.kind === "ov" &&
         payment.transaction?.checkStatus === "pending");
 
-    /**
-     * 
-     * @note Here we don't check if the bank has enough funds because of a teporal fix on the applicaiton 
-     * 
-     */
+    let okay = true
 
-    // let okay = true
+    if (!fundsHeldInTemp && payment.transaction!.fromBankId !== null) {
+      okay = await this.shouldDecrement(
+        payment.transaction!.fromBankId,
+        payment.price,
+      );
 
-    // if (!isCheck && payment.transaction!.fromBankId !== null) {
-    //   okay = await this.shouldDecrement(
-    //     payment.transaction!.fromBankId,
-    //     payment.price,
-    //   );
-
-    //   if (!okay) {
-    //     throw Error("Fond insufisant");
-    //   }
-    // }
+      if (!okay) {
+        throw Error("Fond insufisant");
+      }
+    }
 
     const transaction_v = await prisma.transaction.findFirst({
       where: { id },
