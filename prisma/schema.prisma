@@ -722,7 +722,7 @@ model Transaction {
   reason    String?
   docNumber String?
 
-  checkStatus String? // pending | paid | rejected — only set for chq-method transactions once finalized
+  checkStatus String? // pending | paid | rejected | cancelled — clearing status of chq and ov transactions, set once fully signed
 
   method   PayType? @relation(fields: [methodId], references: [id])
   methodId Int?
