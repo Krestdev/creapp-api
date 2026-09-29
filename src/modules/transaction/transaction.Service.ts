@@ -1100,7 +1100,7 @@ export class TransactionService {
   };
 
   // Get all
-  getAllStats = async ({ pageIndex, pageSize, type, status, bankId, from, to, amountMin, amountMax, search, date }: QueryTransaction) => {
+  getAllStats = async ({ type, status, bankId, from, to, amountMin, amountMax, search, date }: QueryTransaction) => {
     const cached = await CacheService.get<Transaction[]>(
       `${this.CACHE_KEY}:all-stats`,
     );
@@ -1164,8 +1164,6 @@ export class TransactionService {
         },
         payments: true,
       },
-      skip: (pageIndex || 0) * (pageSize || 15),
-      take: pageSize ? Number(pageSize) : 15,
       orderBy: {
         createdAt: "desc",
       },
@@ -1233,16 +1231,6 @@ export class TransactionService {
     const transaction = await prisma.transaction.findMany({
       where: {
         ...FilterObject.where,
-        ...(tab === "PENDING" && {
-          status: {
-            in: ["ACCEPTED"]
-          }
-        }),
-        ...(tab === "COMPLETED" && {
-          status: {
-            in: ["APPROVED"]
-          }
-        }),
         Type: "TRANSFER",
         methodId: {
           not: null,
@@ -1291,7 +1279,7 @@ export class TransactionService {
   };
 
   // Get all Transfer Stats
-  getAllTransferStats = async ({ pageIndex, pageSize, bankId, from, to, amountMin, tab, amountMax, search, date }: QueryTransaction, userId: number) => {
+  getAllTransferStats = async ({ bankId, from, to, amountMin, amountMax, search, date }: QueryTransaction, userId: number) => {
 
     const FilterObject = {
       where: {
@@ -1340,16 +1328,6 @@ export class TransactionService {
     const transaction = await prisma.transaction.findMany({
       where: {
         ...FilterObject.where,
-        ...(tab === "PENDING" && {
-          status: {
-            in: ["ACCEPTED"]
-          }
-        }),
-        ...(tab === "COMPLETED" && {
-          status: {
-            in: ["APPROVED"]
-          }
-        }),
         Type: "TRANSFER",
         methodId: {
           not: null,
@@ -1357,15 +1335,6 @@ export class TransactionService {
         from: {
           type: "BANK",
         },
-        signers: tab === "PENDING" ? {
-          none: {
-            userId: Number(userId)
-          }
-        } : {
-          some: {
-            userId: Number(userId)
-          }
-        }
       },
       orderBy: {
         createdAt: "desc",
@@ -1380,8 +1349,6 @@ export class TransactionService {
         },
         payments: true,
       },
-      skip: (pageIndex || 0) * (pageSize || 15),
-      take: pageSize ? Number(pageSize) : 15,
     });
 
     const signers = await prisma.signatair.findMany({
@@ -1395,8 +1362,8 @@ export class TransactionService {
     })
 
     return {
-      signed: selectedTransactions.length,
-      unsigned: transaction.filter(x => x.status === "ACCEPTED").length
+      signed: selectedTransactions.filter(x => x.signers.some(y => y.user.id === userId)).length,
+      unsigned: selectedTransactions.filter(x => x.signers.some(y => y.user.id !== userId)).length
     };
   };
 
