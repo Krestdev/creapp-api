@@ -1045,9 +1045,9 @@ export class RequestService {
     const stats = {
       awaiting: approbatorRequests.filter((r) => r.state === "pending").length,
       processed: approbatorRequests.filter((r) => r.state === "proccessed").length,
-      validated: approbatorRequests.filter((r) => r.state === "validated").length,
+      validated: approbatorRequests.filter((r) => ["validated", "store"].includes(r.state)).length,
       rejected: requests.filter((r) => r.state === "rejected").length,
-      total: requests.length,
+      total: requests.filter(r => !["cancel"].includes(r.state)).length,
     };
 
     return stats;

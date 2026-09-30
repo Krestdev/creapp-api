@@ -347,7 +347,11 @@ export class DeviService {
   getAll = () => {
     return prisma.devi.findMany({
       include: {
-        element: true,
+        element: {
+          include: {
+            request: true
+          }
+        },
         commandRequest: {
           include: {
             besoins: true,

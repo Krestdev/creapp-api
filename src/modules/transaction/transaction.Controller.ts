@@ -322,9 +322,19 @@ export default class TransactionController {
     return transactionService.getAll(pagination);
   }
 
+  // @Get("/stats")
+  getAllStats(pagination: QueryTransaction): Promise<unknown> {
+    return transactionService.getAllStats(pagination);
+  }
+
   // @Get("/transfer")
   getAllTransfer(pagination: QueryTransaction, userId: number): Promise<unknown> {
     return transactionService.getAllTransfer({ ...pagination, type: "TRANSFER" }, userId);
+  }
+
+  // @Get("/transfer/stats")
+  getAllTransferStats(pagination: QueryTransaction, userId: number): Promise<unknown> {
+    return transactionService.getAllTransferStats({ ...pagination, type: "TRANSFER" }, userId);
   }
 
   getAllSpecial(pagination: QueryTransaction): Promise<unknown> {

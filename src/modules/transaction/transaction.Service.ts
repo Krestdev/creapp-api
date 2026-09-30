@@ -1100,6 +1100,88 @@ export class TransactionService {
   };
 
   // Get all
+  getAllStats = async ({ type, status, bankId, from, to, amountMin, amountMax, search, date }: QueryTransaction) => {
+    const cached = await CacheService.get<Transaction[]>(
+      `${this.CACHE_KEY}:all-stats`,
+    );
+    if (cached) return cached;
+
+    const FilterObject = {
+      where: {
+        ...(type && { Type: type }),
+        ...(status && { status }),
+        ...(bankId && { fromBankId: bankId }),
+        ...(amountMin && { amount: { gte: amountMin } }),
+        ...(amountMax && { amount: { lte: amountMax } }),
+        ...(search && {
+          description: { contains: search },
+          label: { contains: search },
+          ref: { contains: search },
+        }),
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
+      },
+    }
+
+    const transaction = await prisma.transaction.findMany({
+      ...FilterObject,
+      include: {
+        from: true,
+        to: true,
+        method: true,
+        payementappro: true,
+        signers: {
+          include: { user: true },
+        },
+        payments: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const count = await prisma.transaction.count({ where: FilterObject.where })
+
+    await CacheService.set(`${this.CACHE_KEY}:all-stats`, { transactions: transaction, total: count }, 90);
+
+    return {
+      creditCount: transaction.filter(x => x.Type === "CREDIT").length,
+      creditAmount: transaction.filter(x => x.Type === "CREDIT").reduce((acc, curr) => acc + curr.amount, 0),
+      debitCount: transaction.filter(x => x.Type === "DEBIT").length,
+      debitAmount: transaction.filter(x => x.Type === "DEBIT").reduce((acc, curr) => acc + curr.amount, 0),
+    };
+  };
+
+  // Get all
   getAllTransfer = async ({ pageIndex, pageSize, bankId, from, to, amountMin, tab, amountMax, search, date }: QueryTransaction, userId: number) => {
 
     const FilterObject = {
@@ -1149,16 +1231,6 @@ export class TransactionService {
     const transaction = await prisma.transaction.findMany({
       where: {
         ...FilterObject.where,
-        ...(tab === "PENDING" && {
-          status: {
-            in: ["ACCEPTED"]
-          }
-        }),
-        ...(tab === "COMPLETED" && {
-          status: {
-            in: ["APPROVED"]
-          }
-        }),
         Type: "TRANSFER",
         methodId: {
           not: null,
@@ -1204,6 +1276,95 @@ export class TransactionService {
     })
 
     return { transactions: selectedTransactions, total: selectedTransactions.length };
+  };
+
+  // Get all Transfer Stats
+  getAllTransferStats = async ({ bankId, from, to, amountMin, amountMax, search, date }: QueryTransaction, userId: number) => {
+
+    const FilterObject = {
+      where: {
+        ...(bankId && { fromBankId: Number(bankId) }),
+        ...(amountMin && { amount: { gte: Number(amountMin) } }),
+        ...(amountMax && { amount: { lte: Number(amountMax) } }),
+        ...(search && {
+          description: { contains: search },
+          label: { contains: search },
+          ref: { contains: search },
+        }),
+        createdAt:
+          date === "custom" && from && to
+            ? {
+              gte: new Date(from),
+              lte: new Date(to),
+            }
+            : date === "today"
+              ? {
+                gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                lte: new Date(new Date().setHours(23, 59, 59, 999)),
+              }
+              : date === "week"
+                ? {
+                  gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                  lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                }
+                : date === "month"
+                  ? {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                    lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                  }
+                  : date === "year"
+                    ? {
+                      gte: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 1),
+                      ),
+                      lte: new Date(new Date().setHours(23, 59, 59, 999)),
+                    }
+                    : {},
+      },
+    }
+
+    const transaction = await prisma.transaction.findMany({
+      where: {
+        ...FilterObject.where,
+        Type: "TRANSFER",
+        methodId: {
+          not: null,
+        },
+        from: {
+          type: "BANK",
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        from: true,
+        to: true,
+        method: true,
+        payementappro: true,
+        signers: {
+          include: { user: true },
+        },
+        payments: true,
+      },
+    });
+
+    const signers = await prisma.signatair.findMany({
+      include: { user: true },
+    });
+
+    const selectedTransactions = transaction.filter(t => {
+      return signers.find((x) => x.bankId === t.fromBankId && x.payTypeId === t.methodId)
+        ?.user?.some((u) => u.id === userId);
+
+    })
+
+    return {
+      signed: selectedTransactions.filter(x => x.signers.some(y => y.user.id === userId)).length,
+      unsigned: selectedTransactions.filter(x => x.signers.some(y => y.user.id !== userId)).length
+    };
   };
 
   // Get all
