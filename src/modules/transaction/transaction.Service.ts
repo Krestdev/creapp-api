@@ -1101,7 +1101,8 @@ export class TransactionService {
 
   // Get all
   getAllStats = async ({ type, status, bankId, from, to, amountMin, amountMax, search, date }: QueryTransaction) => {
-    const cached = await CacheService.get<Transaction[]>(
+    console.log("All Stats")
+    const cached = await CacheService.get<unknown[]>(
       `${this.CACHE_KEY}:all-stats`,
     );
     if (cached) return cached;
@@ -1171,7 +1172,12 @@ export class TransactionService {
 
     const count = await prisma.transaction.count({ where: FilterObject.where })
 
-    await CacheService.set(`${this.CACHE_KEY}:all-stats`, { transactions: transaction, total: count }, 90);
+    await CacheService.set(`${this.CACHE_KEY}:all-stats`, {
+      creditCount: transaction.filter(x => x.Type === "CREDIT").length,
+      creditAmount: transaction.filter(x => x.Type === "CREDIT").reduce((acc, curr) => acc + curr.amount, 0),
+      debitCount: transaction.filter(x => x.Type === "DEBIT").length,
+      debitAmount: transaction.filter(x => x.Type === "DEBIT").reduce((acc, curr) => acc + curr.amount, 0),
+    }, 90);
 
     return {
       creditCount: transaction.filter(x => x.Type === "CREDIT").length,

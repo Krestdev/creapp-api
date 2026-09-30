@@ -1,6 +1,5 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoid2Fzc29tQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiLCJBRE1JTiIsIk1BTkFHRVIiLCJTQUxFUyIsIlNBTEVTX01BTkFHRVIiLCJWT0xUIiwiVk9MVF9NQU5BR0VSIiwiUkgiLCJBQ0NPVU5UQU5UIiwiRFJJVkVSIiwiU1VQRVJBRE1JTiJdLCJpYXQiOjE3ODk5ODY5MzksImV4cCI6MTc5MDA3MzMzOX0.GFIA_YkBhxBWJvDyIpRMoIPdmN8dTN_gwwu8XL6MqrE
-
 ### login
+# @name login
 POST http://localhost:5000/api/v1.0.0/base/user/login
 Content-Type: application/json
 
@@ -8,6 +7,8 @@ Content-Type: application/json
     "email": "wassom@gmail.com",
     "password": "1234567"
 }
+
+@token = {{login.response.body.token}}
 
 ###
 GET http://localhost:5002/api/v1.0.0/request/payment/expenses/all?pageIndex=1&pageSize=15&tab=validated&amount=0&amountType=greater
@@ -64,7 +65,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 
-### login
+### login (local network)
+# @name loginLocal
 POST http://192.168.1.66:5000/api/v1.0.0/base/user/login
 Content-Type: application/json
 
@@ -72,6 +74,9 @@ Content-Type: application/json
     "email": "wassom@gmail.com",
     "password": "1234567"
 }
+
+###
+@token = {{loginLocal.response.body.data.token}}
 
 ###
 GET http://192.168.1.66:5000/api/v1.0.0/request/object/last5byuser/1
