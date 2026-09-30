@@ -92,3 +92,8 @@ Authorization: Bearer {{token}}
 GET http://192.168.1.66:5000/api/v1.0.0/request/transaction/transfer?pageIndex=0&pageSize=30&tab=COMPLETED
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
+###
+GET https://api.creaconsult-app.com/api/v1.0.0/request/transaction/stats
+Content-Type: application/json
+Authorization: Bearer {{token}}
