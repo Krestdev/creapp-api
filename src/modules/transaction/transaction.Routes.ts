@@ -268,19 +268,6 @@ export default class TransactionRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
-    // getAll
-    this.routes.get("/", requireRole("USER"), (req, res) => {
-      this.trTransactionController
-        .getAll(req.query)
-        // .getAll()
-        .then((request) =>
-          res
-            .status(200)
-            .json({ message: create.success.create, data: request }),
-        )
-        .catch((error) => res.status(400).json({ error: error.message }));
-    });
-
     // getAllStats
     this.routes.get("/stats", requireRole("USER"), (req, res) => {
       this.trTransactionController
@@ -294,7 +281,18 @@ export default class TransactionRoute {
         .catch((error) => res.status(400).json({ error: error.message }));
     });
 
-
+    // getAll
+    this.routes.get("/", requireRole("USER"), (req, res) => {
+      this.trTransactionController
+        .getAll(req.query)
+        // .getAll()
+        .then((request) =>
+          res
+            .status(200)
+            .json({ message: create.success.create, data: request }),
+        )
+        .catch((error) => res.status(400).json({ error: error.message }));
+    });
 
     // getAll
     this.routes.get("/transfer", requireRole("USER"), (req, res) => {
