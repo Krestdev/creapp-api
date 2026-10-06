@@ -1562,6 +1562,12 @@ export class RequestService {
     benef?: number[],
   ) => {
 
+    // if the dueDate is less than the current date, then throw Error
+    const parsedDueDate = new Date(data.dueDate);
+    if (parsedDueDate < new Date()) {
+      throw Error("Due date is in the past");
+    }
+
     const paytype = await prisma.payType.findFirstOrThrow({
       where: {
         type: "cash",

@@ -288,9 +288,6 @@ export default class RequestController {
       proof: null,
     };
 
-    console.log("request Data", reqData)
-    console.log("request", request)
-
     if (proof) {
       request.proof = normalizeFile(proof);
     }
