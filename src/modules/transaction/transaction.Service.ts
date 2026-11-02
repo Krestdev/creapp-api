@@ -205,12 +205,27 @@ export class TransactionService {
     await CacheService.del(`payment:all`);
     // create the bank if the provider bank is an inverstor
 
+    // "Traiter" only opens an approved payment, and only once: claim it from
+    // "validated" atomically so a payment that is unapproved, already being
+    // processed or already paid is refused.
+    const nextStatus = data.status as string;
+    if (!["unsigned", "simple_signed"].includes(nextStatus)) {
+      throw Error("Statut de traitement invalide");
+    }
+    const claimed = await prisma.payment.updateMany({
+      where: { id: Number(paymentId), status: "validated" },
+      data: { status: nextStatus },
+    });
+    if (claimed.count === 0) {
+      throw Error("Ce paiement n'est pas approuvé ou a déjà été traité");
+    }
+
     const payement = await prisma.payment.update({
       where: {
         id: Number(paymentId),
       },
       data: {
-        status: data.status!,
+        status: nextStatus,
         method: methodId
           ? {
             connect: {
@@ -251,6 +266,13 @@ export class TransactionService {
           include: { payement: true },
         },
       },
+    }).catch(async (error) => {
+      // give the payment back to "Traiter" if the transaction could not be created
+      await prisma.payment.update({
+        where: { id: Number(paymentId) },
+        data: { status: "validated" },
+      });
+      throw error;
     });
 
     if (file) {
@@ -519,6 +541,13 @@ export class TransactionService {
       },
     });
 
+    if (!payment.transaction || payment.transactionId !== id) {
+      throw Error("Cette transaction ne correspond pas à ce paiement");
+    }
+    if (payment.status === "paid" || payment.transaction.status === "APPROVED") {
+      throw Error("Ce paiement a déjà été effectué");
+    }
+
     // Cheques and transfer orders already had their funds moved into the temp
     // account when they were signed (see PaymentService.validate) — this step
     // only finalizes the payment/transaction status, it must not move funds again.
@@ -551,15 +580,25 @@ export class TransactionService {
       },
     });
 
-    const [_, transaction] = await prisma.$transaction([
-      prisma.payment.update({
-        where: { id: paymentId },
+    const transaction = await prisma.$transaction(async (tx) => {
+      // Mark the payment paid only from a payable status: a second "Payer"
+      // (double click, stale page, replay) matches nothing and is refused
+      // before any balance moves.
+      const claimed = await tx.payment.updateMany({
+        where: {
+          id: paymentId,
+          status: { in: ["signed", "simple_signed", "pending_depense"] },
+        },
         data: {
           status: "paid",
           proof,
         },
-      }),
-      prisma.transaction.update({
+      });
+      if (claimed.count === 0) {
+        throw Error("Ce paiement n'est pas prêt à être payé ou a déjà été payé");
+      }
+
+      return tx.transaction.update({
         where: { id },
         data: {
           proof,
@@ -591,8 +630,8 @@ export class TransactionService {
           from: true,
           to: true,
         },
-      }),
-    ]);
+      });
+    });
 
     await CacheService.del(`payment:all`);
 
@@ -1101,7 +1140,8 @@ export class TransactionService {
 
   // Get all
   getAllStats = async ({ type, status, bankId, from, to, amountMin, amountMax, search, date }: QueryTransaction) => {
-    const cached = await CacheService.get<Transaction[]>(
+    console.log("All Stats")
+    const cached = await CacheService.get<unknown[]>(
       `${this.CACHE_KEY}:all-stats`,
     );
     if (cached) return cached;
@@ -1171,7 +1211,12 @@ export class TransactionService {
 
     const count = await prisma.transaction.count({ where: FilterObject.where })
 
-    await CacheService.set(`${this.CACHE_KEY}:all-stats`, { transactions: transaction, total: count }, 90);
+    await CacheService.set(`${this.CACHE_KEY}:all-stats`, {
+      creditCount: transaction.filter(x => x.Type === "CREDIT").length,
+      creditAmount: transaction.filter(x => x.Type === "CREDIT").reduce((acc, curr) => acc + curr.amount, 0),
+      debitCount: transaction.filter(x => x.Type === "DEBIT").length,
+      debitAmount: transaction.filter(x => x.Type === "DEBIT").reduce((acc, curr) => acc + curr.amount, 0),
+    }, 90);
 
     return {
       creditCount: transaction.filter(x => x.Type === "CREDIT").length,
