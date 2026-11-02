@@ -267,7 +267,7 @@ export default class RequestController {
     } & {
       benef?: number[];
     },
-  ): Promise<{ request: unknown; payment: Payment }> {
+  ): Promise<{ request: unknown; payment: Payment | null }> {
     // create request, command and payment
     const { proof, benef, ...reqData } = data;
 
@@ -303,7 +303,7 @@ export default class RequestController {
   approvisionementRequest(
     @Body()
     data: RequestModelDto,
-  ): Promise<{ request: unknown; payment: Payment }> {
+  ): Promise<{ request: unknown; payment: Payment | null }> {
     return requestService.approvisionement(data);
   }
 

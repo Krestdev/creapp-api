@@ -1,4 +1,5 @@
 import {
+  Payment,
   PayType,
   Prisma,
   PrismaClient,
@@ -16,6 +17,55 @@ import { CacheService } from "../../utils/redis";
 import { QueryString } from "./request.Controller";
 
 const prisma = new PrismaClient();
+
+// Payments in these states are being processed or are closed: a (re)validation
+// of their request must never put them back to "validated", or they would be
+// paid a second time.
+export const LOCKED_PAYMENT_STATUSES = [
+  "unsigned",
+  "signed",
+  "simple_signed",
+  "paid",
+  "cancelled",
+  "rejected",
+];
+
+// Checks, on the server, that userId may approve this request now: the request
+// is still pending, userId is one of its validators and has not decided yet,
+// and every lower rank has approved. isLast is true when all the other
+// validators have approved (none rejected), i.e. this approval is the final one.
+const checkApprover = async (requestId: number, userId: number) => {
+  const request = await prisma.requestModel.findUniqueOrThrow({
+    where: { id: requestId },
+    include: { validators: true },
+  });
+
+  if (request.state !== "pending") {
+    throw new Error("Ce besoin n'est plus en attente de validation");
+  }
+
+  const validators = request.validators;
+  if (validators.length === 0) {
+    return { request, isLast: true };
+  }
+
+  const me = validators.find((v) => v.userId === userId);
+  if (!me) {
+    throw new Error("Vous n'êtes pas validateur de ce besoin");
+  }
+  if (me.validated) {
+    throw new Error("Vous avez déjà donné votre décision sur ce besoin");
+  }
+
+  const approved = (v: Validators) => v.validated && v.decision !== "rejected";
+  const others = validators.filter((v) => v.id !== me.id);
+
+  if (!others.filter((v) => v.rank < me.rank).every(approved)) {
+    throw new Error("Les validateurs précédents n'ont pas encore approuvé ce besoin");
+  }
+
+  return { request, isLast: others.every(approved) };
+};
 
 export class RequestService {
   CACHE_KEY = "request";
@@ -1132,10 +1182,142 @@ export class RequestService {
     return request;
   };
 
-  validate = async (id: number, userId: number, dueDate?: Date, amount?: number | null, priority?: string, quantity?: number, unit?: string, benFac?: string, paytype?: RequestPayType) => {
-    const requestModel = await prisma.requestModel.findFirstOrThrow({
-      where: { id },
+  createOrUpdatePaymentForValidatedRequest = async (
+    request: RequestModel & { beficiaryList?: { id: number }[] },
+  ) => {
+    if (
+      !["appro", "settle", "taxes", "transport", "gas", "others"].includes(
+        request.type,
+      )
+    ) {
+      return null;
+    }
+
+    // Taxes payments still need the disbursement approver ("Approuver" on the
+    // tickets page) before the treasury can process them.
+    const needsTicketApproval = request.type === "taxes";
+    const initialStatus = needsTicketApproval ? "pending" : "validated";
+
+    const fullRequest =
+      (await prisma.requestModel.findUnique({
+        where: { id: request.id },
+        include: { beficiaryList: true },
+      })) || request;
+
+    const existingPayment = await prisma.payment.findFirst({
+      where: {
+        requestId: request.id,
+      },
     });
+
+    if (existingPayment) {
+      if (LOCKED_PAYMENT_STATUSES.includes(existingPayment.status)) {
+        return existingPayment;
+      }
+      const updated = await prisma.payment.update({
+        where: { id: existingPayment.id },
+        data: {
+          // never undo an approval already given on the tickets page
+          status:
+            existingPayment.status === "validated"
+              ? "validated"
+              : initialStatus,
+          price: request.amount || existingPayment.price,
+          deadline: request.dueDate || existingPayment.deadline,
+          priority: request.priority || existingPayment.priority,
+        },
+      });
+      await CacheService.del(`payment:all`);
+      getIO().emit("payment:update");
+      return updated;
+    }
+
+    // Determine paytype methodId
+    let methodId: number | null = null;
+    const reqPayType = (fullRequest as any).paytype ?? request.paytype ?? "cash";
+    const matchedPayType = await prisma.payType.findFirst({
+      where: {
+        type: reqPayType,
+      },
+    });
+    if (matchedPayType) {
+      methodId = matchedPayType.id;
+    } else {
+      const defaultPayType =
+        (await prisma.payType.findFirst({
+          where: { type: "cash" },
+        })) || (await prisma.payType.findFirst());
+      methodId = defaultPayType?.id ?? null;
+    }
+
+    // Retrieve uploaded proof files for this request if any
+    const proofDocs = await prisma.document.findMany({
+      where: {
+        ownerId: request.id.toString(),
+        role: "PROOF",
+      },
+    });
+    const proof =
+      proofDocs.length > 0
+        ? proofDocs.map((d) => d.path.replace(/\\/g, "/")).join(";")
+        : null;
+
+    // Determine benefId
+    let benefId: number | null = null;
+    const bList = (fullRequest as any).beficiaryList ?? (request as any).beficiaryList;
+    const rawBenef = fullRequest.beneficiary || request.beneficiary;
+    if (bList && bList.length > 0) {
+      benefId = bList[0].id;
+    } else if (
+      rawBenef &&
+      !isNaN(Number(rawBenef)) &&
+      Number(rawBenef) > 0
+    ) {
+      const candidateId = Number(rawBenef);
+      const userExists = await prisma.user.findUnique({
+        where: { id: candidateId },
+      });
+      if (userExists) benefId = candidateId;
+    }
+
+    const payment = await prisma.payment.create({
+      data: {
+        type: request.type,
+        title: request.label,
+        description: request.description || "",
+        deadline: request.dueDate,
+        price: request.amount || 0,
+        status: initialStatus,
+        reference: `PAY-${Date.now()}`,
+        methodId: methodId,
+        requestId: request.id,
+        projectId: request.projectId ? Number(request.projectId) : null,
+        priority: request.priority || "medium",
+        proof: proof,
+        benefId: benefId,
+      },
+    });
+
+    await CacheService.del(`payment:all`);
+    getIO().emit("payment:new");
+    return payment;
+  };
+
+  validate = async (id: number, userId: number, dueDate?: Date, amount?: number | null, priority?: string, quantity?: number, unit?: string, benFac?: string, paytype?: RequestPayType) => {
+    const { request: requestModel, isLast } = await checkApprover(id, userId);
+    if (!isLast) {
+      throw new Error("D'autres validateurs doivent encore approuver ce besoin");
+    }
+
+    // Claim the request atomically: a second (concurrent or replayed) call finds
+    // it no longer pending and stops here.
+    const claimed = await prisma.requestModel.updateMany({
+      where: { id, state: "pending" },
+      data: { state: "validated" },
+    });
+    if (claimed.count === 0) {
+      throw new Error("Ce besoin n'est plus en attente de validation");
+    }
 
     await CacheService.del(`payment:all`);
 
@@ -1143,13 +1325,14 @@ export class RequestService {
       await prisma.payment.updateMany({
         where: {
           requestId: id,
+          status: { notIn: LOCKED_PAYMENT_STATUSES },
         },
         data: {
           status: ["ressource_humaine", "facilitation"].includes(
             requestModel.type,
           )
             ? "accepted"
-            : ["appro", "settle"].includes(requestModel.type)
+            : ["settle"].includes(requestModel.type)
               ? "validated"
               : "pending",
         },
@@ -1196,7 +1379,8 @@ export class RequestService {
 
 
 
-    if (["transport", "taxes", "gas", "others"].includes(request.type)) {
+    await this.createOrUpdatePaymentForValidatedRequest(request);
+    if (false && ["transport", "taxes", "gas", "others"].includes(request.type)) {
       const paytype = await prisma.payType.findFirstOrThrow({
         where: {
           type: request.paytype ?? "cash",
@@ -1317,6 +1501,17 @@ export class RequestService {
       },
     });
 
+    // Check every request before writing anything, so a refused one does not
+    // leave the others half validated.
+    for (const id of ids) {
+      const { isLast } = await checkApprover(id, userId);
+      if (!isLast) {
+        throw new Error(
+          `D'autres validateurs doivent encore approuver le besoin ${id}`,
+        );
+      }
+    }
+
     await CacheService.del(`payment:all`);
 
     if (requestModel) {
@@ -1325,6 +1520,7 @@ export class RequestService {
           requestId: {
             in: ids,
           },
+          status: { notIn: LOCKED_PAYMENT_STATUSES },
         },
         data: {
           status: "pending",
@@ -1336,6 +1532,14 @@ export class RequestService {
 
     const bulk = await Promise.all(
       ids.map(async (id) => {
+        const claimed = await prisma.requestModel.updateMany({
+          where: { id, state: "pending" },
+          data: { state: "validated" },
+        });
+        if (claimed.count === 0) {
+          throw new Error(`Le besoin ${id} n'est plus en attente de validation`);
+        }
+
         const request = await prisma.requestModel.update({
           where: { id },
           data: {
@@ -1349,6 +1553,7 @@ export class RequestService {
           },
         });
         this.createNotification(request);
+        await this.createOrUpdatePaymentForValidatedRequest(request);
         return request;
       }),
     );
@@ -1395,6 +1600,61 @@ export class RequestService {
     return bulk;
   };
 
+  // Records one validator's decision and, when it completes the approval,
+  // validates the request and creates its payment exactly once.
+  private applyReview = async (
+    id: number,
+    userId: number,
+    validated: boolean,
+    comment?: string,
+  ) => {
+    const { request: current } = await checkApprover(id, userId);
+
+    if (current.validators.length > 0) {
+      // Only an undecided validator row can be claimed: a replayed or
+      // concurrent call for the same validator stops here.
+      const claimed = await prisma.validators.updateMany({
+        where: { requestModelId: id, userId, validated: false },
+        data: {
+          validated: true,
+          decision: validated ? "pending" : "rejected",
+          ...(comment !== undefined && { comment }),
+        },
+      });
+      if (claimed.count === 0) {
+        throw new Error("Vous avez déjà donné votre décision sur ce besoin");
+      }
+    }
+
+    // Re-read after storing this decision, so two validators acting at the
+    // same time cannot both miss that the approval is now complete.
+    const validators = await prisma.validators.findMany({
+      where: { requestModelId: id },
+    });
+    const isFinal =
+      validated &&
+      validators.every((v) => v.validated && v.decision !== "rejected");
+
+    const moved = await prisma.requestModel.updateMany({
+      where: { id, state: "pending" },
+      data: { state: !validated ? "rejected" : isFinal ? "validated" : "pending" },
+    });
+
+    if (isFinal && moved.count > 0) {
+      await prisma.validators.updateMany({
+        where: { requestModelId: id, userId },
+        data: { decision: "validated" },
+      });
+      const request = await prisma.requestModel.findUniqueOrThrow({
+        where: { id },
+      });
+      await this.createOrUpdatePaymentForValidatedRequest(request);
+      return request;
+    }
+
+    return prisma.requestModel.findUniqueOrThrow({ where: { id } });
+  };
+
   review = async (
     id: number,
     data: { userId: number; validated: boolean; decision?: string },
@@ -1408,24 +1668,12 @@ export class RequestService {
     });
     if (!manager) throw Error("MANAGER Role not created");
 
-    const request = await prisma.requestModel.update({
-      where: { id },
-      data: {
-        state: data.validated ? "pending" : "rejected",
-        validators: {
-          updateMany: {
-            where: { userId: userIdV },
-            data: {
-              validated: true,
-              decision: data.validated
-                ? "pending"
-                : "rejected",
-              comment: data.decision ?? '',
-            },
-          },
-        },
-      },
-    });
+    const request = await this.applyReview(
+      id,
+      userIdV,
+      data.validated,
+      data.decision ?? "",
+    );
 
     const user = await prisma.user.findFirst({
       where: {
@@ -1476,23 +1724,14 @@ export class RequestService {
     data: { validatorId: number; validated: boolean; decision?: string },
     userId: number,
   ) => {
+    // Refuse the whole batch before writing if any request is not ours to decide.
+    for (const id of ids) {
+      await checkApprover(id, userId);
+    }
+
     const request = await Promise.all(
       ids.map(async (id) => {
-        const request = await prisma.requestModel.update({
-          where: { id },
-          data: {
-            state: data.validated ? "pending" : "rejected",
-            validators: {
-              updateMany: {
-                where: { userId: userId },
-                data: {
-                  validated: true,
-                  decision: data.validated ? "pending" : "rejected",
-                },
-              },
-            },
-          },
-        });
+        const request = await this.applyReview(id, userId, data.validated);
 
         if (!data.validated) {
           this.createNotification(request);
@@ -1592,6 +1831,7 @@ export class RequestService {
     const request = await prisma.requestModel.create({
       data: {
         ...requestData,
+        ...(data.paytype && { paytype: data.paytype as RequestPayType }),
         period: requestData.period
           ? JSON.parse(requestData.period as unknown as string)
           : null,
@@ -1633,29 +1873,32 @@ export class RequestService {
 
     await CacheService.del(`payment:all`);
 
-    const refpay = "PAY-" + new Date().getTime();
-    const payment = await prisma.payment.create({
-      data: {
-        title: request.label,
-        reference: refpay,
-        requestId: request.id,
-        description: request.description ?? "",
-        projectId: request.projectId ? Number(request.projectId) : null,
-        status:
-          data.type == "speciaux"
-            ? "validated"
-            : ["facilitation", "ressource_humaine", "settle"].includes(
-              data.type,
-            )
-              ? "ghost"
-              : "pending",
-        type: type,
-        methodId: paytype.id,
-        priority: "medium",
-        price: data.amount!,
-        proof: proof,
-      },
-    });
+    let payment: Payment | null = null;
+    if (!["appro", "settle", "taxes"].includes(data.type)) {
+      const refpay = "PAY-" + new Date().getTime();
+      payment = await prisma.payment.create({
+        data: {
+          title: request.label,
+          reference: refpay,
+          requestId: request.id,
+          description: request.description ?? "",
+          projectId: request.projectId ? Number(request.projectId) : null,
+          status:
+            data.type == "speciaux"
+              ? "validated"
+              : ["facilitation", "ressource_humaine"].includes(
+                data.type,
+              )
+                ? "ghost"
+                : "pending",
+          type: type,
+          methodId: paytype.id,
+          priority: "medium",
+          price: data.amount!,
+          proof: proof,
+        },
+      });
+    }
 
     if (file) {
       await storeDocumentsBulk(file, {
@@ -1709,6 +1952,7 @@ export class RequestService {
     const request = await prisma.requestModel.create({
       data: {
         ...requestData,
+        ...(data.paytype && { paytype: data.paytype as RequestPayType }),
         period: requestData.period
           ? JSON.parse(requestData.period as unknown as string)
           : null,
@@ -1740,32 +1984,10 @@ export class RequestService {
     });
 
     await CacheService.del(`payment:all`);
-
-    const refpay = "ref-" + new Date().getTime();
-    const payment = await prisma.payment.create({
-      data: {
-        title: request.label,
-        reference: refpay,
-        requestId: request.id,
-        description: request.description ?? "",
-        projectId: request.projectId ? Number(request.projectId) : null,
-        status: ["speciaux"].includes(data.type)
-          ? "validated"
-          : ["facilitation", "ressource_humaine", "appro"].includes(data.type)
-            ? "ghost"
-            : // ? "accepted"
-            "pending",
-        type: data.type,
-        methodId: paytype.id,
-        priority: "medium",
-        price: data.amount!,
-      },
-    });
-
     await CacheService.del(`${this.CACHE_KEY}:all`);
     await CacheService.del(`${this.CACHE_KEY}:mine`);
     getIO().emit("request:new");
-    return { request: request, payment: payment };
+    return { request: request, payment: null };
   };
 
   specialRequestUpdate = async (
@@ -1838,6 +2060,7 @@ export class RequestService {
       },
       data: {
         ...requestData,
+        ...(data.paytype && { paytype: data.paytype as RequestPayType }),
         period: requestData.period
           ? JSON.parse(requestData.period as unknown as string)
           : null,
